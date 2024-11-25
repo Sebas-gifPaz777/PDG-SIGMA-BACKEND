@@ -9,8 +9,7 @@ import lombok.*;
 public class Professor {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, columnDefinition = "varchar(255)")
     private String id;
 
     @Column(name = "name", nullable = false, columnDefinition = "varchar(100)")
