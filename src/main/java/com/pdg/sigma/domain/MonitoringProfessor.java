@@ -5,6 +5,7 @@ import lombok.*;
 
 @Data
 @Entity
+@NoArgsConstructor
 @Table(name = "monitoring_professor")
 public class MonitoringProfessor {
 
@@ -14,10 +15,15 @@ public class MonitoringProfessor {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "monitoring", nullable = false)
+    @JoinColumn(name = "monitoring_id", nullable = false)
     private Monitoring monitoring;
 
     @ManyToOne
-    @JoinColumn(name = "professor", nullable = false)
+    @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+
+    public MonitoringProfessor(Monitoring monitoring, Professor professor){
+        this.monitoring = monitoring;
+        this.professor =  professor;
+    }
 }

@@ -1,14 +1,8 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.domain.Course;
-import com.pdg.sigma.domain.Monitoring;
-import com.pdg.sigma.domain.Program;
-import com.pdg.sigma.domain.School;
+import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.MonitoringDTO;
-import com.pdg.sigma.repository.CourseRepository;
-import com.pdg.sigma.repository.MonitoringRepository;
-import com.pdg.sigma.repository.ProgramRepository;
-import com.pdg.sigma.repository.SchoolRepository;
+import com.pdg.sigma.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +24,11 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private ProgramRepository programRepository;
 
+    @Autowired
+    private ProfessorRepository professorRepository;
+
+    @Autowired
+    private MonitoringProfessorRepository monitoringProfessorRepository;
 
     @Override
     public List<Monitoring> findAll() {
@@ -51,13 +50,22 @@ public class MonitoringServiceImpl implements MonitoringService{
         Program program = programRepository.findByName(entity.getProgramName());
         School school = schoolRepository.findByName(entity.getSchoolName());
         Course course = courseRepository.findByName(entity.getCourseName());
-
+        Monitoring newMonitoring = null;
+        Optional<Professor> professor = null;
         if(program.getName().equals(entity.getProgramName()))
             if(school.getName().equals(entity.getSchoolName()))
                 if(course.getName().equals(entity.getCourseName()))
                     if(monitoringRepository.findByCourse(course).isEmpty()){
-                        return monitoringRepository.save(new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), entity.getAverageGrade(), entity.getCourseGrade()));
 
+                        newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), entity.getAverageGrade(), entity.getCourseGrade());
+                        monitoringRepository.save(newMonitoring);
+                        professor = professorRepository.findById(entity.getProfessorId());
+                        if(professor.isPresent())
+                            monitoringProfessorRepository.save(new MonitoringProfessor(newMonitoring,professor.get()));
+                        else
+                            throw new Exception("El profesor no está registrado con esta Id");
+
+                        return monitoringRepository.findByCourse(course).get();
                     }
                     else
                         throw new Exception("Ya existe una monitoria para esta materia");
