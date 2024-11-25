@@ -43,4 +43,18 @@ public class Monitoring implements Serializable {
     @Column(name = "course_grade", nullable = true)
     private double courseGrade;
 
+    public Monitoring(School school, Program program, Course course,
+                      Date start, Date finish, double averageGrade, double courseGrade) {
+        this.school = school;
+        this.program = program;
+        this.course = course;
+        this.start = start;
+        this.finish = finish;
+        this.averageGrade = averageGrade;
+        this.courseGrade = courseGrade;
+    }
+
+    public Monitoring() {
+
+    }
 }
