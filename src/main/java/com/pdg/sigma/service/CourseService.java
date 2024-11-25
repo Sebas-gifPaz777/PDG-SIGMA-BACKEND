@@ -1,7 +1,6 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.domain.Candidature;
-import com.pdg.sigma.domain.Course;
+import com.pdg.sigma.dto.CourseDTO;
 
-public interface CourseService extends GenericService<Course, Long>{
+public interface CourseService extends GenericService<CourseDTO, Long>{
 }

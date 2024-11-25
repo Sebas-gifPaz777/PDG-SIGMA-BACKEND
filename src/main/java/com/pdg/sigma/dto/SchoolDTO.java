@@ -4,8 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Data;
 
-public class SchoolDTO {
+import java.io.Serializable;
+@Data
+public class SchoolDTO implements Serializable {
     private Long id;
     private String name;
 

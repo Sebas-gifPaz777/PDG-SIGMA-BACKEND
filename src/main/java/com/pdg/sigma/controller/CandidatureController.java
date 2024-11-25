@@ -13,6 +13,6 @@ public class CandidatureController {
 
     @RequestMapping(value= "/create", method =RequestMethod.POST)
     public ResponseEntity<?>createCandiduture(@RequestBody Candidature newCandidture){
-
+        return ResponseEntity.ok("OK");
     }
 }
