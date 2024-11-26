@@ -25,7 +25,8 @@ public class MonitoringDTO  implements Serializable {
     private double averageGrade;
     private double courseGrade;
     private String  professorId;
-    public MonitoringDTO(Long id, Program program, Course course, School school, String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId) {
+    private String semester;
+    public MonitoringDTO(Long id, Program program, Course course, School school, String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId, String semester) {
         this.id = id;
         this.program = program;
         this.course = course;
@@ -35,9 +36,10 @@ public class MonitoringDTO  implements Serializable {
         this.schoolName = schoolName;
         this.start = start;
         this.finish = finish;
-        this.averageGrade = averageGrade;
-        this.courseGrade = courseGrade;
+        this.averageGrade = 4.5;
+        this.courseGrade = 4.5;
         this.professorId = professorId;
+        this.semester = semester;
     }
 
     public MonitoringDTO(Long id, Program program, Course course, School school, Date start, Date finish, double averageGrade, double courseGrade){
@@ -47,8 +49,8 @@ public class MonitoringDTO  implements Serializable {
         this.school = school;
         this.start = start;
         this.finish = finish;
-        this.averageGrade = averageGrade;
-        this.courseGrade = courseGrade;
+        this.averageGrade = 4.5;
+        this.courseGrade = 4.5;
     }
 
     public MonitoringDTO(Long id, Course course, School school,Date start, Date finish, double averageGrade, double courseGrade){
@@ -57,8 +59,8 @@ public class MonitoringDTO  implements Serializable {
         this.school = school;
         this.start = start;
         this.finish = finish;
-        this.averageGrade = averageGrade;
-        this.courseGrade = courseGrade;
+        this.averageGrade = 4.5;
+        this.courseGrade = 4.5;
     }
 
     public MonitoringDTO(String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId ){
@@ -67,9 +69,21 @@ public class MonitoringDTO  implements Serializable {
         this.schoolName = schoolName;
         this.start = start;
         this.finish = finish;
-        this.averageGrade = averageGrade;
-        this.courseGrade = courseGrade;
+        this.averageGrade = 4.5;
+        this.courseGrade = 4.5;
         this.professorId = professorId;
+    }
+
+    public MonitoringDTO(String programName, String courseName, String schoolName, Date start, Date finish, String professorId, String semester ){
+        this.programName = programName;
+        this.courseName = courseName;
+        this.schoolName = schoolName;
+        this.start = start;
+        this.finish = finish;
+        this.averageGrade = 4.5;
+        this.courseGrade = 4.5;
+        this.professorId = professorId;
+        this.semester = semester;
     }
 
 }
