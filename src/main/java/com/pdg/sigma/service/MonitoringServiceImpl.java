@@ -57,7 +57,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                 if(course.getName().equals(entity.getCourseName()))
                     if(monitoringRepository.findByCourse(course).isEmpty()){
 
-                        newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), entity.getAverageGrade(), entity.getCourseGrade());
+                        newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), 4.5, 4.5, entity.getSemester());
                         monitoringRepository.save(newMonitoring);
                         professor = professorRepository.findById(entity.getProfessorId());
                         if(professor.isPresent())

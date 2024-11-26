@@ -43,8 +43,11 @@ public class Monitoring implements Serializable {
     @Column(name = "course_grade", nullable = true)
     private double courseGrade;
 
+    @Column(name = "semester", nullable = false)
+    private String semester;
+
     public Monitoring(School school, Program program, Course course,
-                      Date start, Date finish, double averageGrade, double courseGrade) {
+                      Date start, Date finish, double averageGrade, double courseGrade, String semester) {
         this.school = school;
         this.program = program;
         this.course = course;
@@ -52,6 +55,7 @@ public class Monitoring implements Serializable {
         this.finish = finish;
         this.averageGrade = averageGrade;
         this.courseGrade = courseGrade;
+        this.semester = semester;
     }
 
     public Monitoring() {
