@@ -79,45 +79,84 @@ public class MonitoringServiceImpl implements MonitoringService{
             throw new Exception("No existe una facultad con este nombre");
     }
     public List<Monitoring> findBySchool(MonitoringDTO monitoringDTO){ //programName = nombre elemento a buscar, courseName = state o estado
-        School entity = schoolRepository.findByName(monitoringDTO.getProgramName());
-        List<Monitoring> monitoring = monitoringRepository.findBySchool(entity);
-        Date currentDate = new Date();
-        if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
+        if(!monitoringDTO.getProgramName().isBlank()){
+            School entity = schoolRepository.findByName(monitoringDTO.getProgramName());
+            List<Monitoring> monitoring = monitoringRepository.findBySchool(entity);
+            Date currentDate = new Date();
+            if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
+                List<Monitoring> temp = new ArrayList<>();
+                for(Monitoring element: monitoring){
+                    if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                        temp.add(element);
+                    }
+                }
+                return temp;
+
+
+
+            }
+            else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
+                List<Monitoring> temp = new ArrayList<>();
+                for(Monitoring element: monitoring){
+                    if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                        temp.add(element);
+                    }
+                }
+                return temp;
+            }
+
+
+
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring){
-                if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
                     temp.add(element);
                 }
             }
             return temp;
 
+        }else{
+            List<Monitoring> monitoring = this.findAll();
+            Date currentDate = new Date();
+            if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
+                List<Monitoring> temp = new ArrayList<>();
+                for(Monitoring element: monitoring){
+                    if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                        temp.add(element);
+                    }
+                }
+                return temp;
 
 
-        }
-        else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
+
+            }
+            else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
+                List<Monitoring> temp = new ArrayList<>();
+                for(Monitoring element: monitoring){
+                    if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                        temp.add(element);
+                    }
+                }
+                return temp;
+            }
+
+
+
             List<Monitoring> temp = new ArrayList<>();
             for(Monitoring element: monitoring){
-                if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
                     temp.add(element);
                 }
             }
             return temp;
         }
 
-
-
-        List<Monitoring> temp = new ArrayList<>();
-        for(Monitoring element: monitoring){
-            if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
-                temp.add(element);
-            }
-        }
-        return temp;
     }
 
     public List<Monitoring> findByProgram(MonitoringDTO monitoringDTO) {//programName = nombre elemento a buscar, courseName = state o estado
         Program entity = programRepository.findByName(monitoringDTO.getProgramName());
         List<Monitoring> monitoring = monitoringRepository.findByProgram(entity);
+
         Date currentDate = new Date();
         if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
             List<Monitoring> temp = new ArrayList<>();

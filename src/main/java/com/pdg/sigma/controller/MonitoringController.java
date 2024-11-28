@@ -50,6 +50,7 @@ public class MonitoringController {
     @RequestMapping(value= "/findByFaculty", method = RequestMethod.POST)
     public ResponseEntity<?> getAllMonitoringPerSchool(@RequestBody MonitoringDTO monitoringDTO){
         try{
+            System.out.println(monitoringDTO);
             List<Monitoring> listMonitoring = monitoringService.findBySchool(monitoringDTO);
             if(!listMonitoring.isEmpty()){
                 return ResponseEntity.status(200).body(listMonitoring);
