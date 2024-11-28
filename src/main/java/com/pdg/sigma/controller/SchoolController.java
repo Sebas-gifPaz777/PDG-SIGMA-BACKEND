@@ -23,4 +23,6 @@ public class SchoolController {
         }
         return ResponseEntity.status(400).body("No se encontraron facultades");
     }
+
+
 }
