@@ -6,6 +6,8 @@ import com.pdg.sigma.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,7 +78,106 @@ public class MonitoringServiceImpl implements MonitoringService{
         else
             throw new Exception("No existe una facultad con este nombre");
     }
+    public List<Monitoring> findBySchool(MonitoringDTO monitoringDTO){ //programName = nombre elemento a buscar, courseName = state o estado
+        School entity = schoolRepository.findByName(monitoringDTO.getProgramName());
+        List<Monitoring> monitoring = monitoringRepository.findBySchool(entity);
+        Date currentDate = new Date();
+        if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
+            List<Monitoring> temp = new ArrayList<>();
+            for(Monitoring element: monitoring){
+                if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                    temp.add(element);
+                }
+            }
+            return temp;
 
+
+
+        }
+        else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
+            List<Monitoring> temp = new ArrayList<>();
+            for(Monitoring element: monitoring){
+                if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                    temp.add(element);
+                }
+            }
+            return temp;
+        }
+
+
+
+        List<Monitoring> temp = new ArrayList<>();
+        for(Monitoring element: monitoring){
+            if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
+                temp.add(element);
+            }
+        }
+        return temp;
+    }
+
+    public List<Monitoring> findByProgram(MonitoringDTO monitoringDTO) {//programName = nombre elemento a buscar, courseName = state o estado
+        Program entity = programRepository.findByName(monitoringDTO.getProgramName());
+        List<Monitoring> monitoring = monitoringRepository.findByProgram(entity);
+        Date currentDate = new Date();
+        if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
+            List<Monitoring> temp = new ArrayList<>();
+            for(Monitoring element: monitoring){
+                if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                    temp.add(element);
+                }
+            }
+            return temp;
+        }
+        else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
+            List<Monitoring> temp = new ArrayList<>();
+            for(Monitoring element: monitoring){
+                if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                    temp.add(element);
+                }
+            }
+            return temp;
+        }
+
+        List<Monitoring> temp = new ArrayList<>();
+        for(Monitoring element: monitoring){
+            if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
+                temp.add(element);
+            }
+        }
+        return temp;
+    }
+
+    public List<Monitoring> findByCourse(MonitoringDTO monitoringDTO) {//programName = nombre elemento a buscar, courseName = state o estado
+        Course entity = courseRepository.findByName(monitoringDTO.getProgramName());
+        Optional<Monitoring> monitoring = monitoringRepository.findByCourse(entity);
+        Date currentDate = new Date();
+        if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
+            List<Monitoring> temp = new ArrayList<>();
+            for(Monitoring element: monitoring.stream().toList()){
+                if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                    temp.add(element);
+                }
+            }
+            return temp;
+        }
+        else if(monitoringDTO.getCourseName().equalsIgnoreCase("Inactivo")){
+            List<Monitoring> temp = new ArrayList<>();
+            for(Monitoring element: monitoring.stream().toList()){
+                if(element.getStart().after(currentDate) && element.getFinish().after(currentDate)){
+                    temp.add(element);
+                }
+            }
+            return temp;
+        }
+
+        List<Monitoring> temp = new ArrayList<>();
+        for(Monitoring element: monitoring.stream().toList()){
+            if(element.getStart().before(currentDate) && element.getFinish().before(currentDate)){
+                temp.add(element);
+            }
+        }
+        return temp;
+    }
     @Override
     public Monitoring update(Monitoring entity) throws Exception {
         return null;
@@ -101,4 +202,6 @@ public class MonitoringServiceImpl implements MonitoringService{
     public Long count() {
         return null;
     }
+
+
 }
