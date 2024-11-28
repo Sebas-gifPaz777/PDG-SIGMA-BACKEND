@@ -46,4 +46,51 @@ public class MonitoringController {
         }
 
     }
+
+    @RequestMapping(value= "/findByFaculty", method = RequestMethod.POST)
+    public ResponseEntity<?> getAllMonitoringPerSchool(@RequestBody MonitoringDTO monitoringDTO){
+        try{
+            System.out.println(monitoringDTO);
+            List<Monitoring> listMonitoring = monitoringService.findBySchool(monitoringDTO);
+            if(!listMonitoring.isEmpty()){
+                return ResponseEntity.status(200).body(listMonitoring);
+            }
+
+            return ResponseEntity.status(400).body("No hay monitorias en la lista");
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/findByProgram", method = RequestMethod.POST)
+    public ResponseEntity<?> getAllMonitoringPerProgram(@RequestBody MonitoringDTO monitoringDTO){
+        try{
+            List<Monitoring> listMonitoring = monitoringService.findByProgram(monitoringDTO);
+            if(!listMonitoring.isEmpty()){
+                return ResponseEntity.status(200).body(listMonitoring);
+            }
+
+            return ResponseEntity.status(400).body("No hay monitorias en la lista");
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/findByCourse", method = RequestMethod.POST)
+    public ResponseEntity<?> getAllMonitoringPerCourse(@RequestBody MonitoringDTO monitoringDTO){
+        try{
+            List<Monitoring> listMonitoring = monitoringService.findByCourse(monitoringDTO);
+            if(!listMonitoring.isEmpty()){
+                return ResponseEntity.status(200).body(listMonitoring);
+            }
+
+            return ResponseEntity.status(400).body("No hay monitorias en la lista");
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
 }

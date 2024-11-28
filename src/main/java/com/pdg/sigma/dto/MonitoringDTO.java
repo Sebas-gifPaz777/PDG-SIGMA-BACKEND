@@ -85,5 +85,9 @@ public class MonitoringDTO  implements Serializable {
         this.professorId = professorId;
         this.semester = semester;
     }
+    public MonitoringDTO(String programName, String courseName){
+        this.programName = programName;
+        this.courseName = courseName;
+    }
 
 }
