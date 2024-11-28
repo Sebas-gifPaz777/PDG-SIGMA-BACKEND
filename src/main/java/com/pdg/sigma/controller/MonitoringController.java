@@ -1,12 +1,18 @@
 package com.pdg.sigma.controller;
 
-import com.pdg.sigma.domain.Candidature;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.dto.MonitoringDTO;
 import com.pdg.sigma.service.MonitoringServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/monitoring")
@@ -26,6 +32,21 @@ public class MonitoringController {
             return ResponseEntity.status(400).body("No se pudo crear la monitoria");
         }catch (Exception e){
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/getA", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllMonitoring(){
+        try{
+            List<Monitoring> listMonitoring = monitoringService.findAll();
+            if(!listMonitoring.isEmpty()){
+                return ResponseEntity.status(200).body(listMonitoring);
+            }
+
+            return ResponseEntity.status(400).body("No hay monitorias en la lista");
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
         }
 
     }

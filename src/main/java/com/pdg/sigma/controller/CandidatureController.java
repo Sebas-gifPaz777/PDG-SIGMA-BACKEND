@@ -1,12 +1,18 @@
 package com.pdg.sigma.controller;
 
-import com.pdg.sigma.domain.Candidature;
-import com.pdg.sigma.dto.CandidatureDTO;
-import com.pdg.sigma.service.CandidatureService;
-import com.pdg.sigma.service.CandidatureServiceImpl;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.pdg.sigma.domain.Candidature;
+import com.pdg.sigma.dto.CandidatureDTO;
+import com.pdg.sigma.service.CandidatureServiceImpl;
 
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -24,6 +30,21 @@ public class CandidatureController {
             return ResponseEntity.status(200).body("Created Candidature");
         }catch(Exception e){
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/getA", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllCandidature(){
+        try{
+            List<Candidature> listCandidature = candidatureService.findAll();
+            if(!listCandidature.isEmpty()){
+                return ResponseEntity.status(200).body(listCandidature);
+            }
+
+            return ResponseEntity.status(400).body("No hay postulantes en la lista");
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
         }
 
     }
