@@ -17,7 +17,7 @@ public class ProgramController {
 
     @RequestMapping(value= "/getProgramsSchool", method = RequestMethod.POST)
     public ResponseEntity<?> getProgramsPerSchool(@RequestBody ProgramDTO program){
-
+        System.out.println(program);
         List<ProgramDTO> list = programService.findBySchoolName(program);
         return ResponseEntity.status(200).body(list);
     }
