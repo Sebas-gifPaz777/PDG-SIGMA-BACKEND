@@ -1,5 +1,11 @@
 package com.pdg.sigma.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.pdg.sigma.domain.Candidature;
 import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.domain.Student;
@@ -7,11 +13,6 @@ import com.pdg.sigma.dto.CandidatureDTO;
 import com.pdg.sigma.repository.CandidatureRepository;
 import com.pdg.sigma.repository.MonitoringRepository;
 import com.pdg.sigma.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CandidatureServiceImpl implements CandidatureService{
@@ -32,7 +33,8 @@ public class CandidatureServiceImpl implements CandidatureService{
 
     @Override
     public Optional<Candidature> findById(String s) {
-        return Optional.empty();
+        Optional<Candidature> posible = candidatureRepository.findById(s);
+        return posible;
     }
 
     @Override
@@ -63,14 +65,24 @@ public class CandidatureServiceImpl implements CandidatureService{
     public Candidature update(Candidature entity) throws Exception {
         return null;
     }
+    
 
     @Override
     public void delete(Candidature entity) throws Exception {
-
+        
     }
 
     @Override
-    public void deleteById(String s) throws Exception {
+    public void deleteById(String id) throws Exception {
+        if (id == null || id.isEmpty()) {
+            throw new Exception("ID cannot be null or empty");
+        }
+    
+        try {
+            candidatureRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new Exception("Candidature not found or error while deleting", e);
+        }
 
     }
 
