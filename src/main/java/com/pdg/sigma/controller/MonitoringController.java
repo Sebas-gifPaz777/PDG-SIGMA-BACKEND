@@ -1,6 +1,5 @@
 package com.pdg.sigma.controller;
 
-import com.pdg.sigma.domain.Candidature;
 import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.dto.MonitoringDTO;
 import com.pdg.sigma.service.MonitoringServiceImpl;

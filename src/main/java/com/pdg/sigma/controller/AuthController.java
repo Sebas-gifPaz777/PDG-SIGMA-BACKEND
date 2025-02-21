@@ -1,6 +1,5 @@
 package com.pdg.sigma.controller;
 
-import com.pdg.sigma.domain.Candidature;
 import com.pdg.sigma.dto.AuthDTO;
 import com.pdg.sigma.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;

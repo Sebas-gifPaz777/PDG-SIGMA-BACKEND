@@ -1,10 +1,10 @@
 package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.Professor;
-import com.pdg.sigma.domain.Student;
+import com.pdg.sigma.domain.Prospect;
 import com.pdg.sigma.dto.AuthDTO;
 import com.pdg.sigma.repository.ProfessorRepository;
-import com.pdg.sigma.repository.StudentRepository;
+import com.pdg.sigma.repository.ProspectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +14,12 @@ import java.util.Optional;
 public class AuthService {
 
     @Autowired
-    private StudentRepository studentRepository;
+    private ProspectRepository prospectRepository;
 
     @Autowired
     private ProfessorRepository professorRepository;
     public AuthDTO loginUser(AuthDTO auth) throws Exception{
-        Optional<Student> student = studentRepository.findById(auth.getUserId());
+        Optional<Prospect> student = prospectRepository.findById(auth.getUserId());
         Optional<Professor> professor = professorRepository.findById(auth.getUserId());
 
         if(student.isPresent()){
