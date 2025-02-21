@@ -5,9 +5,8 @@ import lombok.*;
 
 @Data
 @Entity
-@NoArgsConstructor
-@Table(name = "monitoring_professor")
-public class MonitoringProfessor {
+@Table(name = "monitoring_monitor")
+public class MonitoringMonitor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,11 +18,11 @@ public class MonitoringProfessor {
     private Monitoring monitoring;
 
     @ManyToOne
-    @JoinColumn(name = "professor_id", nullable = false)
-    private Professor professor;
+    @JoinColumn(name = "monitor_id", nullable = false)
+    private Monitor monitor;
 
-    public MonitoringProfessor(Monitoring monitoring, Professor professor){
-        this.monitoring = monitoring;
-        this.professor =  professor;
+    public MonitoringMonitor(Monitoring monitoring,Monitor monitor){
+        this.monitoring =  monitoring;
+        this.monitor = monitor;
     }
 }
