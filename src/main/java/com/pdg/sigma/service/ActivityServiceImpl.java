@@ -31,7 +31,16 @@ public class ActivityServiceImpl implements ActivityService{
 
     @Override
     public List<ActivityDTO> findAll() {
-        return null;
+        List<Activity> list = activityRepository.findAll();
+        List<ActivityDTO> newList = new ArrayList<>();
+
+        for (Activity activity : list) {
+            newList.add(new ActivityDTO(activity
+            ));
+        }
+
+        return newList;
+
     }
 
     @Override

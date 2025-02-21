@@ -28,7 +28,7 @@ public class Activity {
     private String name;
 
     @Column(name = "creation_date", nullable = false)
-    private Date creaction;
+    private Date creation;
 
     @Column(name = "finish_date", nullable = false)
     private Date finish;
@@ -39,7 +39,7 @@ public class Activity {
     @Column(name = "role_responsable", nullable = false, columnDefinition = "char(1)")
     private String roleResponsable;
 
-    @Column(name = "category", nullable = false, columnDefinition = "varchar(30)")
+    @Column(name = "category", nullable = true, columnDefinition = "varchar(30)")
     private String category;
 
     @Column(name = "description", nullable = false, columnDefinition = "varchar(255)")
@@ -60,4 +60,5 @@ public class Activity {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, columnDefinition = "state_activity")
     private StateActivity state;
+
 }

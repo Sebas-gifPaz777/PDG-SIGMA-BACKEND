@@ -32,7 +32,7 @@ public class ActivityDTO {
     public ActivityDTO(Activity activity){
         this.id= activity.getId();
         this.name= activity.getName();
-        this.creaction = activity.getCreaction();
+        this.creaction = activity.getCreation();
         this.finish = activity.getFinish();
         this.roleCreator = activity.getRoleCreator();
         this.roleResponsable = activity.getRoleResponsable();

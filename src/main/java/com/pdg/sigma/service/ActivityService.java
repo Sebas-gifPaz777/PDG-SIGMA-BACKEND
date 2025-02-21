@@ -10,3 +10,5 @@ public interface ActivityService extends GenericService<ActivityDTO,Integer>{
 
     public List<ActivityDTO> findAll(String userId) throws Exception;
 }
+
+
