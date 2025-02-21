@@ -19,10 +19,10 @@ public class ActivityController {
     @Autowired
     private ActivityService activityService;
 
-    @RequestMapping(value= "/findAll/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId){
+    @RequestMapping(value= "/findAll/{userId}/{role}", method = RequestMethod.GET)
+    public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role){
         try{
-            List<ActivityDTO> list = activityService.findAll(userId);
+            List<ActivityDTO> list = activityService.findAll(userId, role);
 
             return ResponseEntity.status(200).body(list);
 

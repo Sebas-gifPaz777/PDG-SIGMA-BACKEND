@@ -19,7 +19,7 @@ public class Activity {
     private String name;
 
     @Column(name = "creation_date", nullable = false)
-    private Date creaction;
+    private Date creation;
 
     @Column(name = "finish_date", nullable = false)
     private Date finish;
@@ -51,4 +51,13 @@ public class Activity {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, columnDefinition = "state_activity")
     private StateActivity state;
+
+    @Column(name = "semester", columnDefinition = "varchar(8)")
+    private String semester;
+
+    @Column(name = "delivey_date")
+    private Date delivey;
+
+    @Column(name = "edited_date")
+    private Date edited;
 }

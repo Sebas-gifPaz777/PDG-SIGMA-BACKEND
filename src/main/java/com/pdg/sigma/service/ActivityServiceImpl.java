@@ -70,12 +70,12 @@ public class ActivityServiceImpl implements ActivityService{
     }
 
     @Override
-    public List<ActivityDTO> findAll(String userId) throws Exception {
-        Optional<Monitor>monitor = monitorRepository.findByCode(prospectRepository.findById(userId).get().getCode());
+    public List<ActivityDTO> findAll(String userId, String role) throws Exception {
         List<Activity> created;
         List<Activity> assigned;
         List<ActivityDTO> list = new ArrayList<>();
-        if(monitor.isPresent()){ //Se devuelve toda la información junto con quien la creó y a quíen está asignado(solo nombres), permisos sobre este, puede editar o no
+        if(!role.equalsIgnoreCase("professor")){ //Se devuelve toda la información junto con quien la creó y a quíen está asignado(solo nombres), permisos sobre este, puede editar o no
+            Optional<Monitor>monitor = monitorRepository.findByCode(prospectRepository.findById(userId).get().getCode());
             created = activityRepository.findByMonitorAndRoleCreator(monitor.get(), "M");
             assigned = activityRepository.findByMonitorAndRoleResponsable(monitor.get(), "M");
             if(!created.isEmpty() || !assigned.isEmpty()) {
@@ -86,9 +86,9 @@ public class ActivityServiceImpl implements ActivityService{
                         if (activity.getRoleResponsable().equals("P"))
                             activity.setResponsableName(activity.getProfessor().getName());
                         else
-                            activity.setResponsableName(activity.getMonitor().getName());
+                            activity.setResponsableName(monitor.get().getName()+" "+monitor.get().getLastName());
 
-                        activity.setCreatorName(monitor.get().getName());
+                        activity.setCreatorName(monitor.get().getName()+" "+monitor.get().getLastName());
                         list.add(activity);
                     }
                 }
@@ -104,19 +104,20 @@ public class ActivityServiceImpl implements ActivityService{
                     for (Activity activityRaw : assigned) {
                         ActivityDTO activity = new ActivityDTO(activityRaw);
                         activity.setType("A");
-                        activity.setResponsableName(monitor.get().getName());
+                        activity.setResponsableName(monitor.get().getName()+" "+monitor.get().getLastName());
                         activity.setCreatorName(activity.getProfessor().getName());
                         list.add(activity);
                     }
 
                 }
-                Map<StateActivity, Integer> priorityMap = Map.of(
-                        StateActivity.PENDIENTE, 1,
-                        StateActivity.COMPLETADO, 2,
-                        StateActivity.COMPLETADOT, 3
-
-                );
                 list.sort(Comparator.comparing(ActivityDTO::getState).thenComparing(ActivityDTO::getFinish));
+
+                for(ActivityDTO activityDTO:list){
+                    activityDTO.setCourse(activityDTO.getMonitoring().getCourse().getName());
+                    activityDTO.setMonitor(null);
+                    activityDTO.setMonitoring(null);
+                    activityDTO.setProfessor(null);
+                }
 
                 return list;
             }
@@ -134,7 +135,7 @@ public class ActivityServiceImpl implements ActivityService{
                         ActivityDTO activity = new ActivityDTO(activityRaw);
                         activity.setType("C");
                         if (activity.getRoleResponsable().equals("M"))
-                            activity.setResponsableName(activity.getMonitor().getName());
+                            activity.setResponsableName(activity.getMonitor().getName()+" "+activity.getMonitor().getLastName());
                         else
                             activity.setResponsableName(professor.get().getName());
 
@@ -156,13 +157,20 @@ public class ActivityServiceImpl implements ActivityService{
                         ActivityDTO activity = new ActivityDTO(activityRaw);
                         activity.setType("A");
                         activity.setResponsableName(professor.get().getName());
-                        activity.setCreatorName(activity.getMonitor().getName());
+                        activity.setCreatorName(activity.getMonitor().getName()+" "+activity.getMonitor().getLastName());
                         list.add(activity);
                     }
 
                 }
 
                 list.sort(Comparator.comparing(ActivityDTO::getState).thenComparing(ActivityDTO::getFinish));
+
+                for(ActivityDTO activityDTO:list){
+                    activityDTO.setCourse(activityDTO.getMonitoring().getCourse().getName());
+                    activityDTO.setMonitor(null);
+                    activityDTO.setMonitoring(null);
+                    activityDTO.setProfessor(null);
+                }
 
                 return list;
 
