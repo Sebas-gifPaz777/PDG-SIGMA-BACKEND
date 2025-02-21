@@ -86,8 +86,16 @@ public class MonitorServiceImpl implements MonitorService {
     }
 
     @Override
-    public void deleteById(String s) throws Exception {
+    public void deleteById(String id) throws Exception {
+        if (id == null || id.isEmpty()) {
+            throw new Exception("ID cannot be null or empty");
+        }
 
+        try {
+            monitorRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new Exception("Candidature not found or error while deleting", e);
+        }
     }
 
     @Override

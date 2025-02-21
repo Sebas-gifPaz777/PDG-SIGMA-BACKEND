@@ -4,6 +4,7 @@ import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.dto.MonitorDTO;
 import com.pdg.sigma.service.MonitorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +45,17 @@ public class MonitorController {
 
     }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteCandidature(@PathVariable String id) {//Cambiar nombre
+
+        try {
+            monitorService.deleteById(id);
+            return ResponseEntity.ok("Candidature deleted successfully"); //Cambiar respuesta
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     @RequestMapping(value= "/getPerCourse/{course}", method = RequestMethod.GET)
     public ResponseEntity<?> getMonitorPerCourse(@PathVariable String course){
         try{
@@ -54,4 +66,6 @@ public class MonitorController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+
 }
