@@ -29,9 +29,6 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private ProfessorRepository professorRepository;
 
-    @Autowired
-    private MonitoringProfessorRepository monitoringProfessorRepository;
-
     @Override
     public List<Monitoring> findAll() {
         return monitoringRepository.findAll();
@@ -58,14 +55,13 @@ public class MonitoringServiceImpl implements MonitoringService{
             if(school.getName().equals(entity.getSchoolName()))
                 if(course.getName().equals(entity.getCourseName()))
                     if(monitoringRepository.findByCourse(course).isEmpty()){
-
-                        newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), 4.5, 4.5, entity.getSemester());
-                        monitoringRepository.save(newMonitoring);
                         professor = professorRepository.findById(entity.getProfessorId());
-                        if(professor.isPresent())
-                            monitoringProfessorRepository.save(new MonitoringProfessor(newMonitoring,professor.get()));
+                        if(professor.isPresent()){
+                            newMonitoring = new Monitoring(school,program,course,entity.getStart(),entity.getFinish(), 4.5, 4.5, entity.getSemester(), professor.get());
+                            monitoringRepository.save(newMonitoring);
+                        }
                         else
-                            throw new Exception("El profesor no está registrado con esta Id");
+                            throw new Exception("El profesor no está registrado");
 
                         return monitoringRepository.findByCourse(course).get();
                     }

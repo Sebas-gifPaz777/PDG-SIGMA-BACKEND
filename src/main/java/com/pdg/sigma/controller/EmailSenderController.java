@@ -3,6 +3,8 @@ package com.pdg.sigma.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.pdg.sigma.domain.Monitor;
+import com.pdg.sigma.service.MonitorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pdg.sigma.domain.Candidature;
-import com.pdg.sigma.service.CandidatureServiceImpl;
 import com.pdg.sigma.service.EmailSenderService;
 
 
@@ -26,7 +26,7 @@ public class EmailSenderController {
     private EmailSenderService emailSenderService;
 
     @Autowired
-    private CandidatureServiceImpl candidatureService;
+    private MonitorServiceImpl monitorService; //CandidatureService was the name
 
     @GetMapping("/send-basic-email")
     public String sendBasicEmail(@RequestParam String to, @RequestParam String subject, @RequestParam String body) {
@@ -42,13 +42,13 @@ public class EmailSenderController {
     public ResponseEntity<String> sendEmailFinishSelection(@RequestBody List<String> electedApplicantCodes) {
         try {
             
-            List<Candidature> allApplicants = candidatureService.findAll();
+            List<Monitor> allApplicants = monitorService.findAll();
 
             if (allApplicants == null || allApplicants.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No applicants found in the database");
             }
 
-            List<Candidature> electedApplicants = allApplicants.stream()
+            List<Monitor> electedApplicants = allApplicants.stream()
                     .filter(applicant -> electedApplicantCodes.contains(applicant.getCode())).collect(Collectors.toList());
 
             if (electedApplicants.isEmpty()) {
@@ -56,7 +56,7 @@ public class EmailSenderController {
             }
             else{
                 StringBuilder emailContent = new StringBuilder("Elected Applicants:\n\n");
-                for (Candidature applicant : electedApplicants) {
+                for (Monitor applicant : electedApplicants) {
                     emailContent.append(String.format("Name: %s %s, Code: %s, Average Grade: %.2f\n",
                             applicant.getName(), applicant.getLastName(), applicant.getCode(), applicant.getGradeAverage()));
                 }

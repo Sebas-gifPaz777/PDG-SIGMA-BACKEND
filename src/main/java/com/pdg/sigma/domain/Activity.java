@@ -1,11 +1,18 @@
 package com.pdg.sigma.domain;
 
-import com.pdg.sigma.domain.Activity;
-import jakarta.persistence.*;
-import lombok.Data;
 import java.util.Date;
-import lombok.NoArgsConstructor;
-import java.io.Serializable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
 
 @Data
 @Entity
@@ -15,60 +22,42 @@ public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private Integer id;
 
-    @Column(name = "name", nullable = false, columnDefinition = "varchar(255)")
+    @Column(name = "name", nullable = false, columnDefinition = "varchar(100)")
     private String name;
 
     @Column(name = "creation_date", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
+    private Date creaction;
 
-    @Column(name = "finish_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date finishDate;
+    @Column(name = "finish_date", nullable = false)
+    private Date finish;
 
-    @Column(name = "role_creator", nullable = false, columnDefinition = "CHAR(1)")
-    private Character roleCreator;
+    @Column(name = "role_creator", nullable = false, columnDefinition = "char(1)")
+    private String roleCreator;
 
-    @Column(name = "role_responsable", nullable = false, columnDefinition = "CHAR(1)")
+    @Column(name = "role_responsable", nullable = false, columnDefinition = "char(1)")
     private String roleResponsable;
 
-    @Column(name = "category", columnDefinition = "varchar(30)")
+    @Column(name = "category", nullable = false, columnDefinition = "varchar(30)")
     private String category;
 
-    @Column(name = "description", columnDefinition = "varchar(255)")
+    @Column(name = "description", nullable = false, columnDefinition = "varchar(255)")
     private String description;
 
-    @Column(name = "monitoring_id", nullable = false)
-    private Long monitoringId;
+    @ManyToOne
+    @JoinColumn(name = "monitoring_id", nullable = false)
+    private Monitoring monitoring;
 
-    @Column(name = "professor_id", nullable = false)
-    private Long professorId;
+    @ManyToOne
+    @JoinColumn(name = "professor_id")
+    private Professor professor;
 
-    @Column(name = "monitor_id", nullable = false)
-    private Long monitorId;
+    @ManyToOne
+    @JoinColumn(name = "monitor_id")
+    private Monitor monitor;
 
-    @Column(name = "state", nullable = false, columnDefinition = "varchar(50)")
-    private String state;
-
-    // Constructor vacío (obligatorio para JPA)
-    public MonitoringTask() {}
-
-    // Constructor con parámetros
-    public MonitoringTask(Long id, String name, Date creationDate, Date finishDate, String roleCreator, String roleResponsable, String category, String description, Long monitoringId, Long professorId, Long monitorId, String state) {
-        this.id = id;
-        this.name = name;
-        this.creationDate = creationDate;
-        this.finishDate = finishDate;
-        this.roleCreator = roleCreator;
-        this.roleResponsable = roleResponsable;
-        this.category = category;
-        this.description = description;
-        this.monitoringId = monitoringId;
-        this.professorId = professorId;
-        this.monitorId = monitorId;
-        this.state = state;
-    }
-   
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false, columnDefinition = "state_activity")
+    private StateActivity state;
 }

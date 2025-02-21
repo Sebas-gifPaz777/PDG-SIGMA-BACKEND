@@ -1,6 +1,5 @@
 package com.pdg.sigma.domain;
 
-import com.pdg.sigma.domain.Monitoring;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,7 +26,7 @@ public class Monitoring implements Serializable {
     @JoinColumn(name = "program_id", nullable = false)
     private Program program;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
@@ -46,8 +45,12 @@ public class Monitoring implements Serializable {
     @Column(name = "semester", nullable = false)
     private String semester;
 
+    @OneToOne
+    @JoinColumn(name = "professor_id", nullable = false)
+    private Professor professor;
+
     public Monitoring(School school, Program program, Course course,
-                      Date start, Date finish, double averageGrade, double courseGrade, String semester) {
+                      Date start, Date finish, double averageGrade, double courseGrade, String semester, Professor professor) {
         this.school = school;
         this.program = program;
         this.course = course;
@@ -56,6 +59,7 @@ public class Monitoring implements Serializable {
         this.averageGrade = averageGrade;
         this.courseGrade = courseGrade;
         this.semester = semester;
+        this.professor =  professor;
     }
 
     public Monitoring() {
