@@ -58,7 +58,15 @@ public class Activity {
     private Monitor monitor;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "state", nullable = false, columnDefinition = "state_activity")
+    @Column(name = "state", nullable = false)
     private StateActivity state;
 
+    @Column(name = "semester", columnDefinition = "varchar(8)")
+    private String semester;
+
+    @Column(name = "delivey_date")
+    private Date delivey;
+
+    @Column(name = "edited_date")
+    private Date edited;
 }

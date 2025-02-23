@@ -36,6 +36,21 @@ public class MonitorServiceImpl implements MonitorService {
         return monitorRepository.findAll();
     }
 
+    public List<MonitorDTO> findAllNew() { //Use Monitor selection process
+        List<Monitor> baseMonitors = monitorRepository.findAll();
+        List<MonitorDTO> list = new ArrayList<>();
+        for(Monitor monitor:baseMonitors){
+            List<MonitoringMonitor> link = monitoringMonitorRepository.findByMonitor(monitor);
+            for(MonitoringMonitor connection:link){
+                MonitorDTO monitorDTO = new MonitorDTO(monitor);
+                monitorDTO.setCourse(connection.getMonitoring().getCourse().getName());
+                list.add(monitorDTO);
+            }
+
+        }
+        return list;
+    }
+
     @Override
     public Optional<Monitor> findById(String s) {
         return Optional.empty();
@@ -108,7 +123,7 @@ public class MonitorServiceImpl implements MonitorService {
         return null;
     }
 
-    public List<Monitor> findPerCourse(String course) throws Exception {
+    /*public List<Monitor> findPerCourse(String course) throws Exception {
 
         Optional<Monitoring> monitoring = monitoringRepository.findByCourse(courseRepository.findByName(course));
         if(!monitoring.isPresent()){
@@ -123,5 +138,5 @@ public class MonitorServiceImpl implements MonitorService {
             return newList;
         }
         throw new Exception("No hay monitores o candidatos para este curso");
-    }
+    }*/
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ActivityService extends GenericService<ActivityDTO,Integer>{
 
-    public List<ActivityDTO> findAll(String userId) throws Exception;
+    public List<ActivityDTO> findAll(String userId, String role) throws Exception;
 }
 
 

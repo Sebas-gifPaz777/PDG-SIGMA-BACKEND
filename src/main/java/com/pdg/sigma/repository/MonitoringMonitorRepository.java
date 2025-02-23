@@ -12,4 +12,6 @@ public interface MonitoringMonitorRepository extends JpaRepository<MonitoringMon
 
     public Optional<MonitoringMonitor> findByMonitoringAndMonitor(Monitoring monitoring, Monitor monitor);
     public List<MonitoringMonitor> findByMonitoring(Monitoring monitoring);
+
+    public List<MonitoringMonitor> findByMonitor(Monitor monitor);
 }

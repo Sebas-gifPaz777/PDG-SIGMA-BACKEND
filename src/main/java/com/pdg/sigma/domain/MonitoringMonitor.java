@@ -5,6 +5,8 @@ import lombok.*;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "monitoring_monitor")
 public class MonitoringMonitor {
 

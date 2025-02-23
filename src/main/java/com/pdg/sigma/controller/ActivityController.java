@@ -1,11 +1,11 @@
 package com.pdg.sigma.controller;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.pdg.sigma.dto.ActivityDTO;
+import com.pdg.sigma.service.ActivityServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pdg.sigma.dto.ActivityDTO;
-import com.pdg.sigma.service.ActivityServiceImpl;
+import java.util.List;
+import java.util.Optional;
+
+//import com.pdg.sigma.dto.ActivityDTO;
+//import com.pdg.sigma.service.ActivityServiceImpl;
 
 
 
@@ -27,10 +30,10 @@ public class ActivityController {
     @Autowired
     private ActivityServiceImpl activityService;
 
-    @RequestMapping(value= "/findAll/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId){
+    @RequestMapping(value= "/findAll/{userId}/{role}", method = RequestMethod.GET)
+    public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role){
         try{
-            List<ActivityDTO> list = activityService.findAll(userId);
+            List<ActivityDTO> list = activityService.findAll(userId, role);
 
             return ResponseEntity.status(200).body(list);
 
@@ -100,5 +103,15 @@ public class ActivityController {
 
     }
 
+    @RequestMapping(value= "/updateState", method = RequestMethod.PUT)
+    public ResponseEntity<?> setActivityState(@RequestBody String id){
+        try{
+            activityService.updateState(id);
+            return ResponseEntity.status(200).body("Estado cambiado");
 
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
 }

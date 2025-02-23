@@ -33,12 +33,12 @@ public class MonitorController {
     @RequestMapping(value= "/getA", method = RequestMethod.GET)
     public ResponseEntity<?> getAllMonitor(){
         try{
-            List<Monitor> listMonitor = monitorService.findAll();
+            List<MonitorDTO> listMonitor = monitorService.findAllNew();
             if(!listMonitor.isEmpty()){
                 return ResponseEntity.status(200).body(listMonitor);
             }
 
-            return ResponseEntity.status(400).body("No hay postulantes en la lista");
+            return ResponseEntity.status(404).body("No hay postulantes en la lista");
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }
@@ -56,7 +56,7 @@ public class MonitorController {
         }
     }
 
-    @RequestMapping(value= "/getPerCourse/{course}", method = RequestMethod.GET)
+    /*@RequestMapping(value= "/getPerCourse/{course}", method = RequestMethod.GET)
     public ResponseEntity<?> getMonitorPerCourse(@PathVariable String course){
         try{
             List<Monitor> listMonitor = monitorService.findPerCourse(course);
@@ -65,7 +65,7 @@ public class MonitorController {
         }catch (Exception e){
             return ResponseEntity.status(404).body(e.getMessage());
         }
-    }
+    }*/
 
 
 }
