@@ -7,6 +7,8 @@ import java.util.Date;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "activity")
 public class Activity {
 
@@ -61,3 +63,4 @@ public class Activity {
     @Column(name = "edited_date")
     private Date edited;
 }
+

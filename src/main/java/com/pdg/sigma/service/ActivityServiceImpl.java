@@ -180,9 +180,7 @@ public class ActivityServiceImpl implements ActivityService{
     }
 
     public boolean updateState(String id) throws Exception {
-        System.out.println(id);
         Optional<Activity> activity = activityRepository.findById(Integer.parseInt(id));
-        System.out.println("Process to get");
         if(activity.isPresent()){
             Date delivery = new Date();
             Calendar calendar = Calendar.getInstance();
@@ -197,7 +195,6 @@ public class ActivityServiceImpl implements ActivityService{
                 activity.get().setState(StateActivity.COMPLETADOT);
 
             activity.get().setDelivey(delivery);
-            System.out.println("Process to save");
             activityRepository.save(activity.get());
             return true;
         }
