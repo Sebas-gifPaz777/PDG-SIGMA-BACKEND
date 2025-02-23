@@ -178,4 +178,31 @@ public class ActivityServiceImpl implements ActivityService{
                 throw new Exception("No actividades asignadas o creadas");
         }
     }
+
+    public boolean updateState(String id) throws Exception {
+        System.out.println(id);
+        Optional<Activity> activity = activityRepository.findById(Integer.parseInt(id));
+        System.out.println("Process to get");
+        if(activity.isPresent()){
+            Date delivery = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(delivery);
+            calendar.add(Calendar.DAY_OF_MONTH, 2);
+            Date extensionDelivery = calendar.getTime();
+
+            if(activity.get().getFinish().after(delivery) || activity.get().getFinish().equals(delivery)
+            || delivery.before(extensionDelivery) || delivery.equals(extensionDelivery))
+                activity.get().setState(StateActivity.COMPLETADO);
+            else
+                activity.get().setState(StateActivity.COMPLETADOT);
+
+            activity.get().setDelivey(delivery);
+            System.out.println("Process to save");
+            activityRepository.save(activity.get());
+            return true;
+        }
+        else
+            throw new Exception("No se encontró una actividad con este id");
+
+    }
 }

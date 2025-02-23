@@ -3,7 +3,6 @@ package com.pdg.sigma.repository;
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.domain.Professor;
-import com.pdg.sigma.dto.ActivityDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -5,6 +5,7 @@ import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.AuthDTO;
 import com.pdg.sigma.service.ActivityService;
+import com.pdg.sigma.service.ActivityServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ import java.util.List;
 public class ActivityController {
 
     @Autowired
-    private ActivityService activityService;
+    private ActivityServiceImpl activityService;
 
     @RequestMapping(value= "/findAll/{userId}/{role}", method = RequestMethod.GET)
     public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role){
@@ -28,6 +29,18 @@ public class ActivityController {
 
         }catch (Exception e){
             return ResponseEntity.status(404).body(e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/updateState", method = RequestMethod.PUT)
+    public ResponseEntity<?> setActivityState(@RequestBody String id){
+        try{
+            activityService.updateState(id);
+            return ResponseEntity.status(200).body("Estado cambiado");
+
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
         }
 
     }
