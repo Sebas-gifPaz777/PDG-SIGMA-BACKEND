@@ -9,8 +9,10 @@ import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.StateActivity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class ActivityDTO {
     private Integer id;
     private String name;
