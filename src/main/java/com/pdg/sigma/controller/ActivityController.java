@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -57,16 +58,16 @@ public class ActivityController {
     }
 
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteActivity(@PathVariable String id) {
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteActivity(@PathVariable Integer id) {
         try {
-            activityService.deleteById(Integer.parseInt(id));
-            return ResponseEntity.ok("Actividad eliminada"); 
+            activityService.deleteById(id);
+            return ResponseEntity.ok("Actividad eliminada");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
 
     @PutMapping("/update")
     public ResponseEntity<?> updateActivity(@RequestBody ActivityRequestDTO updatedActivity) {

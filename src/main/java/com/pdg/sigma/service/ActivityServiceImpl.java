@@ -118,8 +118,6 @@ public class ActivityServiceImpl implements ActivityService{
                     .orElseThrow(() -> new Exception("Monitor not found")) 
                 : null;
 
-
-        // Crear la entidad
         Activity activity = new Activity(
             dto.getName(),
             new Date(),
@@ -137,7 +135,6 @@ public class ActivityServiceImpl implements ActivityService{
             new Date()
         );
 
-        // Guardar la entidad y devolver un DTO de respuesta
         Activity savedActivity = save(activity);
         return new ActivityDTO(savedActivity);
     }
@@ -149,9 +146,13 @@ public class ActivityServiceImpl implements ActivityService{
     }
 
     @Override
-    public void deleteById(Integer integer) throws Exception {
-
+    public void deleteById(Integer id) throws Exception {
+        if (!activityRepository.findById(id).isPresent()) {
+            throw new Exception("No se encontró la actividad con ID: " + id);
+        }
+        activityRepository.deleteById(id);
     }
+
 
     @Override
     public Long count() {
