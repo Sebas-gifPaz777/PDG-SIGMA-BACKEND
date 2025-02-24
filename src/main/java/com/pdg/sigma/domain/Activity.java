@@ -14,9 +14,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "activity")
 public class Activity {
@@ -91,3 +93,4 @@ public class Activity {
 
 
 }
+

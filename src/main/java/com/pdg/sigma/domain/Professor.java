@@ -5,6 +5,7 @@ import lombok.*;
 
 @Data
 @Entity
+@NoArgsConstructor
 @Table(name = "professor")
 public class Professor {
 
