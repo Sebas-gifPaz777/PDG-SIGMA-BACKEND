@@ -2,17 +2,24 @@ package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.domain.Monitor;
+import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.StateActivity;
 import com.pdg.sigma.dto.ActivityDTO;
+import com.pdg.sigma.dto.ActivityRequestDTO;
 import com.pdg.sigma.repository.ActivityRepository;
 import com.pdg.sigma.repository.MonitorRepository;
+import com.pdg.sigma.repository.MonitoringRepository;
 import com.pdg.sigma.repository.ProfessorRepository;
 import com.pdg.sigma.repository.ProspectRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import jakarta.validation.OverridesAttribute;
 
 @Service
 public class ActivityServiceImpl implements ActivityService{
@@ -27,49 +34,119 @@ public class ActivityServiceImpl implements ActivityService{
     private ProspectRepository prospectRepository;
 
     @Autowired
+    private MonitoringRepository monitoringRepository;
+
+    @Autowired
     private ProfessorRepository professorRepository;
 
     @Override
-    public List<ActivityDTO> findAll() {
-        List<Activity> list = activityRepository.findAll();
-        List<ActivityDTO> newList = new ArrayList<>();
+    public ActivityDTO update(ActivityRequestDTO updatedActivity) throws Exception {
+        Activity activity = activityRepository.findById(updatedActivity.getId())
+            .orElseThrow(() -> new Exception("Activity not found"));
 
-        for (Activity activity : list) {
-            newList.add(new ActivityDTO(activity
-            ));
+        activity.setName(updatedActivity.getName());
+        activity.setCreation(updatedActivity.getCreation());
+        activity.setFinish(updatedActivity.getFinish());
+        activity.setRoleCreator(updatedActivity.getRoleCreator());
+        activity.setRoleResponsable(updatedActivity.getRoleResponsable());
+        activity.setCategory(updatedActivity.getCategory());
+        activity.setDescription(updatedActivity.getDescription());
+        activity.setSemester(updatedActivity.getSemester());
+        activity.setDelivey(updatedActivity.getDelivey());
+
+        if (updatedActivity.getMonitoringId() != null) {
+            activity.setMonitoring(monitoringRepository.findById(updatedActivity.getMonitoringId().longValue())
+                .orElseThrow(() -> new Exception("Monitoring not found")));
         }
 
-        return newList;
+        if (updatedActivity.getProfessorId() != null) {
+            activity.setProfessor(professorRepository.findById(updatedActivity.getProfessorId().toString())
+                .orElseThrow(() -> new Exception("Professor not found")));
+        }
 
+        if (updatedActivity.getMonitorId() != null) {
+            activity.setMonitor(monitorRepository.findById(updatedActivity.getMonitorId().toString())
+                .orElseThrow(() -> new Exception("Monitor not found")));
+        }
+
+        Activity updatedEntity = activityRepository.save(activity);
+
+        return new ActivityDTO(updatedEntity);
     }
 
     @Override
-    public Optional<ActivityDTO> findById(Integer integer) {
-        return Optional.empty();
+    public Activity update(Activity entity) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void delete(Activity entity) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public ActivityDTO save(ActivityDTO entity) throws Exception {
-        return null;
+    public void validate(Activity entity) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public ActivityDTO update(ActivityDTO entity) throws Exception {
-        return null;
+    public List<Activity> findAll() {
+        return activityRepository.findAll();
     }
 
     @Override
-    public void delete(ActivityDTO entity) throws Exception {
+    public Optional<Activity> findById(Integer id) {
+        return activityRepository.findById(id);
+    }
 
+
+    public ActivityDTO save(ActivityRequestDTO dto) throws Exception {
+
+        Monitoring monitoring = monitoringRepository.findById(dto.getMonitoringId().longValue())
+        .orElseThrow(() -> new Exception("Monitoring not found"));
+
+        Professor professor = dto.getProfessorId() != null 
+                ? professorRepository.findById(dto.getProfessorId().toString())
+                    .orElseThrow(() -> new Exception("Professor not found")) 
+                : null;
+
+        Monitor monitor = dto.getMonitorId() != null 
+                ? monitorRepository.findById(dto.getMonitorId().toString())
+                    .orElseThrow(() -> new Exception("Monitor not found")) 
+                : null;
+
+
+        // Crear la entidad
+        Activity activity = new Activity(
+            dto.getName(),
+            new Date(),
+            dto.getFinish(),
+            dto.getRoleCreator(),
+            dto.getRoleResponsable(),
+            dto.getCategory(),
+            dto.getDescription(),
+            monitoring,
+            professor,
+            monitor,
+            StateActivity.PENDIENTE,
+            dto.getSemester(),
+            dto.getDelivey(),
+            new Date()
+        );
+
+        // Guardar la entidad y devolver un DTO de respuesta
+        Activity savedActivity = save(activity);
+        return new ActivityDTO(savedActivity);
+    }
+
+    
+    @Override
+    public Activity save(Activity activity) throws Exception {
+        return activityRepository.save(activity);
     }
 
     @Override
     public void deleteById(Integer integer) throws Exception {
-
-    }
-
-    @Override
-    public void validate(ActivityDTO entity) throws Exception {
 
     }
 
@@ -214,4 +291,6 @@ public class ActivityServiceImpl implements ActivityService{
             throw new Exception("No se encontró una actividad con este id");
 
     }
+
+    
 }

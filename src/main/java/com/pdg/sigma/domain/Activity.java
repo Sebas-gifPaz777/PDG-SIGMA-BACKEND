@@ -13,9 +13,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@NoArgsConstructor
 @Table(name = "activity")
 public class Activity {
 
@@ -69,4 +71,23 @@ public class Activity {
 
     @Column(name = "edited_date")
     private Date edited;
+
+    public Activity(String name, Date creation, Date finish, String roleCreator, String roleResponsable, String category, String description, Monitoring monitoring, Professor professor, Monitor monitor, StateActivity state, String semester, Date edited, Date date1) {
+        
+        this.name = name;
+        this.creation = creation;
+        this.finish = finish;
+        this.roleCreator = roleCreator;
+        this.roleResponsable = roleResponsable;
+        this.category = category;
+        this.description = description;
+        this.monitoring = monitoring;
+        this.professor = professor;
+        this.monitor = monitor;
+        this.state = state;
+        this.semester = semester;
+        this.edited = edited;
+    }
+
+
 }
