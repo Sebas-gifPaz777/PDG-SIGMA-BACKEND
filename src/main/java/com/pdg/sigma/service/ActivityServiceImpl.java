@@ -42,41 +42,61 @@ public class ActivityServiceImpl implements ActivityService{
     @Override
     public ActivityDTO update(ActivityRequestDTO updatedActivity) throws Exception {
         Activity activity = activityRepository.findById(updatedActivity.getId())
-            .orElseThrow(() -> new Exception("Activity not found"));
+                .orElseThrow(() -> new Exception("Activity not found"));
 
-        activity.setName(updatedActivity.getName());
-        activity.setCreation(updatedActivity.getCreation());
-        activity.setFinish(updatedActivity.getFinish());
-        activity.setRoleCreator(updatedActivity.getRoleCreator());
-        activity.setRoleResponsable(updatedActivity.getRoleResponsable());
-        activity.setCategory(updatedActivity.getCategory());
-        activity.setDescription(updatedActivity.getDescription());
+        if (updatedActivity.getName() != null) {
+            activity.setName(updatedActivity.getName());
+        }
+        if (updatedActivity.getCreation() != null) {
+            activity.setCreation(updatedActivity.getCreation());
+        }
+        if (updatedActivity.getFinish() != null) {
+            activity.setFinish(updatedActivity.getFinish());
+        }
+        if (updatedActivity.getRoleCreator() != null) {
+            activity.setRoleCreator(updatedActivity.getRoleCreator());
+        }
+        if (updatedActivity.getRoleResponsable() != null) {
+            activity.setRoleResponsable(updatedActivity.getRoleResponsable());
+        }
+        if (updatedActivity.getCategory() != null) {
+            activity.setCategory(updatedActivity.getCategory());
+        }
+        if (updatedActivity.getDescription() != null) {
+            activity.setDescription(updatedActivity.getDescription());
+        }
         if (updatedActivity.getState() != null) {
             activity.setState(StateActivity.valueOf(updatedActivity.getState().toUpperCase()));
         }
-        activity.setSemester(updatedActivity.getSemester());
-        activity.setDelivey(updatedActivity.getDelivey());
+        if (updatedActivity.getSemester() != null) {
+            activity.setSemester(updatedActivity.getSemester());
+        }
+        if (updatedActivity.getDelivey() != null) {
+            activity.setDelivey(updatedActivity.getDelivey());
+        }
+
+        // ID Reference
 
         if (updatedActivity.getMonitoringId() != null) {
             activity.setMonitoring(monitoringRepository.findById(updatedActivity.getMonitoringId().longValue())
-                .orElseThrow(() -> new Exception("Monitoring not found")));
+                    .orElseThrow(() -> new Exception("Monitoring not found")));
         }
 
         if (updatedActivity.getProfessorId() != null) {
             activity.setProfessor(professorRepository.findById(updatedActivity.getProfessorId().toString())
-                .orElseThrow(() -> new Exception("Professor not found")));
+                    .orElseThrow(() -> new Exception("Professor not found")));
         }
 
         if (updatedActivity.getMonitorId() != null) {
-            activity.setMonitor(monitorRepository.findById(updatedActivity.getMonitorId().toString())
-                .orElseThrow(() -> new Exception("Monitor not found")));
+            activity.setMonitor(monitorRepository.findById(updatedActivity.getMonitorId())
+                    .orElseThrow(() -> new Exception("Monitor not found")));
         }
 
         Activity updatedEntity = activityRepository.save(activity);
 
         return new ActivityDTO(updatedEntity);
     }
-
+    
     @Override
     public Activity update(Activity entity) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");

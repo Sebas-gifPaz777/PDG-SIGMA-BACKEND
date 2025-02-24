@@ -79,7 +79,6 @@ public class ActivityController {
         }
     }
 
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getActivityById(@PathVariable Integer id) {
         Optional<Activity> activity = activityService.findById(id);
