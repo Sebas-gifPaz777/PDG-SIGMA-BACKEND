@@ -150,8 +150,8 @@ public class ActivityServiceImpl implements ActivityService{
             professor,
             monitor,
             StateActivity.PENDIENTE,
-            dto.getSemester(),
             dto.getDelivey(),
+            dto.getSemester(),
             new Date()
         );
 

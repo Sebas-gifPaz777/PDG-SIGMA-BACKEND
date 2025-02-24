@@ -74,7 +74,7 @@ public class Activity {
     @Column(name = "edited_date")
     private Date edited;
 
-    public Activity(String name, Date creation, Date finish, String roleCreator, String roleResponsable, String category, String description, Monitoring monitoring, Professor professor, Monitor monitor, StateActivity state, String semester, Date edited, Date date1) {
+    public Activity(String name, Date creation, Date finish, String roleCreator, String roleResponsable, String category, String description, Monitoring monitoring, Professor professor, Monitor monitor, StateActivity state, Date delivey, String semester,  Date edited) {
         
         this.name = name;
         this.creation = creation;
@@ -87,6 +87,7 @@ public class Activity {
         this.professor = professor;
         this.monitor = monitor;
         this.state = state;
+        this.delivey = delivey;
         this.semester = semester;
         this.edited = edited;
     }
