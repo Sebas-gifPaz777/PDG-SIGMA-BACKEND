@@ -51,6 +51,9 @@ public class ActivityServiceImpl implements ActivityService{
         activity.setRoleResponsable(updatedActivity.getRoleResponsable());
         activity.setCategory(updatedActivity.getCategory());
         activity.setDescription(updatedActivity.getDescription());
+        if (updatedActivity.getState() != null) {
+            activity.setState(StateActivity.valueOf(updatedActivity.getState().toUpperCase()));
+        }
         activity.setSemester(updatedActivity.getSemester());
         activity.setDelivey(updatedActivity.getDelivey());
 
