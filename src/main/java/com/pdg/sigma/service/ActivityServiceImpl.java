@@ -17,9 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import jakarta.validation.OverridesAttribute;
 
 @Service
 public class ActivityServiceImpl implements ActivityService{
@@ -88,7 +85,7 @@ public class ActivityServiceImpl implements ActivityService{
         }
 
         if (updatedActivity.getMonitorId() != null) {
-            activity.setMonitor(monitorRepository.findById(updatedActivity.getMonitorId())
+            activity.setMonitor(monitorRepository.findByCode(updatedActivity.getMonitorId())
                     .orElseThrow(() -> new Exception("Monitor not found")));
         }
 
@@ -134,7 +131,7 @@ public class ActivityServiceImpl implements ActivityService{
                 : null;
 
         Monitor monitor = dto.getMonitorId() != null 
-                ? monitorRepository.findById(dto.getMonitorId().toString())
+                ? monitorRepository.findByCode(dto.getMonitorId())
                     .orElseThrow(() -> new Exception("Monitor not found")) 
                 : null;
 
@@ -185,9 +182,10 @@ public class ActivityServiceImpl implements ActivityService{
         List<Activity> assigned;
         List<ActivityDTO> list = new ArrayList<>();
         if(!role.equalsIgnoreCase("professor")){ //Se devuelve toda la información junto con quien la creó y a quíen está asignado(solo nombres), permisos sobre este, puede editar o no
-            Optional<Monitor>monitor = monitorRepository.findByCode(prospectRepository.findById(userId).get().getCode());
-            created = activityRepository.findByMonitorAndRoleCreator(monitor.get(), "M");
-            assigned = activityRepository.findByMonitorAndRoleResponsable(monitor.get(), "M");
+            // Optional<Monitor>monitor = monitorRepository.findByCode(prospectRepository.findById(userId).get().getCode());
+            Monitor monitor = monitorRepository.findByCode(prospectRepository.findById(userId).get().getCode()).orElse(null);
+            created = activityRepository.findByMonitorAndRoleCreator(monitor, "M");
+            assigned = activityRepository.findByMonitorAndRoleResponsable(monitor, "M");
             if(!created.isEmpty() || !assigned.isEmpty()) {
                 if (!created.isEmpty()) {
                     for (Activity activityRaw : created) {
@@ -196,9 +194,9 @@ public class ActivityServiceImpl implements ActivityService{
                         if (activity.getRoleResponsable().equals("P"))
                             activity.setResponsableName(activity.getProfessor().getName());
                         else
-                            activity.setResponsableName(monitor.get().getName()+" "+monitor.get().getLastName());
+                            activity.setResponsableName(monitor.getName()+" "+monitor.getLastName());
 
-                        activity.setCreatorName(monitor.get().getName()+" "+monitor.get().getLastName());
+                        activity.setCreatorName(monitor.getName()+" "+monitor.getLastName());
                         list.add(activity);
                     }
                 }
@@ -214,7 +212,9 @@ public class ActivityServiceImpl implements ActivityService{
                     for (Activity activityRaw : assigned) {
                         ActivityDTO activity = new ActivityDTO(activityRaw);
                         activity.setType("A");
-                        activity.setResponsableName(monitor.get().getName()+" "+monitor.get().getLastName());
+                        // activity.setResponsableName(monitor.get().getName()+" "+monitor.get().getLastName());
+                        activity.setMonitor(monitor);
+                    
                         activity.setCreatorName(activity.getProfessor().getName());
                         list.add(activity);
                     }
@@ -278,7 +278,7 @@ public class ActivityServiceImpl implements ActivityService{
                 for(ActivityDTO activityDTO:list){
                     activityDTO.setCourse(activityDTO.getMonitoring().getCourse().getName());
                     activityDTO.setMonitor(null);
-                    activityDTO.setMonitoring(null);
+                    activityDTO.setMonitoring(activityDTO.getMonitoring());
                     activityDTO.setProfessor(null);
                 }
 
