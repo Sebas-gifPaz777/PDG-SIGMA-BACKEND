@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pdg.sigma.domain.Student;
+import com.pdg.sigma.domain.StudentCourse;
 import com.pdg.sigma.service.StudentServiceImpl;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -33,5 +34,11 @@ public class StudentController {
 
         return student.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<List<StudentCourse>> getStudentsByCourse(@PathVariable Integer courseId) {
+        List<StudentCourse> students = studentService.getStudentsByCourse(courseId);
+        return ResponseEntity.ok(students);
     }
 }

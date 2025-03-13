@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.pdg.sigma.domain.Student;
 import com.pdg.sigma.domain.StudentCourse;
-import com.pdg.sigma.repository.StudentRepository;
 import com.pdg.sigma.repository.StudentCourseRepository;
+import com.pdg.sigma.repository.StudentRepository;
 
 
 @Service
@@ -21,8 +21,8 @@ public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentCourseRepository studentCourseRepository;
 
-    public List<StudentCourse> getStudentByCourse() {
-        return studentCourseRepository.findAll();
+    public List<StudentCourse> getStudentsByCourse(Integer courseId) {
+        return studentCourseRepository.findByCourseId(courseId);
     }
 
     @Override
