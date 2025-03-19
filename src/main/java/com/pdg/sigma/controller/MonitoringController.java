@@ -6,7 +6,12 @@ import com.pdg.sigma.service.MonitoringServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -88,6 +93,16 @@ public class MonitoringController {
             return ResponseEntity.status(400).body("No hay monitorias en la lista");
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+   @RequestMapping(value= "/createAll", method = RequestMethod.POST)
+    public ResponseEntity<?> createMultipleMonitoring(@RequestBody MultipartFile file){
+       try {
+            return ResponseEntity.status(200).body(monitoringService.processListMonitor(file));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al procesar el archivo: " + e.getMessage());
         }
 
     }

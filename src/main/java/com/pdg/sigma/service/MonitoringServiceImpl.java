@@ -3,13 +3,17 @@ package com.pdg.sigma.service;
 import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.MonitoringDTO;
 import com.pdg.sigma.repository.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MonitoringServiceImpl implements MonitoringService{
@@ -77,12 +81,13 @@ public class MonitoringServiceImpl implements MonitoringService{
     public List<Monitoring> findBySchool(MonitoringDTO monitoringDTO){ //programName = nombre elemento a buscar, courseName = state o estado
         if(!monitoringDTO.getProgramName().isBlank()){
             School entity = schoolRepository.findByName(monitoringDTO.getProgramName());
+            System.out.println("Facultad: " + entity.getName());
             List<Monitoring> monitoring = monitoringRepository.findBySchool(entity);
             Date currentDate = new Date();
             if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
                 List<Monitoring> temp = new ArrayList<>();
                 for(Monitoring element: monitoring){
-                    if(element.getStart().before(currentDate) && element.getFinish().after(currentDate)){
+                    if(element.getStart().before(currentDate) ||element.getStart().equals(currentDate) && element.getFinish().after(currentDate) || element.getFinish().equals(currentDate)){
                         temp.add(element);
                     }
                 }
@@ -239,4 +244,50 @@ public class MonitoringServiceImpl implements MonitoringService{
     }
 
 
+    public String processListMonitor(MultipartFile file) throws Exception {
+
+        if (file.isEmpty()) {
+            return "El archivo está vacío";
+        }
+
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0); // Leer la primera hoja
+
+
+        Map<String, List<List<String>>> dataMap = new HashMap<>();
+
+        int maxColumns = getMaxColumnCount(sheet);
+        Row headerRow = sheet.getRow(0);
+        List<String> headers = getRowData(headerRow, maxColumns);
+
+
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
+                List<String> rowData = getRowData(row, maxColumns); // Leer toda la fila
+                String key = rowData.size() > maxColumns ? rowData.get(maxColumns) : "UNKNOWN";
+
+                dataMap.computeIfAbsent(key, k -> new ArrayList<>()).add(rowData);
+            }
+        }
+
+        return "Document reading done";
+    }
+
+    private int getMaxColumnCount(Sheet sheet) {
+        int maxColumns = 0;
+        for (Row row : sheet) {
+            maxColumns = Math.max(maxColumns, row.getLastCellNum());
+        }
+        return maxColumns;
+    }
+
+    private List<String> getRowData(Row row, int maxColumns) {
+        List<String> rowData = new ArrayList<>();
+        for (int i = 0; i < maxColumns; i++) {
+            Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            rowData.add(cell.toString());
+        }
+        return rowData;
+    }
 }
