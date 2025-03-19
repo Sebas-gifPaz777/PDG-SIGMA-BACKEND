@@ -7,13 +7,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pdg.sigma.domain.Student;
+import com.pdg.sigma.domain.StudentCourse;
 import com.pdg.sigma.repository.StudentRepository;
+import com.pdg.sigma.repository.StudentCourseRepository;
+
 
 @Service
 public class StudentServiceImpl implements StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
+    
+    @Autowired
+    private StudentCourseRepository studentCourseRepository;
+
+    public List<StudentCourse> getStudentByCourse() {
+        return studentCourseRepository.findAll();
+    }
 
     @Override
     public List<Student> findAll() {
