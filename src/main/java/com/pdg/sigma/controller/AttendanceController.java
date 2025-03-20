@@ -2,11 +2,13 @@ package com.pdg.sigma.controller;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,6 +48,30 @@ public class AttendanceController {
         }
         Attendance savedAttendance = attendanceService.save(attendance);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedAttendance);
+    }
+
+    @GetMapping("/check/{activityId}/{studentId}")
+    public ResponseEntity<Boolean> checkAttendanceExists(
+            @PathVariable Integer activityId,
+            @PathVariable String studentId) {
+        
+        Optional<Attendance> existingAttendance = attendanceService.findByActivityAndStudent(activityId, studentId);
+        return ResponseEntity.ok(existingAttendance.isPresent());
+    }
+
+    @DeleteMapping("/delete/{activityId}/{studentId}")
+    public ResponseEntity<Void> deleteAttendance(
+            @PathVariable Integer activityId,
+            @PathVariable String studentId) {
+
+        Optional<Attendance> existingAttendance = attendanceService.findByActivityAndStudent(activityId, studentId);
+        
+        if (existingAttendance.isPresent()) {
+            attendanceService.delete(existingAttendance.get());
+            return ResponseEntity.noContent().build(); 
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

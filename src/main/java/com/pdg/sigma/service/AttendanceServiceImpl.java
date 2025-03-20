@@ -38,7 +38,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         entity.setActivity(activity);
         entity.setStudent(student);
     
-        // Guardar la asistencia con relaciones correctamente establecidas
         return attendanceRepository.save(entity);
     }
     
@@ -47,6 +46,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public List<Attendance> findByActivity(Integer activityId) {
         return attendanceRepository.findByActivityId(activityId);
+    }
+
+    @Override
+    public Optional<Attendance> findByActivityAndStudent(Integer activityId, String studentId) {
+        return attendanceRepository.findByActivityIdAndStudentCode(activityId, studentId);
     }
 
     @Override
