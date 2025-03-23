@@ -1,18 +1,19 @@
 package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.*;
+import com.pdg.sigma.dto.MonitorDTO;
 import com.pdg.sigma.dto.MonitoringDTO;
 import com.pdg.sigma.repository.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -33,6 +34,12 @@ public class MonitoringServiceImpl implements MonitoringService{
     @Autowired
     private ProfessorRepository professorRepository;
 
+    @Autowired
+    private MonitoringMonitorRepository monitoringMonitorRepository;
+
+    @Autowired
+    private MonitorRepository monitorRepository;
+
     @Override
     public List<Monitoring> findAll() {
         return monitoringRepository.findAll();
@@ -50,9 +57,9 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     @Override
     public Monitoring save(MonitoringDTO entity) throws Exception{
-        Program program = programRepository.findByName(entity.getProgramName());
-        School school = schoolRepository.findByName(entity.getSchoolName());
-        Course course = courseRepository.findByName(entity.getCourseName());
+        Program program = programRepository.findByName(entity.getProgramName()).get();
+        School school = schoolRepository.findByName(entity.getSchoolName()).get();
+        Course course = courseRepository.findByName(entity.getCourseName()).get();
         Monitoring newMonitoring = null;
         Optional<Professor> professor = null;
         if(program.getName().equals(entity.getProgramName()))
@@ -80,7 +87,7 @@ public class MonitoringServiceImpl implements MonitoringService{
     }
     public List<Monitoring> findBySchool(MonitoringDTO monitoringDTO){ //programName = nombre elemento a buscar, courseName = state o estado
         if(!monitoringDTO.getProgramName().isBlank()){
-            School entity = schoolRepository.findByName(monitoringDTO.getProgramName());
+            School entity = schoolRepository.findByName(monitoringDTO.getProgramName()).get();
             System.out.println("Facultad: " + entity.getName());
             List<Monitoring> monitoring = monitoringRepository.findBySchool(entity);
             Date currentDate = new Date();
@@ -155,7 +162,7 @@ public class MonitoringServiceImpl implements MonitoringService{
     }
 
     public List<Monitoring> findByProgram(MonitoringDTO monitoringDTO) {//programName = nombre elemento a buscar, courseName = state o estado
-        Program entity = programRepository.findByName(monitoringDTO.getProgramName());
+        Program entity = programRepository.findByName(monitoringDTO.getProgramName()).get();
         List<Monitoring> monitoring = monitoringRepository.findByProgram(entity);
 
         Date currentDate = new Date();
@@ -188,7 +195,7 @@ public class MonitoringServiceImpl implements MonitoringService{
     }
 
     public List<Monitoring> findByCourse(MonitoringDTO monitoringDTO) {//programName = nombre elemento a buscar, courseName = state o estado
-        Course entity = courseRepository.findByName(monitoringDTO.getProgramName());
+        Course entity = courseRepository.findByName(monitoringDTO.getProgramName()).get();
         Optional<Monitoring> monitoring = monitoringRepository.findByCourse(entity);
         Date currentDate = new Date();
         if(monitoringDTO.getCourseName().equalsIgnoreCase("Activo") || monitoringDTO.getCourseName().isBlank()){
@@ -243,51 +250,274 @@ public class MonitoringServiceImpl implements MonitoringService{
         return null;
     }
 
+    public List<MonitoringDTO> getByProfessor(String id) throws Exception{
+        Optional<Professor> professor = professorRepository.findById(id);
+        if(professor.isPresent()){
+            List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
+            List<MonitoringDTO> monitoringDTOs = new ArrayList<>();
 
-    public String processListMonitor(MultipartFile file) throws Exception {
+            if(!monitorings.isEmpty()){
+                for(Monitoring monitoring:monitorings){
+                    List<MonitoringMonitor> list = monitoringMonitorRepository.findByMonitoring(monitoring);
+                    List<Monitor> monitors = new ArrayList<>();
+                    String name ="";
 
-        if (file.isEmpty()) {
-            return "El archivo está vacío";
+                    if(!list.isEmpty()){
+                        for(MonitoringMonitor monitoringMonitor:list){
+                            name = name+monitoringMonitor.getMonitor().getName()+" "+monitoringMonitor.getMonitor().getLastName()+", ";
+                        }
+                        name = name.replaceAll(", $", "");
+                        monitoringDTOs.add(new MonitoringDTO(monitoring.getId(), monitoring.getCourse().getName(), monitoring.getStart(), monitoring.getFinish(), monitoring.getSemester(), name));
+                    }
+                    else{
+                        monitoringDTOs.add(new MonitoringDTO(monitoring.getId(), monitoring.getCourse().getName(), monitoring.getStart(), monitoring.getFinish(), monitoring.getSemester(), "N/A"));
+                    }
+                }
+
+                return monitoringDTOs;
+            }
+            else
+                throw new Exception("No tiene monitorias creadas");
+        }
+        else
+            throw new Exception("No existe un profesor con este ID");
+    }
+
+    public List<MonitoringDTO> getByMonitor(String id) throws Exception{
+        Optional<Monitor> monitor = monitorRepository.findByIdMonitor(id);
+        if(monitor.isPresent()){
+            List<MonitoringMonitor> monitoringMonitors = monitoringMonitorRepository.findByMonitor(monitor.get());
+            List<Monitoring> monitorings = new ArrayList<>();
+            for(MonitoringMonitor monitoringMonitor:monitoringMonitors){
+                monitorings.add(monitoringMonitor.getMonitoring());
+            }
+            List<MonitoringDTO> monitoringDTOs = new ArrayList<>();
+
+            if(!monitorings.isEmpty()){
+                for(Monitoring monitoring:monitorings){
+                    monitoringDTOs.add(new MonitoringDTO(monitoring.getId(), monitoring.getCourse().getName(), monitoring.getStart(), monitoring.getFinish(), monitoring.getSemester(), monitoring.getProfessor().getName()));
+                }
+                System.out.println(monitoringDTOs.get(0).getMonitor());
+
+                return monitoringDTOs;
+            }
+            else
+                throw new Exception("No tiene monitorias creadas");
+        }
+        else
+            throw new Exception("No existe un monitor con este ID");
+    }
+
+
+    public String processListMonitor(MultipartFile file, String professorId) throws Exception {
+
+        List<MonitoringDTO> registList = new ArrayList<>();
+
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0); // Tomar la primera hoja
+            Iterator<Row> rowIterator = sheet.iterator();
+
+            if (!rowIterator.hasNext()) {
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+            }
+
+            // Read headers, columns name
+            Row header = rowIterator.next();
+            List<String> columnsName = new ArrayList<>();
+            for (Cell cell : header) {
+                columnsName.add(cell.getStringCellValue().trim());
+            }
+
+            if(!checkColumns(columnsName)){
+                throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+            }
+
+            // Read regist line by line
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                MonitoringDTO monitoring = new MonitoringDTO(0.0,0.0); //Initialized monitorings with grades en 0.0
+                for (int i = 0; i < columnsName.size(); i++) {
+                    Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    String value = getCellValue(cell);
+
+                    if(value.equals("")){
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                    }
+
+                    Object check = checkValue(i, value, monitoring, columnsName);
+
+                    if(check == null){
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                    }
+
+                    monitoring = (MonitoringDTO) check;
+
+                }
+                if(!(monitoring.getStart().before(monitoring.getFinish()) || monitoring.getStart().equals(monitoring.getFinish())) &&
+                        !(monitoring.getStart().after(new Date()) || monitoring.getStart().equals(new Date()))){
+
+                    throw new Exception("Incompatibilidad con alguno de los campos del archivo");
+                }
+
+                registList.add(monitoring);
+
+            }
+
+            for (MonitoringDTO monitoring: registList){
+                if(monitoringRepository.findByCourse(monitoring.getCourse()).isPresent()){
+                    throw new Exception("Al menos una monitoria está creada");
+                }
+            }
+            Professor professor = professorRepository.findById(professorId).get();
+
+            for (MonitoringDTO monitoring: registList){
+                monitoring.setProfessor(professor);
+                monitoringRepository.save(new Monitoring(monitoring));
+            }
+
+            return "Todas las monitorias han sido creadas";
         }
 
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
-        Sheet sheet = workbook.getSheetAt(0); // Leer la primera hoja
+    }
 
+    //Method to check values header
+    private boolean checkColumns(List<String> columns) {
+        boolean valid=true;
+        for(int i=0; i<columns.size();i++){
 
-        Map<String, List<List<String>>> dataMap = new HashMap<>();
-
-        int maxColumns = getMaxColumnCount(sheet);
-        Row headerRow = sheet.getRow(0);
-        List<String> headers = getRowData(headerRow, maxColumns);
-
-
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row != null) {
-                List<String> rowData = getRowData(row, maxColumns); // Leer toda la fila
-                String key = rowData.size() > maxColumns ? rowData.get(maxColumns) : "UNKNOWN";
-
-                dataMap.computeIfAbsent(key, k -> new ArrayList<>()).add(rowData);
+            switch (i) {
+                case 0:
+                    if(!columns.get(0).equalsIgnoreCase("FACULTAD")){
+                        valid=false;
+                    }
+                case 1:
+                    if(!columns.get(1).equalsIgnoreCase("PROGRAMA")) {
+                        valid = false;
+                    }
+                case 2:
+                    if(!columns.get(2).equalsIgnoreCase("CURSO")) {
+                        valid = false;
+                    }
+                case 3:
+                    if(!columns.get(3).equalsIgnoreCase("FECHA INICIO")) {
+                        valid = false;
+                    }
+                case 4:
+                    if(!columns.get(4).equalsIgnoreCase("FECHA FINALIZACION")) {
+                        valid = false;
+                    }
+                case 5:
+                    if(!columns.get(5).equalsIgnoreCase("PERIODO")) {
+                        valid = false;
+                    }
+                case 6:
+                    if(!columns.get(6).equalsIgnoreCase("PROMEDIO ACUMULADO") || !columns.get(6).equalsIgnoreCase("PROMEDIO MATERIA")) {
+                        valid = false;
+                    }
+                case 7:
+                    if(!columns.get(7).equalsIgnoreCase("PROMEDIO MATERIA")) {
+                        valid = false;
+                    }
+                default:
+                    System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción
             }
         }
 
-        return "Document reading done";
+        return valid;
     }
 
-    private int getMaxColumnCount(Sheet sheet) {
-        int maxColumns = 0;
-        for (Row row : sheet) {
-            maxColumns = Math.max(maxColumns, row.getLastCellNum());
+    //Method to check type of value
+    private String getCellValue(Cell cell) {
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue().toString();
+                }
+                return String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
         }
-        return maxColumns;
     }
 
-    private List<String> getRowData(Row row, int maxColumns) {
-        List<String> rowData = new ArrayList<>();
-        for (int i = 0; i < maxColumns; i++) {
-            Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-            rowData.add(cell.toString());
-        }
-        return rowData;
+    //Method to check value and return object of the value
+    private Object checkValue(int column, String value, MonitoringDTO monitoring, List<String> header) throws ParseException {
+        String regex = "^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\\d{4}$";
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        String regexSemester = "^\\d{4}-(1|2)$";
+
+        boolean valid=true;
+            switch (column) {
+                case 0:
+                    Optional<School> school = schoolRepository.findByName(value);
+                    if(school.isPresent()){
+                        monitoring.setSchool(school.get());
+                        return monitoring;
+                    }
+                    else
+                        return null;
+                case 1:
+                    Optional<Program> program = programRepository.findByName(value);
+                    if(program.isPresent()){
+                        monitoring.setProgram(program.get());
+                        return monitoring;
+                    }
+                    else
+                        return null;
+                case 2:
+                    Optional<Course> course = courseRepository.findByName(value);
+                    if(course.isPresent()){
+                        monitoring.setCourse(course.get());
+                        return monitoring;
+                    }
+                    else
+                        return null;
+
+                case 3:
+                    if(value.matches(regex)){
+                        monitoring.setStart(formatter.parse(value));
+                        return monitoring;
+                    }
+                    else
+                        return null;
+                case 4:
+                    if(value.matches(regex)){
+                        monitoring.setFinish(formatter.parse(value));
+                        return monitoring;
+                    }
+                    else
+                        return null;
+                case 5:
+                    if(value.matches(regexSemester)){
+                        monitoring.setSemester(value);
+                        return monitoring;
+                    }
+                    else
+                        return null;
+                case 6:
+                    if(header.get(6).equalsIgnoreCase("PROMEDIO ACUMULADO")){
+                        monitoring.setAverageGrade(Double.parseDouble(value));
+                    }
+                    else{
+                        monitoring.setCourseGrade(Double.parseDouble(value));
+                    }
+                    return monitoring;
+
+                case 7:
+                    monitoring.setCourseGrade(Double.parseDouble(value));
+                    return monitoring;
+                default:
+                    System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción
+            }
+
+
+        return valid;
     }
 }
