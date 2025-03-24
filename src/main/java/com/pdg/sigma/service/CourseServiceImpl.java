@@ -1,14 +1,15 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.domain.Course;
-import com.pdg.sigma.dto.CourseDTO;
-import com.pdg.sigma.repository.CourseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pdg.sigma.domain.Course;
+import com.pdg.sigma.dto.CourseDTO;
+import com.pdg.sigma.repository.CourseRepository;
 
 @Service
 public class CourseServiceImpl implements  CourseService{
@@ -63,6 +64,11 @@ public class CourseServiceImpl implements  CourseService{
         return null;
     }
 
+    @Override
+    public Optional<Course> findEntityById(Long id) {
+        return courseRepository.findById(id);
+    }    
+
     public List<CourseDTO> findByProgram(CourseDTO courseDto) {
         List<Course> list = courseRepository.findAll();
         List<CourseDTO> newList = new ArrayList<>();
@@ -73,4 +79,6 @@ public class CourseServiceImpl implements  CourseService{
         }
         return newList;
     }
+
+
 }
