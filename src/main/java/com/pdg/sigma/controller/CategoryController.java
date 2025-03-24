@@ -40,12 +40,12 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Category> getCategoryById(@PathVariable Long id) {
+    public Optional<Category> getCategoryById(@PathVariable Integer id) {
         return categoryService.findById(id);
     }
 
     @GetMapping("/course/{courseId}")
-    public List<Category> getCategoriesByCourse(@PathVariable Long courseId) {
+    public List<Category> getCategoriesByCourse(@PathVariable Integer courseId) {
         return categoryService.findByCourseId(courseId);
     }
 
@@ -61,13 +61,13 @@ public class CategoryController {
 
 
     @PutMapping("/update/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) throws Exception {
+    public Category updateCategory(@PathVariable Integer id, @RequestBody Category category) throws Exception {
         category.setId(id);
         return categoryService.update(category);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteCategory(@PathVariable Long id) throws Exception {
+    public String deleteCategory(@PathVariable Integer id) throws Exception {
         categoryService.deleteById(id);
         return "Categoría eliminada con éxito";
     }

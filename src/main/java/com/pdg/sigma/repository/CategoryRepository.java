@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.pdg.sigma.domain.Category;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
-    List<Category> findByCourseId(Long courseId);
+public interface CategoryRepository extends JpaRepository<Category, Integer> {
+    List<Category> findByCourseId(Integer courseId);
 }

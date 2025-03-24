@@ -51,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteById(Long id) throws Exception {
+    public void deleteById(Integer id) throws Exception {
         if (!categoryRepository.existsById(id)) {
             throw new Exception("No se encontró la categoría con ID: " + id);
         }
@@ -59,12 +59,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Optional<Category> findById(Long id) {
+    public Optional<Category> findById(Integer id) {
         return categoryRepository.findById(id);
     }
 
     @Override
-    public List<Category> findByCourseId(Long courseId) {
+    public List<Category> findByCourseId(Integer courseId) {
         return categoryRepository.findByCourseId(courseId);
     }
 

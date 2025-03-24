@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,15 +40,20 @@ public class AttendanceController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Attendance> createAttendance(@RequestBody Attendance attendance) {
-        if (attendance.getActivity() == null || attendance.getActivity().getId() == null) {
-            return ResponseEntity.badRequest().body(null);
+    public ResponseEntity<?> createAttendance(@RequestBody Attendance attendance) {
+        try {
+            if (attendance.getActivity() == null || attendance.getActivity().getId() == null) {
+                return ResponseEntity.badRequest().body("La actividad no puede ser nula.");
+            }
+            if (attendance.getStudent() == null || attendance.getStudent().getCode() == null) {
+                return ResponseEntity.badRequest().body("El estudiante no puede ser nulo.");
+            }
+            Attendance savedAttendance = attendanceService.save(attendance);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedAttendance);
+
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: La asistencia ya existe.");
         }
-        if (attendance.getStudent() == null || attendance.getStudent().getCode() == null) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        Attendance savedAttendance = attendanceService.save(attendance);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttendance);
     }
 
     @GetMapping("/check/{activityId}/{studentId}")
