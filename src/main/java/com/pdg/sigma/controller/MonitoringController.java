@@ -102,6 +102,7 @@ public class MonitoringController {
        try {
             return ResponseEntity.status(200).body(monitoringService.processListMonitor(file,id));
         } catch (Exception e) {
+           System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Error al procesar el archivo: " + e.getMessage());
         }
 

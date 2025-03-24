@@ -315,16 +315,16 @@ public class MonitoringServiceImpl implements MonitoringService{
 
         try (InputStream is = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(is)) {
-
             Sheet sheet = workbook.getSheetAt(0); // Tomar la primera hoja
             Iterator<Row> rowIterator = sheet.iterator();
+
 
             if (!rowIterator.hasNext()) {
                 throw new Exception("Incompatibilidad con alguno de los campos del archivo");
             }
-
             // Read headers, columns name
             Row header = rowIterator.next();
+
             List<String> columnsName = new ArrayList<>();
             for (Cell cell : header) {
                 columnsName.add(cell.getStringCellValue().trim());
@@ -334,9 +334,12 @@ public class MonitoringServiceImpl implements MonitoringService{
                 throw new Exception("Incompatibilidad con alguno de los campos del archivo");
             }
 
+
             // Read regist line by line
             while (rowIterator.hasNext()) {
+
                 Row row = rowIterator.next();
+
                 MonitoringDTO monitoring = new MonitoringDTO(0.0,0.0); //Initialized monitorings with grades en 0.0
                 for (int i = 0; i < columnsName.size(); i++) {
                     Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
@@ -355,6 +358,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                     monitoring = (MonitoringDTO) check;
 
                 }
+
                 if(!(monitoring.getStart().before(monitoring.getFinish()) || monitoring.getStart().equals(monitoring.getFinish())) &&
                         !(monitoring.getStart().after(new Date()) || monitoring.getStart().equals(new Date()))){
 
@@ -370,13 +374,13 @@ public class MonitoringServiceImpl implements MonitoringService{
                     throw new Exception("Al menos una monitoria está creada");
                 }
             }
+
             Professor professor = professorRepository.findById(professorId).get();
 
             for (MonitoringDTO monitoring: registList){
                 monitoring.setProfessor(professor);
                 monitoringRepository.save(new Monitoring(monitoring));
             }
-
             return "Todas las monitorias han sido creadas";
         }
 
@@ -392,34 +396,42 @@ public class MonitoringServiceImpl implements MonitoringService{
                     if(!columns.get(0).equalsIgnoreCase("FACULTAD")){
                         valid=false;
                     }
+                    break;
                 case 1:
                     if(!columns.get(1).equalsIgnoreCase("PROGRAMA")) {
                         valid = false;
                     }
+                    break;
                 case 2:
                     if(!columns.get(2).equalsIgnoreCase("CURSO")) {
                         valid = false;
                     }
+                    break;
                 case 3:
                     if(!columns.get(3).equalsIgnoreCase("FECHA INICIO")) {
                         valid = false;
                     }
+                    break;
                 case 4:
                     if(!columns.get(4).equalsIgnoreCase("FECHA FINALIZACION")) {
                         valid = false;
                     }
+                    break;
                 case 5:
-                    if(!columns.get(5).equalsIgnoreCase("PERIODO")) {
+                    if(!columns.get(5).replaceAll("\\s+$", "").equalsIgnoreCase("PERIODO")) {
                         valid = false;
                     }
+                    break;
                 case 6:
-                    if(!columns.get(6).equalsIgnoreCase("PROMEDIO ACUMULADO") || !columns.get(6).equalsIgnoreCase("PROMEDIO MATERIA")) {
+                    if(!columns.get(6).equalsIgnoreCase("PROMEDIO ACUMULADO") && !columns.get(6).equalsIgnoreCase("PROMEDIO MATERIA")) {
                         valid = false;
                     }
+                    break;
                 case 7:
                     if(!columns.get(7).equalsIgnoreCase("PROMEDIO MATERIA")) {
                         valid = false;
                     }
+                    break;
                 default:
                     System.out.println("Opción no disponible"); //Temporal mientras se lleva a producción
             }
