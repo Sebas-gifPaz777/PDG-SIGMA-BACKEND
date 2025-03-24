@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface MonitorRepository extends JpaRepository<Monitor,String> {
 
     public Optional<Monitor> findByCode(String code);
+    public Optional<Monitor> findByIdMonitor(String id);
+
 }

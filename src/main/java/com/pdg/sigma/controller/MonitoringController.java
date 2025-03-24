@@ -97,12 +97,26 @@ public class MonitoringController {
 
     }
 
-   @RequestMapping(value= "/createAll", method = RequestMethod.POST)
-    public ResponseEntity<?> createMultipleMonitoring(@RequestBody MultipartFile file){
+   @RequestMapping(value= "/createAll/{id}", method = RequestMethod.POST)
+    public ResponseEntity<?> createMultipleMonitoring(@RequestParam("file") MultipartFile file, @PathVariable String id){
        try {
-            return ResponseEntity.status(200).body(monitoringService.processListMonitor(file));
+            return ResponseEntity.status(200).body(monitoringService.processListMonitor(file,id));
         } catch (Exception e) {
+           System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Error al procesar el archivo: " + e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/profile/{id}/{role}", method = RequestMethod.GET)
+    public ResponseEntity<?> monitoringToProfile(@PathVariable String id, @PathVariable String role){
+        try {
+            if(role.equalsIgnoreCase("professor"))
+                return ResponseEntity.status(200).body(monitoringService.getByProfessor(id));
+            else
+                return ResponseEntity.status(200).body(monitoringService.getByMonitor(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
 
     }

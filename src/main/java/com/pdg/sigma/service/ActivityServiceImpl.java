@@ -212,7 +212,7 @@ public class ActivityServiceImpl implements ActivityService{
                     for (Activity activityRaw : assigned) {
                         ActivityDTO activity = new ActivityDTO(activityRaw);
                         activity.setType("A");
-                        // activity.setResponsableName(monitor.get().getName()+" "+monitor.get().getLastName());
+                        activity.setResponsableName(monitor.getName()+" "+monitor.getLastName());
                         activity.setMonitor(monitor);
                     
                         activity.setCreatorName(activity.getProfessor().getName());

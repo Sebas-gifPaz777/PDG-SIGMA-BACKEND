@@ -21,6 +21,12 @@ public class MonitorDTO implements Serializable {
     private String monitoringId;
     private String course;
 
+    //Attributes for profile
+    private String school;
+    private String program;
+    private String rol;
+
+
     public MonitorDTO(String code, String name, String lastName, int semester, double gradeAverage, double gradeCourse, Monitoring monitoring, String email, String userId, String monitoringId){
         this.code = code;
         this.name = name;
@@ -69,6 +75,14 @@ public class MonitorDTO implements Serializable {
         this.gradeAverage = applicant.getGradeAverage();
         this.gradeCourse = applicant.getGradeCourse();
         this.email = applicant.getEmail();
+    }
+
+    //Use in profile
+    public MonitorDTO(String school, String program, String role, String name){
+        this.school = school;
+        this.program = program;
+        this.rol = role;
+        this.name = name;
     }
 
 }

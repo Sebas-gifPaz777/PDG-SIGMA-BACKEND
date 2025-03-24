@@ -1,9 +1,6 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.domain.Monitor;
-import com.pdg.sigma.domain.Monitoring;
-import com.pdg.sigma.domain.MonitoringMonitor;
-import com.pdg.sigma.domain.Prospect;
+import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.MonitorDTO;
 import com.pdg.sigma.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +27,8 @@ public class MonitorServiceImpl implements MonitorService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+
 
     @Override
     public List<Monitor> findAll() {
@@ -122,7 +121,51 @@ public class MonitorServiceImpl implements MonitorService {
     public Long count() {
         return null;
     }
+    //Get Monitor profile
+    //Change the method of create monitor taking into account the columm added "id"
+    public MonitorDTO getProfile(String id) throws Exception{
+        Optional<Monitor> monitor = monitorRepository.findByIdMonitor(id);
+        String school="";
+        String program="";
+        String role="Monitor";
+        if(monitor.isPresent()){
+            List<MonitoringMonitor> list = monitoringMonitorRepository.findByMonitor(monitor.get());
 
+
+            List<String> schools = new ArrayList<>();
+            List<String> programs = new ArrayList<>();
+            for(int i=0; i<list.size();i++){
+                if(!schools.contains(list.get(i).getMonitoring().getSchool().getName())){
+                    if(i!= list.size()-1){
+                        school = school+list.get(i).getMonitoring().getSchool().getName()+" | ";
+                    }
+                    else{
+                        school = school+list.get(i).getMonitoring().getSchool().getName();
+                    }
+                    schools.add(list.get(i).getMonitoring().getSchool().getName());
+                }
+                if(!programs.contains(list.get(i).getMonitoring().getProgram().getName())){
+                    if(i!= list.size()-1){
+                        program = program+list.get(i).getMonitoring().getProgram().getName()+" | ";
+                    }
+                    else{
+                        program = program+list.get(i).getMonitoring().getProgram().getName();
+                    }
+                    programs.add(list.get(i).getMonitoring().getProgram().getName());
+                }
+
+            }
+
+            MonitorDTO data = new MonitorDTO(school,program,role, monitor.get().getName()+" "+monitor.get().getLastName());
+
+            return data;
+        }
+        else
+            throw new Exception("No existe monitor con este ID");
+
+    }
+
+    //Not used
     /*public List<Monitor> findPerCourse(String course) throws Exception {
 
         Optional<Monitoring> monitoring = monitoringRepository.findByCourse(courseRepository.findByName(course));
