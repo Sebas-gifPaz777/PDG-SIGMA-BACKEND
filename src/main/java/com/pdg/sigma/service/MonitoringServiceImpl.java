@@ -16,6 +16,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static java.util.Collections.replaceAll;
+
 @Service
 public class MonitoringServiceImpl implements MonitoringService{
 
@@ -39,6 +41,9 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     @Autowired
     private MonitorRepository monitorRepository;
+
+    @Autowired
+    private HeadProgramRepository headProgramRepository;
 
     @Override
     public List<Monitoring> findAll() {
@@ -531,5 +536,41 @@ public class MonitoringServiceImpl implements MonitoringService{
 
 
         return valid;
+    }
+
+    public List<MonitoringDTO> getByHeadDepartment(String id) throws Exception {
+        List<HeadProgram> list = headProgramRepository.findByDepartmentHeadId(id);
+        List<MonitoringDTO> monitoringDTOS = new ArrayList<>();
+        if(!list.isEmpty()){
+            List<Course> courses = courseRepository.findByProgram(list.get(0).getProgram());
+            List<Monitoring> monitorings = new ArrayList<>();
+            for(Course course:courses){
+                Optional<Monitoring> temporal = monitoringRepository.findByCourse(course);
+                if(temporal.isPresent()){
+                    monitorings.add(temporal.get());
+                }
+            }
+            if(!monitorings.isEmpty()){
+                for(Monitoring data: monitorings){
+                    List<MonitoringMonitor> monitoringMonitor = monitoringMonitorRepository.findByMonitoring(data);
+                    String monitor="";
+
+                    for(MonitoringMonitor value:monitoringMonitor){
+                        monitor = value.getMonitor().getName()+" "+value.getMonitor().getLastName()+", ";
+                    }
+                    monitor.replaceAll(", $", "");
+
+                    monitoringDTOS.add(new MonitoringDTO(data.getId(), data.getCourse().getName(), data.getSemester(), monitor, data.getProfessor().getName()));
+
+                }
+
+                return monitoringDTOS;
+            }
+            else
+                throw new Exception("No hay monitorias creadas");
+        }
+        else
+            throw new Exception("No existe jefe con este id");
+
     }
 }

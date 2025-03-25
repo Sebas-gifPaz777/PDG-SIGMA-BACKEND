@@ -3,22 +3,14 @@ package com.pdg.sigma.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.pdg.sigma.domain.HeadProgram;
+import com.pdg.sigma.service.DepartmentHeadServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.pdg.sigma.domain.DepartmentHead;
-import com.pdg.sigma.domain.HeadProfessor;
-import com.pdg.sigma.repository.HeadProfessorRepository;
-import com.pdg.sigma.service.DepartmentHeadService;
+import com.pdg.sigma.repository.HeadProgramRepository;
 
 @RestController
 @RequestMapping("/department-head")
@@ -26,10 +18,10 @@ import com.pdg.sigma.service.DepartmentHeadService;
 public class DepartmentHeadController {
 
     @Autowired
-    private DepartmentHeadService departmentHeadService;
+    private DepartmentHeadServiceImpl departmentHeadService;
 
     @Autowired
-    private HeadProfessorRepository headProfessorRepository;
+    private HeadProgramRepository headProgramRepository;
 
     @GetMapping("/getA")
     public List<DepartmentHead> getAllDepartmentHeads() {
@@ -53,7 +45,7 @@ public class DepartmentHeadController {
         if (!departmentHeadService.findById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        updatedDepartmentHead.setId(id); // Asegurar que se actualiza el correcto
+        updatedDepartmentHead.setId(id.toString()); // Asegurar que se actualiza el correcto
         return ResponseEntity.ok(departmentHeadService.save(updatedDepartmentHead));
     }
 
@@ -67,11 +59,22 @@ public class DepartmentHeadController {
     }
 
     @GetMapping("/{id}/professors")
-    public ResponseEntity<List<HeadProfessor>> getProfessorsByDepartmentHead(@PathVariable Integer id) {
-        List<HeadProfessor> headProfessors = headProfessorRepository.findByDepartmentHeadId(id);
+    public ResponseEntity<List<HeadProgram>> getProfessorsByDepartmentHead(@PathVariable Integer id) {
+        List<HeadProgram> headProfessors = headProgramRepository.findByDepartmentHeadId(id.toString());
         if (headProfessors.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(headProfessors);
+    }
+
+    @RequestMapping(value= "/profile/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getCoursesPerProgram(@PathVariable String id){
+
+        try {
+            return ResponseEntity.ok(departmentHeadService.getProfile(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+
     }
 }

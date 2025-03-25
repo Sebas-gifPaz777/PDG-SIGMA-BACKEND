@@ -14,7 +14,7 @@ import lombok.Setter;
 @Table(name = "head_professor")
 @Getter
 @Setter
-public class HeadProfessor {
+public class HeadProgram {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,6 @@ public class HeadProfessor {
     private DepartmentHead departmentHead;
 
     @ManyToOne
-    @JoinColumn(name = "professor_id", nullable = false)
-    private Professor professor;
+    @JoinColumn(name = "program_id", nullable = false)
+    private Program program;
 }

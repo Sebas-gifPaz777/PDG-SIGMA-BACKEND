@@ -113,8 +113,10 @@ public class MonitoringController {
         try {
             if(role.equalsIgnoreCase("professor"))
                 return ResponseEntity.status(200).body(monitoringService.getByProfessor(id));
-            else
+            else if(role.equalsIgnoreCase("monitor"))
                 return ResponseEntity.status(200).body(monitoringService.getByMonitor(id));
+            else
+                return ResponseEntity.status(200).body(monitoringService.getByHeadDepartment(id));
         } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }

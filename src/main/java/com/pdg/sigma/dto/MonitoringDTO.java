@@ -30,6 +30,7 @@ public class MonitoringDTO  implements Serializable {
     private String  professorId;
     private String semester;
     private String monitor;
+    private String professorName;
     public MonitoringDTO(Long id, Program program, Course course, School school, String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId, String semester) {
         this.id = id;
         this.program = program;
@@ -107,5 +108,13 @@ public class MonitoringDTO  implements Serializable {
         this.finish = finish;
         this.semester = semester;
         this.monitor = monitor;
+    }
+
+    public MonitoringDTO(Long id, String courseName, String semester, String monitor, String professorName) {
+        this.id = id;
+        this.courseName = courseName;
+        this.semester = semester;
+        this.monitor = monitor;
+        this.professorName = professorName;
     }
 }

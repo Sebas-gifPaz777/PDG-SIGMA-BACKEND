@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.pdg.sigma.domain.DepartmentHead;
 
 @Repository
-public interface DepartmentHeadRepository extends JpaRepository<DepartmentHead, Integer> {
+public interface DepartmentHeadRepository extends JpaRepository<DepartmentHead, String> {
     
 }
