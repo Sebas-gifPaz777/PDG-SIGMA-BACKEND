@@ -80,5 +80,18 @@ public class CourseServiceImpl implements  CourseService{
         return newList;
     }
 
+    // public List<Course> findByProgramIds(List<Long> programIds) {
+    //     //List<Long> programIds = new ArrayList<>();
+    //     //programIds.add(programId);
+
+    //     List<Course> list = courseRepository.findByProgramIdIn(programIds);
+    //     return list;
+    // }
+
+    public List<Course> findByProgramId(Long programId) {
+        List<Course> list = courseRepository.findByProgramId(programId);
+        return list;
+    }
+
 
 }

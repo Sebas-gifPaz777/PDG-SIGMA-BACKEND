@@ -1,18 +1,18 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.domain.*;
-import com.pdg.sigma.dto.MonitorDTO;
-import com.pdg.sigma.dto.ProfessorDTO;
-import com.pdg.sigma.repository.CourseProfessorRepository;
-import com.pdg.sigma.repository.MonitoringMonitorRepository;
-import com.pdg.sigma.repository.MonitoringRepository;
-import com.pdg.sigma.repository.ProfessorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.pdg.sigma.domain.CourseProfessor;
+import com.pdg.sigma.domain.Professor;
+import com.pdg.sigma.dto.ProfessorDTO;
+import com.pdg.sigma.repository.CourseProfessorRepository;
+import com.pdg.sigma.repository.MonitoringRepository;
+import com.pdg.sigma.repository.ProfessorRepository;
 
 @Service
 public class ProfessorServiceImpl implements ProfessorService{

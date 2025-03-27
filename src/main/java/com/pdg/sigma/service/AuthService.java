@@ -1,6 +1,11 @@
 package com.pdg.sigma.service;
 
-import com.pdg.sigma.config.WebClientConfig;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import com.pdg.sigma.domain.DepartmentHead;
 import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.domain.Professor;
@@ -10,11 +15,6 @@ import com.pdg.sigma.repository.DepartmentHeadRepository;
 import com.pdg.sigma.repository.MonitorRepository;
 import com.pdg.sigma.repository.ProfessorRepository;
 import com.pdg.sigma.repository.ProspectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class AuthService {
@@ -34,7 +34,7 @@ public class AuthService {
     private final WebClient webClient;
 
     public AuthService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:5432").build(); // Ajusta la URL según corresponda
+        this.webClient = webClientBuilder.baseUrl("http://localhost:5431").build(); // Ajusta la URL según corresponda
     }
 
     public AuthDTO loginUser(AuthDTO auth) throws Exception{
