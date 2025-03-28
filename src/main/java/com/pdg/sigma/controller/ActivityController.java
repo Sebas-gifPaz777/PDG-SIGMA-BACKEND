@@ -6,6 +6,7 @@ import com.pdg.sigma.domain.HeadProgram;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
+import com.pdg.sigma.dto.NewAcitivityRequestDTO;
 import com.pdg.sigma.service.ActivityServiceImpl;
 import com.pdg.sigma.service.DepartmentHeadServiceImpl;
 import com.pdg.sigma.service.CourseServiceImpl;
@@ -131,11 +132,12 @@ public class ActivityController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<?> createActivity(@RequestBody ActivityRequestDTO requestDTO) {
+    public ResponseEntity<?> createActivity(@RequestBody NewAcitivityRequestDTO requestDTO) {
         try {
             ActivityDTO activity = activityService.save(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(activity);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
@@ -158,6 +160,7 @@ public class ActivityController {
             ActivityDTO activity = activityService.update(updatedActivity);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

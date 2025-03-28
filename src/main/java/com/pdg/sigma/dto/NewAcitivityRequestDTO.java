@@ -1,18 +1,17 @@
 package com.pdg.sigma.dto;
 
-import java.util.Date;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityRequestDTO {
-
+public class NewAcitivityRequestDTO {
     private Integer id;
 
     private Date creation;
@@ -37,9 +36,9 @@ public class ActivityRequestDTO {
     private String description;
 
     @NotNull
-    private Integer monitoringId;
+    private int monitoringId;
 
-    private Integer professorId;
+    private String professorId;
     private String monitorId;
 
 

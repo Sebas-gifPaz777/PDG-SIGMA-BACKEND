@@ -369,6 +369,36 @@ public class MonitoringServiceImpl implements MonitoringService{
 
                     throw new Exception("Incompatibilidad con alguno de los campos del archivo");
                 }
+                String semesterDraft = monitoring.getSemester();
+
+                Date currentDate = monitoring.getStart();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(currentDate);
+
+                int currentYear = calendar.get(Calendar.YEAR);
+                int currentMonth = calendar.get(Calendar.MONTH) + 1; // Los meses en Calendar van de 0 a 11
+
+
+                String[] parts = semesterDraft.split("-");
+                int givenYear = Integer.parseInt(parts[0]);
+                int givenSemester = Integer.parseInt(parts[1]);
+
+                // Si el año no coincide, retorna false
+                if (givenYear != currentYear) {
+                    throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el año actual)");
+                }
+
+
+                if (givenSemester == 1) {
+                    if(currentMonth > Calendar.JUNE + 1){
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el semestre actual)");
+                    }
+                } else if (givenSemester == 2) {
+                    if(currentMonth < Calendar.JULY + 1 ){
+                        throw new Exception("Incompatibilidad con alguno de los campos del archivo (Debe ser el semestre actual)");
+                    }
+                }
+
 
                 registList.add(monitoring);
 
@@ -513,6 +543,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                         return null;
                 case 5:
                     if(value.matches(regexSemester)){
+
                         monitoring.setSemester(value);
                         return monitoring;
                     }
