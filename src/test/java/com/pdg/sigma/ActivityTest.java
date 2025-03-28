@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pdg.sigma.controller.ActivityController;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
+import com.pdg.sigma.dto.NewActivityRequestDTO;
 import com.pdg.sigma.domain.StateActivity;
 import com.pdg.sigma.service.ActivityServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +43,7 @@ public class ActivityTest {
     // Prueba para "CREATE Activity"
     @Test
     public void testCreateActivity_Success() throws Exception {
-        ActivityRequestDTO requestDTO = new ActivityRequestDTO();
+        NewActivityRequestDTO requestDTO = new NewActivityRequestDTO();
         requestDTO.setName("TEST Actividad 2");
         requestDTO.setDescription("Descripción de prueba");
         requestDTO.setState("PENDIENTE");
@@ -52,7 +53,7 @@ public class ActivityTest {
         responseDTO.setDescription("Descripción de prueba");
         responseDTO.setState(StateActivity.PENDIENTE); 
 
-        when(activityService.save(any(ActivityRequestDTO.class))).thenReturn(responseDTO);
+        when(activityService.save(any(NewActivityRequestDTO.class))).thenReturn(responseDTO);
 
         mockMvc.perform(post("/activity/create")
                         .contentType(MediaType.APPLICATION_JSON)

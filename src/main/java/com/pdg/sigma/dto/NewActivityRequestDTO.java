@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewAcitivityRequestDTO {
+public class NewActivityRequestDTO {
     private Integer id;
 
     private Date creation;

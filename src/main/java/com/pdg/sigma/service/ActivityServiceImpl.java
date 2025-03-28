@@ -7,7 +7,7 @@ import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.StateActivity;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
-import com.pdg.sigma.dto.NewAcitivityRequestDTO;
+import com.pdg.sigma.dto.NewActivityRequestDTO;
 import com.pdg.sigma.repository.ActivityRepository;
 import com.pdg.sigma.repository.MonitorRepository;
 import com.pdg.sigma.repository.MonitoringRepository;
@@ -131,7 +131,7 @@ public class ActivityServiceImpl implements ActivityService{
     }
 
 
-    public ActivityDTO save(NewAcitivityRequestDTO dto) throws Exception {
+    public ActivityDTO save(NewActivityRequestDTO dto) throws Exception {
 
         Monitoring monitoring = monitoringRepository.findById(Long.valueOf(dto.getMonitoringId()))
         .orElseThrow(() -> new Exception("Monitoring not found"));

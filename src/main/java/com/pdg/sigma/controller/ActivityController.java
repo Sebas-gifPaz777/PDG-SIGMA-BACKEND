@@ -6,7 +6,7 @@ import com.pdg.sigma.domain.HeadProgram;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
-import com.pdg.sigma.dto.NewAcitivityRequestDTO;
+import com.pdg.sigma.dto.NewActivityRequestDTO;
 import com.pdg.sigma.service.ActivityServiceImpl;
 import com.pdg.sigma.service.DepartmentHeadServiceImpl;
 import com.pdg.sigma.service.CourseServiceImpl;
@@ -54,29 +54,6 @@ public class ActivityController {
     
     @Autowired
     private DepartmentHeadServiceImpl departmentHeadService;
-
-    // @RequestMapping(value= "/findAll/{userId}/{role}", method = RequestMethod.GET)
-    // public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role) {
-    //     try {
-    //         List<ActivityDTO> activities = new ArrayList<>();
-
-    //         if (role.equals("jfedpto")) {
-    //             List<Professor> professors = departmentHeadService.getProfessorsByDepartmentHead(Integer.valueOf(userId));
-
-    //             for (Professor professor : professors) {
-    //                 List<ActivityDTO> professorActivities = activityService.findAll(professor.getId(), "professor");
-    //                 activities.addAll(professorActivities);
-    //             }
-    //         } else { // si no es jefe
-    //             activities = activityService.findAll(userId, role);
-    //         }
-
-    //         return ResponseEntity.status(200).body(activities);
-
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(404).body(e.getMessage());
-    //     }
-    // }
 
     @RequestMapping(value = "/findAll/{userId}/{role}", method = RequestMethod.GET)
     public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role) {
@@ -132,7 +109,7 @@ public class ActivityController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<?> createActivity(@RequestBody NewAcitivityRequestDTO requestDTO) {
+    public ResponseEntity<?> createActivity(@RequestBody NewActivityRequestDTO requestDTO) {
         try {
             ActivityDTO activity = activityService.save(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(activity);
