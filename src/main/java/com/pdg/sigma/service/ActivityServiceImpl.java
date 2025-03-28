@@ -7,6 +7,7 @@ import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.StateActivity;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
+import com.pdg.sigma.dto.NewAcitivityRequestDTO;
 import com.pdg.sigma.repository.ActivityRepository;
 import com.pdg.sigma.repository.MonitorRepository;
 import com.pdg.sigma.repository.MonitoringRepository;
@@ -35,6 +36,8 @@ public class ActivityServiceImpl implements ActivityService{
 
     @Autowired
     private ProfessorRepository professorRepository;
+
+
 
     @Override
     public ActivityDTO update(ActivityRequestDTO updatedActivity) throws Exception {
@@ -79,14 +82,22 @@ public class ActivityServiceImpl implements ActivityService{
                     .orElseThrow(() -> new Exception("Monitoring not found")));
         }
 
-        if (updatedActivity.getProfessorId() != null) {
-            activity.setProfessor(professorRepository.findById(updatedActivity.getProfessorId().toString())
-                    .orElseThrow(() -> new Exception("Professor not found")));
-        }
-
+        //MonitorId going to be the id of assgined person, even if it's professor
         if (updatedActivity.getMonitorId() != null) {
-            activity.setMonitor(monitorRepository.findByCode(updatedActivity.getMonitorId())
-                    .orElseThrow(() -> new Exception("Monitor not found")));
+            if(updatedActivity.getRoleCreator().equalsIgnoreCase("M") && updatedActivity.getRoleResponsable().equalsIgnoreCase("M")){
+                activity.setProfessor(null);
+            }
+            if(updatedActivity.getRoleCreator().equalsIgnoreCase("M") && updatedActivity.getRoleResponsable().equalsIgnoreCase("P")){
+                activity.setProfessor(professorRepository.findById(updatedActivity.getMonitorId())
+                        .orElseThrow(() -> new Exception("Professor not found")));
+            }
+            if(updatedActivity.getRoleCreator().equalsIgnoreCase("P") && updatedActivity.getRoleResponsable().equalsIgnoreCase("P")){
+                activity.setMonitor(null);
+            }
+            if(updatedActivity.getRoleCreator().equalsIgnoreCase("P") && updatedActivity.getRoleResponsable().equalsIgnoreCase("M")){
+                activity.setMonitor(monitorRepository.findByIdMonitor(updatedActivity.getMonitorId())
+                        .orElseThrow(() -> new Exception("Monitor not found")));
+            }
         }
 
         Activity updatedEntity = activityRepository.save(activity);
@@ -120,20 +131,33 @@ public class ActivityServiceImpl implements ActivityService{
     }
 
 
-    public ActivityDTO save(ActivityRequestDTO dto) throws Exception {
+    public ActivityDTO save(NewAcitivityRequestDTO dto) throws Exception {
 
-        Monitoring monitoring = monitoringRepository.findById(dto.getMonitoringId().longValue())
+        Monitoring monitoring = monitoringRepository.findById(Long.valueOf(dto.getMonitoringId()))
         .orElseThrow(() -> new Exception("Monitoring not found"));
 
-        Professor professor = dto.getProfessorId() != null 
-                ? professorRepository.findById(dto.getProfessorId().toString())
-                    .orElseThrow(() -> new Exception("Professor not found")) 
-                : null;
+        System.out.println(dto.getRoleCreator());
+        System.out.println(dto.getRoleResponsable());
 
-        Monitor monitor = dto.getMonitorId() != null 
-                ? monitorRepository.findByCode(dto.getMonitorId())
-                    .orElseThrow(() -> new Exception("Monitor not found")) 
-                : null;
+        Professor professor = null;
+       Monitor monitor = null;
+
+        //ProfessorId is ID creator, not matter if is professor or monitor
+        //MonitorId is ID responsable, not matter if is professor or monitor
+        if(dto.getRoleCreator().equalsIgnoreCase("M") && dto.getRoleResponsable().equalsIgnoreCase("M")){
+            monitor = monitorRepository.findByIdMonitor(dto.getProfessorId()).get();
+        }
+        if(dto.getRoleCreator().equalsIgnoreCase("M") && dto.getRoleResponsable().equalsIgnoreCase("P")){
+            monitor = monitorRepository.findByIdMonitor(dto.getProfessorId()).get();
+            professor = professorRepository.findById(dto.getMonitorId()).get();
+        }
+        if(dto.getRoleCreator().equalsIgnoreCase("P") && dto.getRoleResponsable().equalsIgnoreCase("P")){
+            professor = professorRepository.findById(dto.getProfessorId().toString()).get();
+        }
+        if(dto.getRoleCreator().equalsIgnoreCase("P") && dto.getRoleResponsable().equalsIgnoreCase("M")){
+            professor = professorRepository.findById(dto.getProfessorId().toString()).get();
+            monitor = monitorRepository.findByIdMonitor(dto.getMonitorId()).get();
+        }
 
         Activity activity = new Activity(
             dto.getName(),
@@ -224,9 +248,7 @@ public class ActivityServiceImpl implements ActivityService{
 
                 for(ActivityDTO activityDTO:list){
                     activityDTO.setCourse(activityDTO.getMonitoring().getCourse().getName());
-                    activityDTO.setMonitor(null);
-                    activityDTO.setMonitoring(null);
-                    activityDTO.setProfessor(null);
+                    activityDTO.setMonitoring(activityDTO.getMonitoring());
                 }
 
                 return list;
@@ -277,9 +299,7 @@ public class ActivityServiceImpl implements ActivityService{
 
                 for(ActivityDTO activityDTO:list){
                     activityDTO.setCourse(activityDTO.getMonitoring().getCourse().getName());
-                    activityDTO.setMonitor(null);
                     activityDTO.setMonitoring(activityDTO.getMonitoring());
-                    activityDTO.setProfessor(null);
                 }
 
                 return list;

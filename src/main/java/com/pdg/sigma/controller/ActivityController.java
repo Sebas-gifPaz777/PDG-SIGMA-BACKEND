@@ -3,6 +3,7 @@ package com.pdg.sigma.controller;
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
+import com.pdg.sigma.dto.NewAcitivityRequestDTO;
 import com.pdg.sigma.service.ActivityServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,11 +49,12 @@ public class ActivityController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<?> createActivity(@RequestBody ActivityRequestDTO requestDTO) {
+    public ResponseEntity<?> createActivity(@RequestBody NewAcitivityRequestDTO requestDTO) {
         try {
             ActivityDTO activity = activityService.save(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(activity);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
@@ -75,6 +77,7 @@ public class ActivityController {
             ActivityDTO activity = activityService.update(updatedActivity);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

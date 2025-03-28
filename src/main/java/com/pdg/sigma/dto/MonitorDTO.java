@@ -85,4 +85,12 @@ public class MonitorDTO implements Serializable {
         this.name = name;
     }
 
+    //use to get monitor per monitoring
+
+
+    public MonitorDTO(String name, String userId, String rol) {
+        this.name = name;
+        this.userId = userId;
+        this.rol = rol;
+    }
 }
