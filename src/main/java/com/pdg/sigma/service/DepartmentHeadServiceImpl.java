@@ -1,7 +1,9 @@
 package com.pdg.sigma.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.pdg.sigma.domain.*;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pdg.sigma.repository.DepartmentHeadRepository;
+import com.pdg.sigma.repository.CourseProfessorRepository;
 
 @Service
 public class DepartmentHeadServiceImpl implements DepartmentHeadService {
@@ -20,6 +23,9 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
 
     @Autowired
     private HeadProgramRepository headProgramRepository;
+
+    @Autowired
+    private CourseProfessorRepository courseProfessorRepository;
 
     @Autowired
     private CourseRepository courseRepository;
@@ -77,5 +83,33 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
         else
             throw new Exception("No existe jefe con este id");
 
+    }
+
+    public List<Professor> getProfessorsByDepartmentHead(Integer departmentHeadId) {
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId.toString());
+
+        if (headPrograms.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> programIds = headPrograms.stream()
+                .map(headProgram -> headProgram.getProgram().getId())
+                .collect(Collectors.toList());
+
+        List<Course> courses = courseRepository.findByProgramIdIn(programIds);
+
+        if (courses.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> courseIds = courses.stream()
+                .map(Course::getId)
+                .collect(Collectors.toList());
+
+        return courseProfessorRepository.findProfessorsByCourseIds(courseIds); //professors
+    }
+
+    public List<HeadProgram> getProgramsByDepartmentHead(String departmentHeadId) {
+        return headProgramRepository.findByDepartmentHeadId(departmentHeadId);
     }
 }

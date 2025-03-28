@@ -90,28 +90,7 @@ public class DepartmentHeadController {
 
     @GetMapping("/{id}/professors")
     public ResponseEntity<List<Professor>> getProfessorsByDepartmentHead(@PathVariable Integer id) {
-        
-        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(id.toString());
-
-        if (headPrograms.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        List<Long> programIds = headPrograms.stream()
-                .map(headProgram -> headProgram.getProgram().getId()) 
-                .collect(Collectors.toList());
-
-        List<Course> courses = courseRepository.findByProgramIdIn(programIds);
-
-        if (courses.isEmpty()) {
-            return ResponseEntity.ok(Collections.emptyList()); 
-        }
-
-        List<Long> courseIds = courses.stream()
-                .map(Course::getId)
-                .collect(Collectors.toList());
-
-        List<Professor> professors = courseProfessorRepository.findProfessorsByCourseIds(courseIds);
+        List<Professor> professors = departmentHeadService.getProfessorsByDepartmentHead(id);
 
         return ResponseEntity.ok(professors);
     }
