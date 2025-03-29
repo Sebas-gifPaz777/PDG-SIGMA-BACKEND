@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -118,6 +120,11 @@ public class DataSyncService {
             .filter(course -> newCourses.stream().noneMatch(newCourse -> newCourse.getId().equals(course.getId())))
             .toList(); // cursos q no estan
     
+        for (Course course : currentCourses) {
+        monitoringRepository.findByCourse(course).ifPresent(monitoring -> {
+            monitoringMonitorRepository.deleteByMonitoring(monitoring); // Borra los monitores del curso
+        });
+    }
         for (Course course : coursesToDelete) {
             monitoringRepository.findByCourse(course).ifPresent(monitoring -> {
                 // Borrar relaciones con monitores
@@ -126,9 +133,28 @@ public class DataSyncService {
                 monitoringRepository.delete(monitoring);
             });
     
-            // Borrar CourseProfessor con estos cursos
-            courseProfessorRepository.deleteByCourseAndProfessor(course, professor);
+        // Borrar CourseProfessor con estos cursos
+        courseProfessorRepository.deleteByCourseAndProfessor(course, professor);
         }
+
+        for (Course newCourse : newCourses) {
+        Course courseToAdd = courseRepository.findById(newCourse.getId()).orElseGet(() -> {
+            // Si el curso no existe, se crea
+            Course newCreatedCourse = new Course();
+            newCreatedCourse.setId(newCourse.getId());
+            newCreatedCourse.setName(newCourse.getName());
+            newCreatedCourse.setProgram(newCourse.getProgram());
+            return courseRepository.save(newCreatedCourse);
+        });
+
+        // Relacion
+        if (currentCourses.stream().noneMatch(course -> course.getId().equals(courseToAdd.getId()))) {
+            CourseProfessor newRelation = new CourseProfessor();
+            newRelation.setCourse(courseToAdd);
+            newRelation.setProfessor(professor);
+            courseProfessorRepository.save(newRelation);
+        }
+    }
     }
     
     private Course findCourseById(List<Course> courses, Long courseId) {

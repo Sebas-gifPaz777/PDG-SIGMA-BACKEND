@@ -22,6 +22,7 @@ public class DataSyncController {
 
     @PostMapping("/update")
     public ResponseEntity<String> updateSystem(@RequestBody UpdateRequestDTO request) {
+
         try {
             String result = dataSyncService.syncData(request);
             return ResponseEntity.ok(result);
