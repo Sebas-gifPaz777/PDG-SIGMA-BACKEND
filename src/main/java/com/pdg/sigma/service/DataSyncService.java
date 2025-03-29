@@ -13,6 +13,7 @@ import com.pdg.sigma.repository.ProfessorRepository;
 import com.pdg.sigma.domain.Course;
 import com.pdg.sigma.domain.CourseProfessor;
 import com.pdg.sigma.domain.Monitoring;
+import com.pdg.sigma.domain.MonitoringMonitor;
 import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.UpdateRequestDTO;
 import com.pdg.sigma.repository.CourseProfessorRepository;
@@ -107,58 +108,29 @@ public class DataSyncService {
         }
     }
 
+    
     private void updateNewSemester(Professor professor, List<Course> newCourses, List<CourseProfessor> currentRelations) {
         List<Course> currentCourses = currentRelations.stream()
             .map(CourseProfessor::getCourse)
-            .collect(Collectors.toList());
+            .toList(); 
     
-        // Save names
-        for (CourseProfessor relation : currentRelations) {
-            Course existingCourse = relation.getCourse();
-            Course updatedCourse = findCourseById(newCourses, existingCourse.getId());
+        List<Course> coursesToDelete = currentCourses.stream()
+            .filter(course -> newCourses.stream().noneMatch(newCourse -> newCourse.getId().equals(course.getId())))
+            .toList(); // cursos q no estan
     
-            if (updatedCourse != null && !existingCourse.getName().equals(updatedCourse.getName())) {
-                existingCourse.setName(updatedCourse.getName());
-                courseRepository.save(existingCourse);
-            }
-        }
+        for (Course course : coursesToDelete) {
+            monitoringRepository.findByCourse(course).ifPresent(monitoring -> {
+                // Borrar relaciones con monitores
+                monitoringMonitorRepository.deleteByMonitoring(monitoring);
+                // Borrar la monitoría
+                monitoringRepository.delete(monitoring);
+            });
     
-        // Crear relaciones nuevas, db
-        for (Course newCourse : newCourses) {
-            if (currentCourses.stream().noneMatch(course -> course.getId().equals(newCourse.getId()))) {
-                // Verificar si el curso ya existe en la BD
-                Course existingCourse = courseRepository.findById(newCourse.getId()).orElse(null);
-                if (existingCourse == null) {
-                    existingCourse = courseRepository.save(newCourse); // Guardar si no existe
-                }
-    
-                CourseProfessor newRelation = new CourseProfessor();
-                newRelation.setProfessor(professor);
-                newRelation.setCourse(existingCourse);
-                courseProfessorRepository.save(newRelation);
-            }
-        }
-    
-         // Eliminar TODAS las relaciones monitoring-monitor
-         List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor);
-         
-         for (Monitoring monitoring : monitorings) {
-            //  System.out.println("Eliminando monitores de la monitoría ID: " + monitoring.getId());
-             monitoringMonitorRepository.deleteByMonitoring(monitoring);
-         }
-         
-    
-        // Eliminar relaciones de CourseProfessor que ya no están en newCourses
-        for (CourseProfessor relation : currentRelations) {
-            if (newCourses.stream().noneMatch(course -> course.getId().equals(relation.getCourse().getId()))) {
-                courseProfessorRepository.delete(relation);
-            }
+            // Borrar CourseProfessor con estos cursos
+            courseProfessorRepository.deleteByCourseAndProfessor(course, professor);
         }
     }
     
-    
-
-
     private Course findCourseById(List<Course> courses, Long courseId) {
         return courses.stream().filter(course -> course.getId().equals(courseId)).findFirst().orElse(null);
     }
