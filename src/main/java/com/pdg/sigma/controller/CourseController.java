@@ -40,5 +40,11 @@ public class CourseController {
         return ResponseEntity.ok(courses);
     }
 
+    @GetMapping(value= "/getA")
+    public ResponseEntity<?> getAll(){
+        List<CourseDTO> list = courseService.findAll();
+        return ResponseEntity.status(200).body(list);
+    }
+
 
 }

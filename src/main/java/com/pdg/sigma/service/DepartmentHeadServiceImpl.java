@@ -85,8 +85,8 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
 
     }
 
-    public List<Professor> getProfessorsByDepartmentHead(Integer departmentHeadId) {
-        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId.toString());
+    public List<Professor> getProfessorsByDepartmentHead(String departmentHeadId) {
+        List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
 
         if (headPrograms.isEmpty()) {
             return Collections.emptyList();

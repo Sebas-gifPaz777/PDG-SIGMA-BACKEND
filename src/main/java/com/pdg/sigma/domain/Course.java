@@ -5,6 +5,8 @@ import lombok.*;
 
 @Data
 @Entity
+@Setter
+@Getter
 @Table(name = "course")
 public class Course {
 

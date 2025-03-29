@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name = "professor")
 public class Professor {
-
+    
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "varchar(255)")
     private String id;
@@ -18,4 +18,8 @@ public class Professor {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    public Professor(String id) {
+        this.id = id;
+    }
 }

@@ -15,4 +15,5 @@ public interface MonitoringMonitorRepository extends JpaRepository<MonitoringMon
     public List<MonitoringMonitor> findByMonitoringId(Long monitoringId);
     
     public List<MonitoringMonitor> findByMonitor(Monitor monitor);
+    void deleteByMonitoring(Monitoring monitoring);
 }

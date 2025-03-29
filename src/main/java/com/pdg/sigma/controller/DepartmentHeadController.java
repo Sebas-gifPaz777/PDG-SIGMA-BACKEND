@@ -89,7 +89,7 @@ public class DepartmentHeadController {
     }
 
     @GetMapping("/{id}/professors")
-    public ResponseEntity<List<Professor>> getProfessorsByDepartmentHead(@PathVariable Integer id) {
+    public ResponseEntity<List<Professor>> getProfessorsByDepartmentHead(@PathVariable String id) {
         List<Professor> professors = departmentHeadService.getProfessorsByDepartmentHead(id);
 
         return ResponseEntity.ok(professors);
