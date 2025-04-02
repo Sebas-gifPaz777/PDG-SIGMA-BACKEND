@@ -1,5 +1,6 @@
 package com.pdg.sigma.domain;
 
+import com.pdg.sigma.dto.MonitoringDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -65,5 +66,17 @@ public class Monitoring implements Serializable {
 
     public Monitoring() {
 
+    }
+
+    public Monitoring(MonitoringDTO monitoringDTO){
+        this.school = monitoringDTO.getSchool();
+        this.program = monitoringDTO.getProgram();
+        this.course = monitoringDTO.getCourse();
+        this.start = monitoringDTO.getStart();
+        this.finish = monitoringDTO.getFinish();
+        this.averageGrade = monitoringDTO.getAverageGrade();
+        this.courseGrade = monitoringDTO.getCourseGrade();
+        this.semester = monitoringDTO.getSemester();
+        this.professor = monitoringDTO.getProfessor();
     }
 }

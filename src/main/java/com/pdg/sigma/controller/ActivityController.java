@@ -1,9 +1,18 @@
 package com.pdg.sigma.controller;
 
 import com.pdg.sigma.domain.Activity;
+import com.pdg.sigma.domain.Course;
+import com.pdg.sigma.domain.HeadProgram;
+import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
+import com.pdg.sigma.dto.NewActivityRequestDTO;
 import com.pdg.sigma.service.ActivityServiceImpl;
+import com.pdg.sigma.service.DepartmentHeadServiceImpl;
+import com.pdg.sigma.service.CourseServiceImpl;
+
+import com.pdg.sigma.repository.CourseProfessorRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -18,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,24 +46,75 @@ public class ActivityController {
     @Autowired
     private ActivityServiceImpl activityService;
 
-    @RequestMapping(value= "/findAll/{userId}/{role}", method = RequestMethod.GET)
-    public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role){
-        try{
-            List<ActivityDTO> list = activityService.findAll(userId, role);
+    @Autowired
+    private CourseServiceImpl courseService;
+    
+    @Autowired
+    private CourseProfessorRepository courseProfessorRepository;
+    
+    @Autowired
+    private DepartmentHeadServiceImpl departmentHeadService;
 
-            return ResponseEntity.status(200).body(list);
+    @RequestMapping(value = "/findAll/{userId}/{role}", method = RequestMethod.GET)
+    public ResponseEntity<?> getActivitiesPerUser(@PathVariable String userId, @PathVariable String role) {
+        try {
+            List<ActivityDTO> activities = new ArrayList<>();
 
-        }catch (Exception e){
+            if (role.equals("jfedpto")) {
+                List<HeadProgram> headPrograms = departmentHeadService.getProgramsByDepartmentHead(userId);
+
+                if (headPrograms.isEmpty()) {
+                    return ResponseEntity.ok(Collections.emptyList());
+                }
+
+                List<Long> programIds = headPrograms.stream()
+                        .map(headProgram -> headProgram.getProgram().getId())
+                        .collect(Collectors.toList());
+
+                List<Course> courses = courseService.findByProgramIds(programIds);
+
+                if (courses.isEmpty()) {
+                    return ResponseEntity.ok(Collections.emptyList());
+                }
+
+                List<Long> courseIds = courses.stream()
+                        .map(Course::getId)
+                        .collect(Collectors.toList());
+
+                // profesores 
+                List<Professor> professors = courseProfessorRepository.findProfessorsByCourseIds(courseIds);
+
+                if (professors.isEmpty()) {
+                    return ResponseEntity.ok(Collections.emptyList());
+                }
+
+                for (Professor professor : professors) {
+                    List<ActivityDTO> professorActivities = activityService.findAll(professor.getId(), "professor");
+                    // Filtrar actividades solo de los cursos del programa
+                    List<ActivityDTO> filteredActivities = professorActivities.stream()
+                    .filter(activity -> courseIds.contains(activity.getMonitoring().getCourse().getId()))
+                    .collect(Collectors.toList());
+
+                    activities.addAll(filteredActivities);
+                }
+            } else {
+                activities = activityService.findAll(userId, role);
+            }
+
+            return ResponseEntity.status(200).body(activities);
+
+        } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<?> createActivity(@RequestBody ActivityRequestDTO requestDTO) {
+    public ResponseEntity<?> createActivity(@RequestBody NewActivityRequestDTO requestDTO) {
         try {
             ActivityDTO activity = activityService.save(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(activity);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
@@ -75,6 +137,7 @@ public class ActivityController {
             ActivityDTO activity = activityService.update(updatedActivity);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

@@ -6,7 +6,12 @@ import com.pdg.sigma.service.MonitoringServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -88,6 +93,32 @@ public class MonitoringController {
             return ResponseEntity.status(400).body("No hay monitorias en la lista");
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+   @RequestMapping(value= "/createAll/{id}", method = RequestMethod.POST)
+    public ResponseEntity<?> createMultipleMonitoring(@RequestParam("file") MultipartFile file, @PathVariable String id){
+       try {
+            return ResponseEntity.status(200).body(monitoringService.processListMonitor(file,id));
+        } catch (Exception e) {
+           System.out.println(e.getMessage());
+            return ResponseEntity.status(500).body("Error al procesar el archivo: " + e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/profile/{id}/{role}", method = RequestMethod.GET)
+    public ResponseEntity<?> monitoringToProfile(@PathVariable String id, @PathVariable String role){
+        try {
+            if(role.equalsIgnoreCase("professor"))
+                return ResponseEntity.status(200).body(monitoringService.getByProfessor(id));
+            else if(role.equalsIgnoreCase("monitor"))
+                return ResponseEntity.status(200).body(monitoringService.getByMonitor(id));
+            else
+                return ResponseEntity.status(200).body(monitoringService.getByHeadDepartment(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
 
     }

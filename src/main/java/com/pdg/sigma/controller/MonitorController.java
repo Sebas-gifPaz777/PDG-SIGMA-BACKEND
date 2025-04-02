@@ -56,6 +56,16 @@ public class MonitorController {
         }
     }
 
+    @RequestMapping(value = "profile/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> profile(@PathVariable String id) {//Cambiar nombre
+
+        try {
+            return ResponseEntity.ok(monitorService.getProfile(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     /*@RequestMapping(value= "/getPerCourse/{course}", method = RequestMethod.GET)
     public ResponseEntity<?> getMonitorPerCourse(@PathVariable String course){
         try{
