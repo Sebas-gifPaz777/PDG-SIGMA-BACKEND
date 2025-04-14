@@ -1,6 +1,7 @@
 package com.pdg.sigma.dto;
 
 import com.pdg.sigma.domain.Course;
+import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.Program;
 import com.pdg.sigma.domain.School;
 import lombok.Data;
@@ -15,10 +16,12 @@ public class MonitoringDTO  implements Serializable {
     private Program program;
     private Course course;
     private School school;
+    private Professor professor;
 
     private String programName;
     private String courseName;
     private String schoolName;
+
 
     private Date start;
     private Date finish;
@@ -26,6 +29,8 @@ public class MonitoringDTO  implements Serializable {
     private double courseGrade;
     private String  professorId;
     private String semester;
+    private String monitor;
+    private String professorName;
     public MonitoringDTO(Long id, Program program, Course course, School school, String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId, String semester) {
         this.id = id;
         this.program = program;
@@ -90,4 +95,26 @@ public class MonitoringDTO  implements Serializable {
         this.courseName = courseName;
     }
 
+    public MonitoringDTO(double averageGrade, double courseGrade){
+        this.averageGrade = averageGrade;
+        this.courseGrade = courseGrade;
+    }
+
+    //Used for get Monitor and Professor profile
+    public MonitoringDTO(Long id, String courseName, Date start, Date finish, String semester, String monitor) {
+        this.id = id;
+        this.courseName = courseName;
+        this.start = start;
+        this.finish = finish;
+        this.semester = semester;
+        this.monitor = monitor;
+    }
+
+    public MonitoringDTO(Long id, String courseName, String semester, String monitor, String professorName) {
+        this.id = id;
+        this.courseName = courseName;
+        this.semester = semester;
+        this.monitor = monitor;
+        this.professorName = professorName;
+    }
 }

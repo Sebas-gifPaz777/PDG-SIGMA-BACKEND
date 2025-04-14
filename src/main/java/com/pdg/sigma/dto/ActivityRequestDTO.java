@@ -4,9 +4,15 @@ import java.util.Date;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class ActivityRequestDTO {
 
     private Integer id;
@@ -36,7 +42,8 @@ public class ActivityRequestDTO {
     private Integer monitoringId;
 
     private Integer professorId;
-    private String monitorId;    
+    private String monitorId;
+
 
     @NotNull
     private String state;
