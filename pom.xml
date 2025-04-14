@@ -11,6 +11,7 @@
 	<groupId>com.pdg</groupId>
 	<artifactId>sigma</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>sigma</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
