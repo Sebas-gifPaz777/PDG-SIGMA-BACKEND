@@ -70,6 +70,7 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public DepartmentHeadDTO getProfile(String id)throws Exception{
         Optional<DepartmentHead> departmentHead = departmentHeadRepository.findById(id);
         if(departmentHead.isPresent()){
@@ -84,7 +85,8 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
             throw new Exception("No existe jefe con este id");
 
     }
-
+    
+    @Override
     public List<Professor> getProfessorsByDepartmentHead(String departmentHeadId) {
         List<HeadProgram> headPrograms = headProgramRepository.findByDepartmentHeadId(departmentHeadId);
 
@@ -109,6 +111,7 @@ public class DepartmentHeadServiceImpl implements DepartmentHeadService {
         return courseProfessorRepository.findProfessorsByCourseIds(courseIds); //professors
     }
 
+    @Override
     public List<HeadProgram> getProgramsByDepartmentHead(String departmentHeadId) {
         return headProgramRepository.findByDepartmentHeadId(departmentHeadId);
     }

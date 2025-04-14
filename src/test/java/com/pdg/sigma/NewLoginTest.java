@@ -1,48 +1,27 @@
 package com.pdg.sigma;
 
+import com.pdg.sigma.controller.AuthController;
 import com.pdg.sigma.dto.AuthDTO;
-import com.pdg.sigma.repository.DepartmentHeadRepository;
-import com.pdg.sigma.repository.MonitorRepository;
-import com.pdg.sigma.repository.ProfessorRepository;
-import com.pdg.sigma.repository.ProspectRepository;
-import com.pdg.sigma.service.AuthService;
+import com.pdg.sigma.service.AuthService; 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest; 
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(controllers = AuthController.class) 
 public class NewLoginTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private AuthService authService;
-
-    @MockBean
-    private ProspectRepository prospectRepository;
-
-    @MockBean
-    private ProfessorRepository professorRepository;
-
-    @MockBean
-    private MonitorRepository monitorRepository;
-
-    @MockBean
-    private DepartmentHeadRepository departmentHeadRepository;
-
-    @MockBean
-    private WebClient.Builder webClientBuilder;
+    private AuthService authService; // Mock the interface
 
     @Test
     void loginUser_Success() throws Exception {
