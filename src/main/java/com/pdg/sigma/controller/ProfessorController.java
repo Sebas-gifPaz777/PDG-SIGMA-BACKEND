@@ -1,15 +1,15 @@
 package com.pdg.sigma.controller;
 
-import com.pdg.sigma.domain.Monitor;
-import com.pdg.sigma.dto.MonitorDTO;
-import com.pdg.sigma.service.MonitorServiceImpl;
-import com.pdg.sigma.service.ProfessorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.pdg.sigma.service.ProfessorServiceImpl;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/professor")
