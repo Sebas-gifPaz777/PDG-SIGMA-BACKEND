@@ -123,4 +123,28 @@ public class MonitoringController {
 
     }
 
+    @RequestMapping(value= "/getMonitorsReport/{idProfessor}", method = RequestMethod.GET)
+    public ResponseEntity<?> getMonitorsReport(@PathVariable String idProfessor){
+        try{
+
+            return ResponseEntity.status(200).body(monitoringService.getReportMonitors(idProfessor));
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
+    @RequestMapping(value= "/getProfessorReport/{idProfessor}", method = RequestMethod.GET)
+    public ResponseEntity<?> getProfessorReport(@PathVariable String idProfessor){
+        try{
+            return ResponseEntity.status(200).body(monitoringService.getProfessorReport(idProfessor));
+
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
 }

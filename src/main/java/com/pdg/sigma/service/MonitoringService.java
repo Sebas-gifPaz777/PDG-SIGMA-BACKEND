@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MonitoringService extends GenericService<Monitoring, Long>{
     public Monitoring save(MonitoringDTO monitoringDTO) throws Exception;
+
+
 }

@@ -1,13 +1,12 @@
 package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.*;
-import com.pdg.sigma.dto.MonitorDTO;
 import com.pdg.sigma.dto.MonitoringDTO;
+import com.pdg.sigma.dto.ReportDTO;
 import com.pdg.sigma.repository.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,8 +14,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static java.util.Collections.replaceAll;
 
 @Service
 public class MonitoringServiceImpl implements MonitoringService{
@@ -44,6 +41,9 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     @Autowired
     private HeadProgramRepository headProgramRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     @Override
     public List<Monitoring> findAll() {
@@ -311,6 +311,106 @@ public class MonitoringServiceImpl implements MonitoringService{
         }
         else
             throw new Exception("No existe un monitor con este ID");
+    }
+
+    public List<ReportDTO>getReportMonitors(String idProfessor) throws Exception{
+        Optional<Professor> professor = professorRepository.findById(idProfessor);
+        if(professor.isEmpty()){
+            throw new Exception("No hay un profesor con este Id");
+        }
+        List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
+
+        if(monitorings.isEmpty()){
+            throw new Exception("No hay monitorias creadas");
+        }
+        List<MonitoringMonitor> monitors = new ArrayList<>();
+        for(Monitoring monitoring:monitorings){
+            monitors.addAll(monitoringMonitorRepository.findByMonitoring(monitoring));
+        }
+        if( monitors.isEmpty()){
+            throw new Exception("No hay reportes por mostrar");
+        }
+
+        List<ReportDTO> reportDTOList = new ArrayList<>();
+        for(MonitoringMonitor monitor:monitors){
+            List<Activity> activities = filterAssigned(activityRepository.findByMonitorAndRoleResponsable(monitor.getMonitor(), "M"),
+                    activityRepository.findByMonitorAndRoleCreator(monitor.getMonitor(), "M"));
+
+            ReportDTO reportDTO = new ReportDTO(0,0,0);
+            if(!activities.isEmpty()){
+                for(Activity activity:activities){
+                    if(activity.getMonitoring().equals(monitor.getMonitoring())){
+                        if(activity.getState().equals(StateActivity.PENDIENTE))
+                            reportDTO.setPending(reportDTO.getPending()+1);
+
+                        if(activity.getState().equals(StateActivity.COMPLETADO))
+                            reportDTO.setCompleted(reportDTO.getCompleted()+1);
+
+                        if(activity.getState().equals(StateActivity.COMPLETADOT))
+                            reportDTO.setLate(reportDTO.getLate()+1);
+                    }
+                }
+                reportDTO.setName(monitor.getMonitor().getName());
+                reportDTO.setCourse(monitor.getMonitoring().getCourse().getName());
+                reportDTOList.add(reportDTO);
+            }
+        }
+        if(!reportDTOList.isEmpty()){
+            return reportDTOList;
+        }else
+            throw new Exception("No hay reportes por mostrar");
+    }
+
+    public List<ReportDTO> getProfessorReport(String idProfessor)throws Exception {
+        Optional<Professor> professor = professorRepository.findById(idProfessor);
+        if(professor.isPresent()) {
+            List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
+
+            if (monitorings.isEmpty()) {
+                throw new Exception("No hay monitorías creadas");
+            }
+            List<Activity> activitiesAssigned =filterAssigned(activityRepository.findByProfessorAndRoleResponsable(professor.get(), "P"),
+                    activityRepository.findByProfessorAndRoleCreator(professor.get(), "P"));
+
+            List<ReportDTO> reportProfessor = new ArrayList<>();
+            for (Monitoring monitoring : monitorings) {
+                ReportDTO reportDTO = new ReportDTO(0, 0, 0);
+                for (Activity activity : activitiesAssigned) {
+                    if (monitoring.equals(activity.getMonitoring())) {
+                        switch (activity.getState()) {
+                            case StateActivity.PENDIENTE:
+                                reportDTO.setPending(reportDTO.getPending() + 1);
+                                break;
+
+                            case StateActivity.COMPLETADO:
+                                reportDTO.setCompleted(reportDTO.getCompleted() + 1);
+                                break;
+
+                            case StateActivity.COMPLETADOT:
+                                reportDTO.setLate(reportDTO.getLate() + 1);
+                                break;
+
+                            default:
+                                throw new Exception("Estado incorrecto");
+                        }
+
+                    }
+                }
+
+                reportDTO.setName(professor.get().getName());
+                reportProfessor.add(reportDTO);
+            }
+            return reportProfessor;
+
+        }
+        else
+            throw new Exception("No existe professor con este id");
+    }
+
+    public List<Activity> filterAssigned(List<Activity> assigned, List<Activity> creator){
+        List<Activity> result = new ArrayList<>(assigned);
+        result.removeIf(creator::contains);
+        return result;
     }
 
 
@@ -604,4 +704,6 @@ public class MonitoringServiceImpl implements MonitoringService{
             throw new Exception("No existe jefe con este id");
 
     }
+
+
 }
