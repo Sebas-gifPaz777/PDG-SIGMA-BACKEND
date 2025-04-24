@@ -1,9 +1,7 @@
 package com.pdg.sigma.controller;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pdg.sigma.domain.Course;
 import com.pdg.sigma.domain.DepartmentHead;
 import com.pdg.sigma.domain.HeadProgram;
 import com.pdg.sigma.domain.Professor;
-import com.pdg.sigma.repository.CourseProfessorRepository;
-import com.pdg.sigma.repository.CourseRepository;
 import com.pdg.sigma.repository.HeadProgramRepository;
-import com.pdg.sigma.service.DepartmentHeadServiceImpl;
+import com.pdg.sigma.service.DepartmentHeadService;
 
 @RestController
 @RequestMapping("/department-head")
@@ -33,16 +28,10 @@ import com.pdg.sigma.service.DepartmentHeadServiceImpl;
 public class DepartmentHeadController {
 
     @Autowired
-    private DepartmentHeadServiceImpl departmentHeadService;
+    private DepartmentHeadService departmentHeadService;
 
     @Autowired
     private HeadProgramRepository headProgramRepository;
-
-    @Autowired
-    private CourseProfessorRepository courseProfessorRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
 
     @GetMapping("/getA")
     public List<DepartmentHead> getAllDepartmentHeads() {

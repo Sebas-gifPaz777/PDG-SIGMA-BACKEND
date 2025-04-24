@@ -7,7 +7,7 @@ import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.ActivityDTO;
 import com.pdg.sigma.dto.ActivityRequestDTO;
 import com.pdg.sigma.dto.NewActivityRequestDTO;
-import com.pdg.sigma.service.ActivityServiceImpl;
+import com.pdg.sigma.service.ActivityService;
 import com.pdg.sigma.service.DepartmentHeadServiceImpl;
 import com.pdg.sigma.service.CourseServiceImpl;
 
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class ActivityController {
 
     @Autowired
-    private ActivityServiceImpl activityService;
+    private ActivityService activityService;
 
     @Autowired
     private CourseServiceImpl courseService;

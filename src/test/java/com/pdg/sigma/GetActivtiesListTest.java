@@ -1,11 +1,17 @@
 package com.pdg.sigma;
 
+import com.pdg.sigma.controller.ActivityController;
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.dto.ActivityDTO;
-import com.pdg.sigma.service.ActivityServiceImpl;
+import com.pdg.sigma.repository.ActivityRepository;
+import com.pdg.sigma.repository.CourseProfessorRepository;
+import com.pdg.sigma.service.ActivityService;
+import com.pdg.sigma.service.CourseServiceImpl;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -26,7 +32,16 @@ public class GetActivtiesListTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ActivityServiceImpl activityService;
+    private ActivityService activityService;
+
+    @MockBean
+    private CourseServiceImpl courseService;
+
+    @MockBean
+    private CourseProfessorRepository courseProfessorRepository;
+
+    @MockBean
+    private ActivityRepository activityRepository;
 
     @Test
     public void testGetActivitiesPerUser_Monitor_Success() throws Exception {
@@ -40,14 +55,14 @@ public class GetActivtiesListTest {
 
         b.setId(2);
         b.setName("Actividad 2");
-        List<ActivityDTO> mockActivities = List.of(a,b);
+        List<ActivityDTO> mockActivities = List.of(a, b);
 
         Mockito.when(activityService.findAll(userId, role)).thenReturn(mockActivities);
 
-        mockMvc.perform(get("http://localhost:5433/activity/findAll/{userId}/{role}", userId, role)
+        mockMvc.perform(get("/activity/findAll/{userId}/{role}", userId, role)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2)) // Esperamos 2 actividades
+                .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Actividad 1"))
                 .andExpect(jsonPath("$[1].id").value(2))
@@ -65,10 +80,10 @@ public class GetActivtiesListTest {
 
         Mockito.when(activityService.findAll(userId, role)).thenReturn(mockActivities);
 
-        mockMvc.perform(get("http://localhost:5433/activity/findAll/{userId}/{role}", userId, role)
+        mockMvc.perform(get("/activity/findAll/{userId}/{role}", userId, role)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1)) // Esperamos 1 actividad
+                .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(3))
                 .andExpect(jsonPath("$[0].name").value("Clase 1"));
     }
@@ -81,7 +96,7 @@ public class GetActivtiesListTest {
         Mockito.when(activityService.findAll(userId, role))
                 .thenThrow(new Exception("No actividades asignadas o creadas"));
 
-        mockMvc.perform(get("http://localhost:5433/activity/findAll/{userId}/{role}", userId, role)
+        mockMvc.perform(get("/activity/findAll/{userId}/{role}", userId, role)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("No actividades asignadas o creadas"));

@@ -11,6 +11,7 @@
 	<groupId>com.pdg</groupId>
 	<artifactId>sigma</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>sigma</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
@@ -80,6 +81,11 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -96,6 +102,15 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
