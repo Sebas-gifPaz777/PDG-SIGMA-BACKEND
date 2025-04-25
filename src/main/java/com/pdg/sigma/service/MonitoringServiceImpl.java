@@ -13,7 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MonitoringServiceImpl implements MonitoringService{
@@ -44,6 +48,9 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     @Autowired
     private ActivityRepository activityRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
 
     @Override
     public List<Monitoring> findAll() {
@@ -705,5 +712,101 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     }
 
+    public Map<String, Long> getCategoryReport(Long monitoringId) throws Exception {
+        Optional<Monitoring> optionalMonitoring = monitoringRepository.findById(monitoringId);
+        if (optionalMonitoring.isEmpty()) {
+            throw new Exception("No se encontró la monitoría con ID: " + monitoringId);
+        }
+        Monitoring monitoring = optionalMonitoring.get();
+
+        List<Activity> activities = activityRepository.findByMonitoring(monitoring);
+
+        Map<String, Long> categoryCounts = activities.stream()
+                .filter(activity -> activity.getCategory() != null && !activity.getCategory().trim().isEmpty()) // Opcional: filtrar categorías nulas o vacías
+                .collect(Collectors.groupingBy(
+                        Activity::getCategory,
+                        Collectors.counting()
+                ));
+
+        return categoryCounts;
+    }
+
+    public Map<String, Long> getMonthlyAttendanceReport(String professorId, Optional<Long> optionalMonitoringId) throws Exception {
+
+        Optional<Professor> optionalProfessor = professorRepository.findById(professorId);
+        if (optionalProfessor.isEmpty()) {
+            throw new Exception("Profesor con ID " + professorId + " no encontrado.");
+        }
+        Professor professor = optionalProfessor.get();
+
+        List<Monitoring> monitorings;
+        if (optionalMonitoringId.isPresent()) {
+            // Monitoría específica
+            Long monitoringId = optionalMonitoringId.get();
+            Optional<Monitoring> optionalMonitoring = monitoringRepository.findById(monitoringId);
+            if (optionalMonitoring.isEmpty()) {
+                throw new Exception("Monitoría con ID " + monitoringId + " no encontrada.");
+            }
+            Monitoring specificMonitoring = optionalMonitoring.get();
+            // Validar que la monitoría pertenezca al profesor
+            if (!specificMonitoring.getProfessor().equals(professor)) {
+                 throw new Exception("La monitoría con ID " + monitoringId + " no pertenece al profesor con ID " + professorId);
+            }
+            monitorings = List.of(specificMonitoring);
+        } else {
+            monitorings = monitoringRepository.findByProfessor(professor);
+        }
+
+        if (monitorings.isEmpty()) {
+            System.out.println("No se encontraron monitorías para el profesor " + professorId); // Log o debug
+            return Collections.emptyMap(); 
+        }
+        List<Activity> relevantActivities = new ArrayList<>();
+        for (Monitoring m : monitorings) {
+            relevantActivities.addAll(activityRepository.findByMonitoring(m));
+        }
+
+        if (relevantActivities.isEmpty()) {
+             System.out.println("No se encontraron actividades para las monitorías seleccionadas."); // Log o debug
+            return Collections.emptyMap(); 
+        }
+         System.out.println("Actividades encontradas: " + relevantActivities.size()); // Log
+
+        List<Attendance> attendances = attendanceRepository.findByActivityIn(relevantActivities);
+
+        if (attendances.isEmpty()) {
+            System.out.println("No se encontraron registros de asistencia para las actividades."); // Log o debug
+            return Collections.emptyMap();
+        }
+         System.out.println("Asistencias encontradas: " + attendances.size()); // Log 
+
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
+
+        Map<String, Long> monthlyCounts = attendances.stream()
+            .map(Attendance::getActivity)
+            .filter(activity -> activity.getDelivey() != null)
+            .collect(Collectors.groupingBy(
+                activity -> {
+                   return YearMonth.from(activity.getDelivey().toInstant() 
+                                            .atZone(ZoneId.systemDefault())
+                                            .toLocalDate())
+                                     .format(monthFormatter);
+                 },
+                Collectors.counting()
+            ));
+
+        // Ordenar cronológicamente
+        Map<String, Long> sortedMonthlyCounts = monthlyCounts.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new
+                ));
+
+        System.out.println("Reporte generado: " + sortedMonthlyCounts); // Log
+        return sortedMonthlyCounts;
+    }
 
 }

@@ -4,6 +4,7 @@ import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.dto.MonitoringDTO;
 import com.pdg.sigma.service.MonitoringServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/monitoring")
@@ -145,6 +148,43 @@ public class MonitoringController {
             return ResponseEntity.status(500).body(e.getMessage());
         }
 
+    }
+
+    @RequestMapping(value= "/getCategoriesReport/{idMonitoring}", method = RequestMethod.GET)
+    public ResponseEntity<?> getCategoriesReport(@PathVariable String idMonitoring){
+        try {
+            //Long idMonitoria = idMonitoring; 
+            Map<String, Long> reporteCategorias = monitoringService.getCategoryReport(Long.parseLong(idMonitoring));
+
+            reporteCategorias.forEach((categoria, cantidad) -> {
+                System.out.println("Categoría: " + categoria + ", Cantidad: " + cantidad);
+            });
+            return ResponseEntity.status(200).body(reporteCategorias);
+        
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al generar el reporte de categorías: -- "+e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/getAttendanceReport/{professorId}")
+    public ResponseEntity<?> getProfessorMonthlyAttendance(@PathVariable String professorId,@RequestParam(required = false) Long monitoringId) {
+        try {
+            Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
+            Map<String, Long> reportData = monitoringService.getMonthlyAttendanceReport(professorId, optionalMonitoringId);
+
+            if (reportData.isEmpty()) {
+                 return ResponseEntity.ok(Map.of("message", "No se encontraron datos de asistencia para los criterios seleccionados.", "data", reportData));
+
+            }
+            return ResponseEntity.ok(reportData);
+
+        } catch (Exception e) {
+             if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece")) {
+                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+             }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error al generar el reporte de asistencia: " + e.getMessage()));
+        }
     }
 
 }
