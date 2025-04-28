@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -150,28 +151,41 @@ public class MonitoringController {
 
     }
 
-    @RequestMapping(value= "/getCategoriesReport/{idMonitoring}", method = RequestMethod.GET)
-    public ResponseEntity<?> getCategoriesReport(@PathVariable String idMonitoring){
+    @GetMapping("/getCategoriesReport/{professorId}")
+    public ResponseEntity<?> getCategoriesReport(
+            @PathVariable String professorId, 
+            @RequestParam(required = false) Long monitoringId) { //opcional 
         try {
-            //Long idMonitoria = idMonitoring; 
-            Map<String, Long> reporteCategorias = monitoringService.getCategoryReport(Long.parseLong(idMonitoring));
+            Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
 
-            reporteCategorias.forEach((categoria, cantidad) -> {
-                System.out.println("Categoría: " + categoria + ", Cantidad: " + cantidad);
-            });
-            return ResponseEntity.status(200).body(reporteCategorias);
-        
+            Map<String, Object> reportData = monitoringService.getCategoryReport(professorId, optionalMonitoringId);
+
+            List<?> details = (List<?>) reportData.getOrDefault("detalle_por_curso", Collections.emptyList());
+            List<?> totals = (List<?>) reportData.getOrDefault("totales_por_categoria", Collections.emptyList());
+
+            if (details.isEmpty() && totals.isEmpty()) {
+                 System.out.println("Reporte de categorías vacío generado para profesor: " + professorId + ", monitoría: " + optionalMonitoringId);
+                 return ResponseEntity.ok(reportData);
+                 // return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(reportData);
+
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al generar el reporte de categorías: -- "+e.getMessage());
+            if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
+            System.err.println("Error en getCategoriesReport: " + e.getMessage()); // Log error
+            e.printStackTrace(); 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "Error interno al generar el reporte de categorías."));
         }
-
     }
 
     @GetMapping("/getAttendanceReport/{professorId}")
     public ResponseEntity<?> getProfessorMonthlyAttendance(@PathVariable String professorId,@RequestParam(required = false) Long monitoringId) {
         try {
             Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
-            Map<String, Long> reportData = monitoringService.getMonthlyAttendanceReport(professorId, optionalMonitoringId);
+            List<Map<String, Object>> reportData = monitoringService.getMonthlyAttendanceReport(professorId, optionalMonitoringId);
 
             if (reportData.isEmpty()) {
                  return ResponseEntity.ok(Map.of("message", "No se encontraron datos de asistencia para los criterios seleccionados.", "data", reportData));
