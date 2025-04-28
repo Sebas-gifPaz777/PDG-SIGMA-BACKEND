@@ -2,6 +2,7 @@ package com.pdg.sigma.service;
 
 import java.util.Optional;
 
+import com.pdg.sigma.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,6 +32,9 @@ public class AuthService {
     @Autowired
     private DepartmentHeadRepository departmentHeadRepository;
 
+    @Autowired
+    private JwtService jwtService;
+
     private final WebClient webClient;
 
     public AuthService(WebClient.Builder webClientBuilder) {
@@ -47,17 +51,20 @@ public class AuthService {
         if(!response.equalsIgnoreCase("false all") && !response.equalsIgnoreCase("false")){
             if(response.equalsIgnoreCase("student")){
                 if(monitor.isPresent()){
-                    return new AuthDTO("monitor");
+                    String token = jwtService.generateToken(auth.getUserId(),"monitor");
+                    return new AuthDTO("monitor", token, 1);
                 }
             }
             if(response.equalsIgnoreCase("professor")){
                 if(professor.isPresent()){
-                    return new AuthDTO(response);
+                    String token = jwtService.generateToken(auth.getUserId(),response);
+                    return new AuthDTO(response, token,1);
                 }
                 else
                     throw new Exception("Este profesor no tiene materias asignadas dentro del sistema");
             }
-            return new AuthDTO(response);
+            String token = jwtService.generateToken(auth.getUserId(),response);
+            return new AuthDTO(response, token,1);
         }
         else
             throw new Exception("No hay un usuario con este id o contraseña");

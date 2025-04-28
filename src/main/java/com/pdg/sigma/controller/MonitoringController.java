@@ -123,11 +123,11 @@ public class MonitoringController {
 
     }
 
-    @RequestMapping(value= "/getMonitorsReport/{idProfessor}", method = RequestMethod.GET)
-    public ResponseEntity<?> getMonitorsReport(@PathVariable String idProfessor){
+    @RequestMapping(value= "/getMonitorsReport/{idProfessor}/{role}", method = RequestMethod.GET)
+    public ResponseEntity<?> getMonitorsReport(@PathVariable String idProfessor, @PathVariable String role){
         try{
 
-            return ResponseEntity.status(200).body(monitoringService.getReportMonitors(idProfessor));
+            return ResponseEntity.status(200).body(monitoringService.getReportMonitors(idProfessor, role));
 
         }catch (Exception e){
             e.printStackTrace();

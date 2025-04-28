@@ -14,6 +14,11 @@ public class ReportDTO {
     private Integer late;
     private Integer pending;
     private String course;
+    private String semester;
+    private String program;
+    private String professor;
+    private String nameAndCourse;
+
 
     public ReportDTO(Integer completed, Integer late, Integer pending) {
         this.completed = completed;
