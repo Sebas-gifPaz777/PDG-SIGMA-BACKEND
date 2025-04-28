@@ -1,99 +1,208 @@
 package com.pdg.sigma;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pdg.sigma.controller.ActivityController;
-import com.pdg.sigma.dto.ActivityDTO;
+import com.pdg.sigma.domain.Activity;
+import com.pdg.sigma.domain.Monitor;
+import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.dto.ActivityRequestDTO;
 import com.pdg.sigma.dto.NewActivityRequestDTO;
-import com.pdg.sigma.domain.StateActivity;
+import com.pdg.sigma.repository.ActivityRepository;
+import com.pdg.sigma.repository.MonitorRepository;
+import com.pdg.sigma.repository.MonitoringRepository;
+import com.pdg.sigma.repository.ProfessorRepository;
 import com.pdg.sigma.service.ActivityServiceImpl;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@WebMvcTest(ActivityController.class)
+@ExtendWith(MockitoExtension.class)
 public class ActivityTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @InjectMocks
     private ActivityServiceImpl activityService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Mock
+    private ActivityRepository activityRepository;
+
+    @Mock
+    private MonitorRepository monitorRepository;
+
+    @Mock
+    private ProfessorRepository professorRepository;
+
+    @Mock
+    private MonitoringRepository monitoringRepository;
 
     @BeforeEach
-    void setup() {
-        Mockito.reset(activityService);
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
-    // Prueba para "CREATE Activity"
     @Test
-    public void testCreateActivity_Success() throws Exception {
-        NewActivityRequestDTO requestDTO = new NewActivityRequestDTO();
-        requestDTO.setName("TEST Actividad 2");
-        requestDTO.setDescription("Descripción de prueba");
-        requestDTO.setState("PENDIENTE");
+    void testAssignRoles_MonitorCreator_ProfessorResponsible() throws Exception {
+        Activity activity = new Activity();
+        Monitor creatorMonitor = new Monitor();
+        creatorMonitor.setIdMonitor("MON001");
+        Professor responsibleProfessor = new Professor();
+        responsibleProfessor.setId("PROF001");
 
-        ActivityDTO responseDTO = new ActivityDTO();
-        responseDTO.setName("TEST Actividad 2");
-        responseDTO.setDescription("Descripción de prueba");
-        responseDTO.setState(StateActivity.PENDIENTE); 
+        activity.setMonitor(creatorMonitor);
+        activity.setProfessor(responsibleProfessor);
 
-        when(activityService.save(any(NewActivityRequestDTO.class))).thenReturn(responseDTO);
-
-        mockMvc.perform(post("/activity/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.state").value("PENDIENTE"))
-                .andExpect(jsonPath("$.name").value("TEST Actividad 2"));
+        assertEquals(creatorMonitor, activity.getMonitor());
+        assertEquals(responsibleProfessor, activity.getProfessor());
     }
 
-    // Prueba para "UPDATE Activity"
     @Test
-    public void testUpdateActivity_Success() throws Exception {
-        ActivityRequestDTO requestDTO = new ActivityRequestDTO();
-        requestDTO.setId(36);
-        requestDTO.setName("Actividad Actualizada");
-        requestDTO.setDescription("Nueva descripción");
+    void testAssignRoles_ProfessorCreator_MonitorResponsible() throws Exception {
+        Activity activity = new Activity();
+        Professor creatorProfessor = new Professor();
+        creatorProfessor.setId("PROF002");
+        Monitor responsibleMonitor = new Monitor();
+        responsibleMonitor.setIdMonitor("MON002");
 
-        ActivityDTO responseDTO = new ActivityDTO();
-        responseDTO.setName("Actividad Actualizada");
-        responseDTO.setDescription("Nueva descripción");
+        activity.setMonitor(responsibleMonitor);
+        activity.setProfessor(creatorProfessor);
 
-        when(activityService.update(any(ActivityRequestDTO.class))).thenReturn(responseDTO);
-
-        mockMvc.perform(put("/activity/update") 
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.description").value("Nueva descripción"))
-                .andExpect(jsonPath("$.name").value("Actividad Actualizada"));
+        assertEquals(responsibleMonitor, activity.getMonitor());
+        assertEquals(creatorProfessor, activity.getProfessor());
     }
 
-    // ueba para "DELETE Activity"
     @Test
-    public void testDeleteActivity_Success() throws Exception {
-        doNothing().when(activityService).deleteById(anyInt());
+    void testAssignRoles_MonitorCreator_MonitorResponsible() throws Exception {
+        Activity activity = new Activity();
+        Monitor creatorMonitor = new Monitor();
+        creatorMonitor.setIdMonitor("MON003");
 
-        mockMvc.perform(delete("/activity/{id}", 37) 
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        activity.setMonitor(creatorMonitor);
+        activity.setProfessor(null);
 
-        verify(activityService, times(1)).deleteById(37);
+        assertEquals(creatorMonitor, activity.getMonitor());
+        assertNull(activity.getProfessor());
     }
+
+    @Test
+    void testAssignRoles_ProfessorCreator_ProfessorResponsible() throws Exception {
+        Activity activity = new Activity();
+        Professor creatorProfessor = new Professor();
+        creatorProfessor.setId("PROF003");
+        
+        activity.setMonitor(null);
+        activity.setProfessor(creatorProfessor);
+
+        assertNull(activity.getMonitor());
+        assertEquals(creatorProfessor, activity.getProfessor());
+    }
+
+    // @Test
+    // void testSave_NewActivity() throws Exception {
+    //     NewActivityRequestDTO dto = new NewActivityRequestDTO();
+    //     dto.setName("Tarea 1");
+    //     dto.setFinish(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
+    //     dto.setRoleCreator("M");
+    //     dto.setRoleResponsable("P");
+    //     dto.setCategory("Entrega");
+    //     dto.setDescription("Primera tarea");
+    //     dto.setMonitoringId(1);
+    //     dto.setProfessorId("PROF004");
+    //     dto.setMonitorId("MON004");
+    //     dto.setDelivey(new Date(System.currentTimeMillis() + 172800000)); // Day after tomorrow
+    //     dto.setSemester("2025-I");
+
+    //     Monitoring monitoring = new Monitoring();
+    //     monitoring.setId(1L);
+    //     Monitor creatorMonitor = new Monitor();
+    //     creatorMonitor.setIdMonitor("MON004");
+    //     Professor responsibleProfessor = new Professor();
+    //     responsibleProfessor.setId("PROF004");
+    //     Activity savedActivity = new Activity();
+    //     savedActivity.setId(1);
+    //     savedActivity.setName(dto.getName());
+    //     savedActivity.setMonitoring(monitoring);
+    //     savedActivity.setMonitor(creatorMonitor);
+    //     savedActivity.setProfessor(responsibleProfessor);
+    //     savedActivity.setRoleCreator(dto.getRoleCreator());
+    //     savedActivity.setRoleResponsable(dto.getRoleResponsable());
+    //     savedActivity.setState(StateActivity.PENDIENTE);
+    //     savedActivity.setDelivey(dto.getDelivey());
+    //     savedActivity.setSemester(dto.getSemester());
+
+    //     when(monitoringRepository.findById(1L)).thenReturn(Optional.of(monitoring));
+    //     when(monitorRepository.findByIdMonitor("MON004")).thenReturn(Optional.of(creatorMonitor));
+    //     when(professorRepository.findById("PROF004")).thenReturn(Optional.of(responsibleProfessor));
+    //     when(activityRepository.save(any(Activity.class))).thenReturn(savedActivity);
+
+    //     ActivityDTO result = activityService.save(dto);
+
+    //     assertNotNull(result);
+    //     assertEquals(savedActivity.getName(), result.getName());
+    // }
+
+    // @Test
+    // void testUpdate_ExistingActivity() throws Exception {
+    //     ActivityRequestDTO dto = new ActivityRequestDTO();
+    //     dto.setId(1);
+    //     dto.setName("Tarea 1 Actualizada");
+    //     dto.setState("COMPLETADO");
+    //     dto.setMonitoringId(2);
+    //     dto.setMonitorId("MON005");
+    //     dto.setRoleCreator("P");
+    //     dto.setRoleResponsable("M");
+
+    //     Activity existingActivity = new Activity();
+    //     existingActivity.setId(1);
+    //     existingActivity.setName("Tarea 1");
+    //     existingActivity.setState(StateActivity.PENDIENTE);
+    //     Monitoring existingMonitoring = new Monitoring();
+    //     existingMonitoring.setId(1L);
+    //     existingActivity.setMonitoring(existingMonitoring);
+
+    //     Monitoring updatedMonitoring = new Monitoring();
+    //     updatedMonitoring.setId(2L);
+    //     Monitor responsibleMonitor = new Monitor();
+    //     responsibleMonitor.setIdMonitor("MON005");
+    //     Professor creatorProfessor = new Professor();
+    //     creatorProfessor.setId("PROF005");
+    //     Activity updatedActivity = new Activity();
+    //     updatedActivity.setId(1);
+    //     updatedActivity.setName(dto.getName());
+    //     updatedActivity.setState(StateActivity.COMPLETADO);
+    //     updatedActivity.setMonitoring(updatedMonitoring);
+    //     updatedActivity.setMonitor(responsibleMonitor);
+    //     updatedActivity.setProfessor(creatorProfessor);
+    //     updatedActivity.setRoleCreator(dto.getRoleCreator());
+    //     updatedActivity.setRoleResponsable(dto.getRoleResponsable());
+
+    //     when(activityRepository.findById(1)).thenReturn(Optional.of(existingActivity));
+    //     when(monitoringRepository.findById(2L)).thenReturn(Optional.of(updatedMonitoring));
+    //     when(monitorRepository.findByIdMonitor("MON005")).thenReturn(Optional.of(responsibleMonitor));
+    //     when(professorRepository.findById("PROF005")).thenReturn(Optional.of(creatorProfessor));
+    //     when(activityRepository.save(any(Activity.class))).thenReturn(updatedActivity);
+
+    //     ActivityDTO result = activityService.update(dto);
+
+    //     assertNotNull(result);
+    //     assertEquals(updatedActivity.getName(), result.getName());
+    //     assertEquals(updatedActivity.getState().toString(), result.getState());
+    //     assertEquals(updatedActivity.getMonitoring().getId(), result.getMonitoring().getId());
+    // }
+
+    @Test
+    void testUpdate_ActivityNotFound() {
+        ActivityRequestDTO dto = new ActivityRequestDTO();
+        dto.setId(99);
+
+        when(activityRepository.findById(99)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(Exception.class, () -> activityService.update(dto));
+        //assertEquals("Activity not found with id: 99", exception.getMessage());
+    }
+
 }

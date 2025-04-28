@@ -13,7 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Month;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MonitoringServiceImpl implements MonitoringService{
@@ -49,6 +55,10 @@ public class MonitoringServiceImpl implements MonitoringService{
     private DepartmentHeadRepository departmentHeadRepository;
     @Autowired
     private CourseProfessorRepository courseProfessorRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
 
     @Override
     public List<Monitoring> findAll() {
@@ -807,5 +817,241 @@ public class MonitoringServiceImpl implements MonitoringService{
 
     }
 
+    public Map<String, Object> getCategoryReport(String professorId, Optional<Long> optionalMonitoringId) throws Exception {
+
+        Optional<Professor> optionalProfessor = professorRepository.findById(professorId);
+        if (optionalProfessor.isEmpty()) {
+            throw new Exception("Profesor con ID " + professorId + " no encontrado.");
+        }
+        Professor professor = optionalProfessor.get();
+
+        List<Monitoring> monitorings;
+        if (optionalMonitoringId.isPresent()) {
+            Long monitoringId = optionalMonitoringId.get();
+            Optional<Monitoring> optionalMonitoring = monitoringRepository.findById(monitoringId);
+            if (optionalMonitoring.isEmpty()) {
+                throw new Exception("Monitoría con ID " + monitoringId + " no encontrada.");
+            }
+            Monitoring specificMonitoring = optionalMonitoring.get();
+            if (!specificMonitoring.getProfessor().equals(professor)) {
+                throw new Exception("La monitoría con ID " + monitoringId + " no pertenece al profesor con ID " + professorId);
+            }
+            monitorings = List.of(specificMonitoring);
+        } else {
+            monitorings = monitoringRepository.findByProfessor(professor);
+        }
+
+        Map<String, Object> finalReport = new LinkedHashMap<>();
+        finalReport.put("detalle_por_curso", Collections.emptyList());
+        finalReport.put("totales_por_categoria", Collections.emptyList());
+
+
+        if (monitorings.isEmpty()) {
+            System.out.println("No se encontraron monitorías para los criterios.");
+            return finalReport;
+        }
+
+        List<Activity> relevantActivities = new ArrayList<>();
+        for (Monitoring m : monitorings) {
+            if (m.getCourse() != null && m.getCourse().getName() != null && !m.getCourse().getName().trim().isEmpty()) {
+                relevantActivities.addAll(
+                    activityRepository.findByMonitoring(m).stream()
+                            .filter(act -> act.getCategory() != null && !act.getCategory().trim().isEmpty())
+                            .collect(Collectors.toList())
+                );
+            }
+        }
+
+        if (relevantActivities.isEmpty()) {
+            System.out.println("No se encontraron actividades con categoría y curso válido para las monitorías seleccionadas.");
+            return finalReport; 
+        }
+
+        Map<String, Map<String, Long>> perCourseCategoryCounts = relevantActivities.stream()
+                .collect(Collectors.groupingBy(
+                    activity -> activity.getMonitoring().getCourse().getName(),
+                    Collectors.groupingBy(
+                        Activity::getCategory,
+                        Collectors.counting()
+                    )
+                ));
+
+        Map<String, Long> overallCategoryCounts = relevantActivities.stream()
+                .collect(Collectors.groupingBy(
+                    Activity::getCategory,
+                    Collectors.counting()
+                ));
+
+        List<Map<String, Object>> courseDetailsList = new ArrayList<>();
+        List<String> sortedCourseNames = perCourseCategoryCounts.keySet().stream().sorted().collect(Collectors.toList());
+
+        for (String courseName : sortedCourseNames) {
+            Map<String, Long> categoriesInCourse = perCourseCategoryCounts.get(courseName);
+            List<Map<String, Object>> categoryListForCourse = new ArrayList<>();
+
+            List<Map.Entry<String, Long>> sortedCategoriesInCourse = categoriesInCourse.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .collect(Collectors.toList());
+
+            for (Map.Entry<String, Long> categoryEntry : sortedCategoriesInCourse) {
+                Map<String, Object> categoryDetail = new HashMap<>();
+                categoryDetail.put("categoria", categoryEntry.getKey());
+                categoryDetail.put("cantidad", categoryEntry.getValue());
+                categoryListForCourse.add(categoryDetail);
+                // totalForCourse += categoryEntry.getValue();
+            }
+
+            Map<String, Object> courseDetailMap = new LinkedHashMap<>();
+            courseDetailMap.put("curso", courseName);
+            courseDetailMap.put("categorias", categoryListForCourse);
+            // courseDetailMap.put("total_curso", totalForCourse);
+            courseDetailsList.add(courseDetailMap);
+        }
+        
+        List<Map<String, Object>> overallCategoryTotalsList = new ArrayList<>();
+        // long grandTotalActivities = 0L;
+         List<Map.Entry<String, Long>> sortedOverallCategories = overallCategoryCounts.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toList());
+
+        for (Map.Entry<String, Long> overallEntry : sortedOverallCategories) {
+            Map<String, Object> totalCategoryDetail = new HashMap<>();
+            totalCategoryDetail.put("categoria", overallEntry.getKey());
+            totalCategoryDetail.put("cantidad_total", overallEntry.getValue());
+            overallCategoryTotalsList.add(totalCategoryDetail);
+            // grandTotalActivities += overallEntry.getValue();
+        }
+
+        finalReport.put("detalle_por_curso", courseDetailsList);
+        finalReport.put("totales_por_categoria", overallCategoryTotalsList);
+        // finalReport.put("total_actividades_general", grandTotalActivities);
+
+        System.out.println("Reporte complejo de categorías generado (sin totales): " + finalReport);
+        return finalReport;
+    }
+
+    public List<Map<String, Object>> getMonthlyAttendanceReport(String professorId, Optional<Long> optionalMonitoringId) throws Exception {
+
+        Optional<Professor> optionalProfessor = professorRepository.findById(professorId);
+        if (optionalProfessor.isEmpty()) {
+            throw new Exception("Profesor con ID " + professorId + " no encontrado.");
+        }
+        Professor professor = optionalProfessor.get();
+
+        List<Monitoring> monitorings;
+        if (optionalMonitoringId.isPresent()) {
+            // Monitoría específica
+            Long monitoringId = optionalMonitoringId.get();
+            Optional<Monitoring> optionalMonitoring = monitoringRepository.findById(monitoringId);
+            if (optionalMonitoring.isEmpty()) {
+                throw new Exception("Monitoría con ID " + monitoringId + " no encontrada.");
+            }
+            Monitoring specificMonitoring = optionalMonitoring.get();
+            if (!specificMonitoring.getProfessor().equals(professor)) {
+                 throw new Exception("La monitoría con ID " + monitoringId + " no pertenece al profesor con ID " + professorId);
+            }
+            monitorings = List.of(specificMonitoring);
+        } else {
+            monitorings = monitoringRepository.findByProfessor(professor);
+        }
+
+        if (monitorings.isEmpty()) {
+            System.out.println("No se encontraron monitorías para el profesor " + professorId); // Log o debug
+            return Collections.emptyList();
+        }
+        List<Activity> relevantActivities = new ArrayList<>();
+        for (Monitoring m : monitorings) {
+            if (m.getCourse() != null) {
+                 relevantActivities.addAll(activityRepository.findByMonitoring(m));
+            } else {
+                 System.out.println("Advertencia: Monitoría ID " + m.getId() + " no tiene curso asociado, se omitirán sus actividades.");
+            }
+        }
+
+        if (relevantActivities.isEmpty()) {
+             System.out.println("No se encontraron actividades (con curso asociado) para las monitorías seleccionadas."); // Log o debug
+             return Collections.emptyList();
+        }
+         System.out.println("Actividades encontradas: " + relevantActivities.size()); // Log
+
+        List<Attendance> attendances = attendanceRepository.findByActivityIn(relevantActivities);
+
+        if (attendances.isEmpty()) {
+            System.out.println("No se encontraron registros de asistencia para las actividades.");
+            return Collections.emptyList();
+        }
+         System.out.println("Asistencias encontradas: " + attendances.size()); // Log
+
+        Map<YearMonth, Map<String, Long>> groupedData = attendances.stream()
+            .map(Attendance::getActivity)
+            .filter(activity -> activity.getDelivey() != null &&
+                                activity.getMonitoring() != null &&
+                                activity.getMonitoring().getCourse() != null &&
+                                activity.getMonitoring().getCourse().getName() != null &&
+                                !activity.getMonitoring().getCourse().getName().trim().isEmpty())
+            .collect(Collectors.groupingBy(
+                activity -> YearMonth.from(activity.getDelivey().toInstant()
+                                            .atZone(ZoneId.systemDefault())
+                                            .toLocalDate()),
+                Collectors.groupingBy(
+                    activity -> activity.getMonitoring().getCourse().getName(),
+                    Collectors.counting()
+                )
+            ));
+
+        // Ordenar cronológicamente por Año-Mes 
+        Map<YearMonth, Map<String, Long>> sortedGroupedData = new LinkedHashMap<>();
+        groupedData.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEachOrdered(entry -> sortedGroupedData.put(entry.getKey(), entry.getValue()));
+
+        List<Map<String, Object>> reportList = new ArrayList<>();
+        Locale spanishLocale = Locale.forLanguageTag("es-ES");
+
+        for (Map.Entry<YearMonth, Map<String, Long>> monthEntry : sortedGroupedData.entrySet()) {
+            YearMonth yearMonth = monthEntry.getKey();
+            Map<String, Long> courseCounts = monthEntry.getValue();
+
+            int year = yearMonth.getYear();
+            int month = yearMonth.getMonthValue();
+
+            String monthName = Month.of(month).getDisplayName(TextStyle.FULL, spanishLocale);
+            monthName = monthName.substring(0, 1).toUpperCase() + monthName.substring(1);
+
+            String semester;
+            if (month >= 1 && month <= 6) {
+                semester = year + "-1";
+            } else {
+                semester = year + "-2";
+            }
+
+            Map<String, Object> reportEntry = new LinkedHashMap<>(); 
+            reportEntry.put("mes", monthName);
+            reportEntry.put("semestre", semester);
+
+            List<Map<String, Object>> courseDetailsList = new ArrayList<>();
+            long totalForMonth = 0;
+
+            for (Map.Entry<String, Long> courseEntry : courseCounts.entrySet()) {
+                String courseName = courseEntry.getKey();
+                Long count = courseEntry.getValue();
+
+                Map<String, Object> courseDetail = new HashMap<>();
+                courseDetail.put("curso", courseName); // Nombre del curso como valor
+                courseDetail.put("cantidad", count); 
+
+                courseDetailsList.add(courseDetail);
+                totalForMonth += count;
+            }
+
+            reportEntry.put("asistencia_por_curso", courseDetailsList); 
+            reportEntry.put("total_mes", totalForMonth); 
+
+            reportList.add(reportEntry); 
+        }
+
+        System.out.println("Reporte generado (formato lista estructurada): " + reportList); // Log
+        return reportList;
+    }
 
 }

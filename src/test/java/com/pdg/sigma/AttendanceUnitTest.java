@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.domain.Attendance;
@@ -27,6 +30,7 @@ import com.pdg.sigma.repository.AttendanceRepository;
 import com.pdg.sigma.repository.StudentRepository;
 import com.pdg.sigma.service.AttendanceServiceImpl;
 
+@ExtendWith(MockitoExtension.class)
 class AttendanceUnitTest {
 
     @Mock

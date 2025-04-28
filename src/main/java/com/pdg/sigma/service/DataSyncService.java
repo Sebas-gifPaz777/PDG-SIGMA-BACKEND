@@ -22,7 +22,7 @@ import com.pdg.sigma.repository.ProfessorRepository;
 @Service
 public class DataSyncService {
 
-    private final String EXTERNAL_API_BASE_URL = "http://localhost:5431/api";
+    private final String EXTERNAL_API_BASE_URL = "https://api-banner.onrender.com/api";
 
     private final ProfessorRepository professorRepository;
     private final CourseProfessorRepository courseProfessorRepository;

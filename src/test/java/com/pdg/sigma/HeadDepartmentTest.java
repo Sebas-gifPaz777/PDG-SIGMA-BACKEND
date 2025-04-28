@@ -1,36 +1,39 @@
 package com.pdg.sigma;
 
+import com.pdg.sigma.controller.DepartmentHeadController;
 import com.pdg.sigma.dto.DepartmentHeadDTO;
-import com.pdg.sigma.service.DepartmentHeadServiceImpl;
+import com.pdg.sigma.repository.HeadProgramRepository; // Import the repository
+import com.pdg.sigma.service.DepartmentHeadService; // Use the interface
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(controllers = DepartmentHeadController.class)
 public class HeadDepartmentTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private DepartmentHeadServiceImpl departmentHeadService;
+    private DepartmentHeadService departmentHeadService; // Mock the interface
+
+    @MockBean
+    private HeadProgramRepository headProgramRepository; // Mock the repository
 
     @Test
     public void testGetDepartmentHeadProfile_Success() throws Exception {
         String departmentHeadId = "12345";
-        DepartmentHeadDTO mockDepartmentHead = new DepartmentHeadDTO(
-                "Escuela de Ingeniería", "Ingeniería de Sistemas", "Jefe de Departamento", "Carlos Gómez");
+        DepartmentHeadDTO mockDepartmentHead = new DepartmentHeadDTO("Escuela de Ingeniería", "Ingeniería de Sistemas", "Jefe de Departamento", "Carlos Gómez");
 
-        Mockito.when(departmentHeadService.getProfile(departmentHeadId)).thenReturn(mockDepartmentHead);
+        when(departmentHeadService.getProfile(departmentHeadId)).thenReturn(mockDepartmentHead);
 
         mockMvc.perform(get("/department-head/profile/{id}", departmentHeadId)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -45,8 +48,7 @@ public class HeadDepartmentTest {
     public void testGetDepartmentHeadProfile_NotFound() throws Exception {
         String departmentHeadId = "99999";
 
-        Mockito.when(departmentHeadService.getProfile(departmentHeadId))
-                .thenThrow(new Exception("No existe jefe con este id"));
+        when(departmentHeadService.getProfile(departmentHeadId)).thenThrow(new Exception("No existe jefe con este id"));
 
         mockMvc.perform(get("/department-head/profile/{id}", departmentHeadId)
                         .contentType(MediaType.APPLICATION_JSON))

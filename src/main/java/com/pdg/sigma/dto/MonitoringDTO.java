@@ -5,11 +5,13 @@ import com.pdg.sigma.domain.Professor;
 import com.pdg.sigma.domain.Program;
 import com.pdg.sigma.domain.School;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 @Data
+@Getter
 @NoArgsConstructor
 public class MonitoringDTO  implements Serializable {
     private Long id;
@@ -31,6 +33,7 @@ public class MonitoringDTO  implements Serializable {
     private String semester;
     private String monitor;
     private String professorName;
+    
     public MonitoringDTO(Long id, Program program, Course course, School school, String programName, String courseName, String schoolName, Date start, Date finish, double averageGrade, double courseGrade, String professorId, String semester) {
         this.id = id;
         this.program = program;

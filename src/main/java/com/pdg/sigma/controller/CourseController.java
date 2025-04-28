@@ -45,6 +45,14 @@ public class CourseController {
         List<CourseDTO> list = courseService.findAll();
         return ResponseEntity.status(200).body(list);
     }
+    
+    @GetMapping(value= "/getCoursesByProfessor/{professorId}")
+    public ResponseEntity<?> getCoursesByProfessor(@PathVariable String professorId){
+        List<Course> list = courseService.getCoursesByProfessorId(professorId);
+        return ResponseEntity.status(200).body(list);
+    }
+
+
 
 
 }

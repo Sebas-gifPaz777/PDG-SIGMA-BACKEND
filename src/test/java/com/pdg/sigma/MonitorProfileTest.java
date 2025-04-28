@@ -1,13 +1,12 @@
 package com.pdg.sigma;
 
 import com.pdg.sigma.dto.MonitorDTO;
-import com.pdg.sigma.service.MonitorService;
+import com.pdg.sigma.controller.MonitorController; 
 import com.pdg.sigma.service.MonitorServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,9 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(MonitorController.class)
 public class MonitorProfileTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -31,7 +30,7 @@ public class MonitorProfileTest {
 
         Mockito.when(monitorService.getProfile(monitorId)).thenReturn(mockMonitor);
 
-        mockMvc.perform(get("http://localhost:5433/monitor/profile/{id}", monitorId)
+        mockMvc.perform(get("/monitor/profile/{id}", monitorId) // Usa la ruta relativa del controlador
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.school").value("Engineering"))
@@ -46,7 +45,7 @@ public class MonitorProfileTest {
 
         Mockito.when(monitorService.getProfile(monitorId)).thenThrow(new Exception("No existe monitor con este ID"));
 
-        mockMvc.perform(get("http://localhost:5433/monitor/profile/{id}", monitorId)
+        mockMvc.perform(get("/monitor/profile/{id}", monitorId) // Usa la ruta relativa del controlador
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("No existe monitor con este ID"));
