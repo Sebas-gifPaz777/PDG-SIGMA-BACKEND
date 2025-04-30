@@ -2,6 +2,7 @@ package com.pdg.sigma.service;
 
 import java.util.Optional;
 
+import com.pdg.sigma.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,7 +34,16 @@ public class AuthService {
     @Autowired
     private DepartmentHeadRepository departmentHeadRepository;
 
-    private final WebClient webClientPrimary;
+    @Autowired
+    private JwtService jwtService;
+
+    private final WebClient webClient;
+
+    public AuthService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://localhost:5431").build(); // Ajusta la URL según corresponda
+    }
+
+    /*private final WebClient webClientPrimary;
     private final WebClient webClientFallback;
 
     public AuthService(WebClient.Builder webClientBuilder) {
@@ -62,7 +72,7 @@ public class AuthService {
                             .doOnNext(response -> System.out.println("Respuesta recibida del WebClient FALLBACK"))
                             .doOnError(err -> System.out.println("Error también en WebClient FALLBACK: " + err.getMessage()));
                 });
-    }
+    }*/
     
     
     
@@ -77,26 +87,42 @@ public class AuthService {
         if(!response.equalsIgnoreCase("false all") && !response.equalsIgnoreCase("false")){
             if(response.equalsIgnoreCase("student")){
                 if(monitor.isPresent()){
-                    return new AuthDTO("monitor");
+                    String token = jwtService.generateToken(auth.getUserId(),"monitor");
+                    return new AuthDTO("monitor", token, 1);
                 }
             }
             if(response.equalsIgnoreCase("professor")){
                 if(professor.isPresent()){
-                    return new AuthDTO(response);
+                    String token = jwtService.generateToken(auth.getUserId(),response);
+                    return new AuthDTO(response, token,1);
                 }
                 else
                     throw new Exception("Este profesor no tiene materias asignadas dentro del sistema");
             }
-            return new AuthDTO(response);
+            String token = jwtService.generateToken(auth.getUserId(),response);
+            return new AuthDTO(response, token,1);
         }
         else
             throw new Exception("No hay un usuario con este id o contraseña");
     }
 
-    public String authAPI(String id, String password) throws Exception {
+   /* public String authAPI(String id, String password) throws Exception {
         AuthDTO authDTO = new AuthDTO(id, password);
         String respuesta = getAuthData(authDTO).block();
         return respuesta;
+    }*/
+
+    public String authAPI(String id, String password) throws Exception{
+        AuthDTO authDTO = new AuthDTO(id,password);
+        String respuesta = webClient.post()
+                .uri("/api/auth/login")
+                .bodyValue(authDTO)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return respuesta;
     }
+
     
 }

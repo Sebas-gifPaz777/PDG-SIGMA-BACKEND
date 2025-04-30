@@ -19,6 +19,7 @@ public class AuthController {
         try{
             return ResponseEntity.ok(authService.loginUser(auth));
         }catch (Exception e){
+            e.printStackTrace();
             return ResponseEntity.status(400).body(e.getMessage());
         }
 

@@ -31,8 +31,7 @@ public class HeadDepartmentTest {
     @Test
     public void testGetDepartmentHeadProfile_Success() throws Exception {
         String departmentHeadId = "12345";
-        DepartmentHeadDTO mockDepartmentHead = new DepartmentHeadDTO(
-                "Escuela de Ingeniería", "Ingeniería de Sistemas", "Jefe de Departamento", "Carlos Gómez");
+        DepartmentHeadDTO mockDepartmentHead = new DepartmentHeadDTO("Escuela de Ingeniería", "Ingeniería de Sistemas", "Jefe de Departamento", "Carlos Gómez");
 
         when(departmentHeadService.getProfile(departmentHeadId)).thenReturn(mockDepartmentHead);
 

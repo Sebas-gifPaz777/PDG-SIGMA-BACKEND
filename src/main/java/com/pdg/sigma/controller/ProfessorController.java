@@ -19,7 +19,7 @@ public class ProfessorController {
     @Autowired
     private ProfessorServiceImpl professorService;
 
-    @RequestMapping(value = "profile/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/profile/{id}", method = RequestMethod.GET)
     public ResponseEntity<?> profile(@PathVariable String id) {
 
         try {

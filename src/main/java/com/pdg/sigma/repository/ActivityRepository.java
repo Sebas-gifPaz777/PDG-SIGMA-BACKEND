@@ -2,6 +2,7 @@ package com.pdg.sigma.repository;
 
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.domain.Monitor;
+import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.domain.Professor;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,5 +17,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
 
     public List<Activity> findByProfessorAndRoleCreator(Professor monitor, String role);
     public List<Activity> findByProfessorAndRoleResponsable(Professor monitor, String role);
+
+    List<Activity> findByMonitoring(Monitoring monitoring);
 
 }
