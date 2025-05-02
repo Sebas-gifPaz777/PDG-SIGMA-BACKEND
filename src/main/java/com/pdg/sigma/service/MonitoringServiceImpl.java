@@ -52,7 +52,13 @@ public class MonitoringServiceImpl implements MonitoringService{
     private ActivityRepository activityRepository;
 
     @Autowired
+    private DepartmentHeadRepository departmentHeadRepository;
+    @Autowired
+    private CourseProfessorRepository courseProfessorRepository;
+
+    @Autowired
     private AttendanceRepository attendanceRepository;
+
 
     @Override
     public List<Monitoring> findAll() {
@@ -322,46 +328,143 @@ public class MonitoringServiceImpl implements MonitoringService{
             throw new Exception("No existe un monitor con este ID");
     }
 
-    public List<ReportDTO>getReportMonitors(String idProfessor) throws Exception{
-        Optional<Professor> professor = professorRepository.findById(idProfessor);
-        if(professor.isEmpty()){
-            throw new Exception("No hay un profesor con este Id");
-        }
-        List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
+    public List<ReportDTO>getReportMonitors(String idProfessor, String role) throws Exception{
+        if(role.equalsIgnoreCase("professor")){
+            Optional<Professor> professor = professorRepository.findById(idProfessor);
+            if(professor.isEmpty()){
+                throw new Exception("No hay un profesor con este Id");
+            }
+            List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor.get());
 
-        if(monitorings.isEmpty()){
-            throw new Exception("No hay monitorias creadas");
+            if(monitorings.isEmpty()){
+                throw new Exception("No hay monitorias creadas");
+            }
+            List<MonitoringMonitor> monitors = new ArrayList<>();
+            for(Monitoring monitoring:monitorings){
+                monitors.addAll(monitoringMonitorRepository.findByMonitoring(monitoring));
+            }
+            if( monitors.isEmpty()){
+                throw new Exception("No hay reportes por mostrar");
+            }
+
+            List<ReportDTO> reportDTOList = new ArrayList<>();
+            for(MonitoringMonitor monitor:monitors){
+                List<Activity> activities = filterAssigned(activityRepository.findByMonitorAndRoleResponsable(monitor.getMonitor(), "M"),
+                        activityRepository.findByMonitorAndRoleCreator(monitor.getMonitor(), "M"));
+
+                ReportDTO reportDTO = new ReportDTO(0,0,0);
+                if(!activities.isEmpty()){
+                    for(Activity activity:activities){
+                        if(activity.getMonitoring().equals(monitor.getMonitoring())){
+                            if(activity.getState().equals(StateActivity.PENDIENTE))
+                                reportDTO.setPending(reportDTO.getPending()+1);
+
+                            if(activity.getState().equals(StateActivity.COMPLETADO))
+                                reportDTO.setCompleted(reportDTO.getCompleted()+1);
+
+                            if(activity.getState().equals(StateActivity.COMPLETADOT))
+                                reportDTO.setLate(reportDTO.getLate()+1);
+                        }
+                    }
+                    reportDTO.setName(monitor.getMonitor().getName());
+                    reportDTO.setCourse(monitor.getMonitoring().getCourse().getName());
+                    reportDTO.setProfessor(professor.get().getName());
+                    reportDTO.setSemester(monitor.getMonitoring().getSemester());
+                    reportDTO.setProgram(monitor.getMonitoring().getCourse().getProgram().getName());
+                    String[] nameCourse = monitor.getMonitoring().getCourse().getName().split(" ");
+                    if(nameCourse.length>2){
+                        reportDTO.setNameAndCourse(monitor.getMonitor().getName()+" - "+nameCourse[0]+" "+nameCourse[1]+"...");
+                    }else{
+                        reportDTO.setNameAndCourse(monitor.getMonitor().getName()+" - "+monitor.getMonitoring().getCourse().getName());
+                    }
+                    reportDTOList.add(reportDTO);
+                }
+            }
+            if(!reportDTOList.isEmpty()){
+                return reportDTOList;
+            }else
+                throw new Exception("No hay reportes por mostrar");
         }
-        List<MonitoringMonitor> monitors = new ArrayList<>();
-        for(Monitoring monitoring:monitorings){
-            monitors.addAll(monitoringMonitorRepository.findByMonitoring(monitoring));
+        Optional<DepartmentHead> hd = departmentHeadRepository.findById(idProfessor);
+        if(hd.isEmpty()){
+            throw new Exception("No existe un jefe con este Id");
         }
-        if( monitors.isEmpty()){
-            throw new Exception("No hay reportes por mostrar");
+        List<HeadProgram> hp = headProgramRepository.findByDepartmentHeadId(hd.get().getId());
+
+        if(hp.isEmpty()){
+            throw new Exception("No existe un programa al que este asociado con este Id");
         }
 
+        HeadProgram headProgram = hp.get(0);
+        List<Course> courses = courseRepository.findByProgram(headProgram.getProgram());
+        for(Course course:courses){
+            System.out.println(course.getId());
+        }
+        if(courses.isEmpty()){
+            throw new Exception("No existe un cursos con este programa");
+        }
         List<ReportDTO> reportDTOList = new ArrayList<>();
-        for(MonitoringMonitor monitor:monitors){
-            List<Activity> activities = filterAssigned(activityRepository.findByMonitorAndRoleResponsable(monitor.getMonitor(), "M"),
-                    activityRepository.findByMonitorAndRoleCreator(monitor.getMonitor(), "M"));
+        for(Course course:courses){
+            List<CourseProfessor> courseProfessors = courseProfessorRepository.findByCourseId(course.getId());
+            System.out.println("Clases "+ courseProfessors.get(0).getCourse().getName());
+            if(courseProfessors.isEmpty()){
+                throw new Exception("No existe un curso con este Id");
+            }
+            for(CourseProfessor courseProfessor:courseProfessors){
+                Professor professor = courseProfessor.getProfessor();
+                System.out.println(professor.getName());
+                List<Monitoring> monitorings = monitoringRepository.findByProfessor(professor);
 
-            ReportDTO reportDTO = new ReportDTO(0,0,0);
-            if(!activities.isEmpty()){
-                for(Activity activity:activities){
-                    if(activity.getMonitoring().equals(monitor.getMonitoring())){
-                        if(activity.getState().equals(StateActivity.PENDIENTE))
-                            reportDTO.setPending(reportDTO.getPending()+1);
-
-                        if(activity.getState().equals(StateActivity.COMPLETADO))
-                            reportDTO.setCompleted(reportDTO.getCompleted()+1);
-
-                        if(activity.getState().equals(StateActivity.COMPLETADOT))
-                            reportDTO.setLate(reportDTO.getLate()+1);
+                if(monitorings.isEmpty()){
+                    throw new Exception("No hay monitorias creadas");
+                }
+                List<MonitoringMonitor> monitors = new ArrayList<>();
+                for(Monitoring monitoring:monitorings){
+                    if(monitoring.getCourse().equals(courseProfessor.getCourse())){
+                        monitors.addAll(monitoringMonitorRepository.findByMonitoring(monitoring));
                     }
                 }
-                reportDTO.setName(monitor.getMonitor().getName());
-                reportDTO.setCourse(monitor.getMonitoring().getCourse().getName());
-                reportDTOList.add(reportDTO);
+                if( monitors.isEmpty()){
+                    throw new Exception("No hay reportes por mostrar");
+                }
+                for(MonitoringMonitor monitoring:monitors){
+                    System.out.println("Monitorias "+monitoring.getMonitoring().getCourse().getName());
+                }
+
+
+                for(MonitoringMonitor monitor:monitors){
+                    List<Activity> activities = filterAssigned(activityRepository.findByMonitorAndRoleResponsable(monitor.getMonitor(), "M"),
+                            activityRepository.findByMonitorAndRoleCreator(monitor.getMonitor(), "M"));
+
+                    ReportDTO reportDTO = new ReportDTO(0,0,0);
+                    if(!activities.isEmpty()){
+                        for(Activity activity:activities){
+                            if(activity.getMonitoring().equals(monitor.getMonitoring())){
+                                if(activity.getState().equals(StateActivity.PENDIENTE))
+                                    reportDTO.setPending(reportDTO.getPending()+1);
+
+                                if(activity.getState().equals(StateActivity.COMPLETADO))
+                                    reportDTO.setCompleted(reportDTO.getCompleted()+1);
+
+                                if(activity.getState().equals(StateActivity.COMPLETADOT))
+                                    reportDTO.setLate(reportDTO.getLate()+1);
+                            }
+                        }
+                        reportDTO.setName(monitor.getMonitor().getName());
+                        reportDTO.setCourse(monitor.getMonitoring().getCourse().getName());
+                        reportDTO.setProfessor(professor.getName());
+                        reportDTO.setSemester(monitor.getMonitoring().getSemester());
+                        reportDTO.setProgram(monitor.getMonitoring().getCourse().getProgram().getName());
+                        String[] nameCourse = monitor.getMonitoring().getCourse().getName().split(" ");
+                        if(nameCourse.length>2){
+                            reportDTO.setNameAndCourse(monitor.getMonitor().getName()+" - "+nameCourse[0]+" "+nameCourse[1]+"...");
+                        }else{
+                            reportDTO.setNameAndCourse(monitor.getMonitor().getName()+" - "+monitor.getMonitoring().getCourse().getName());
+                        }
+                        reportDTOList.add(reportDTO);
+                    }
+                }
+
             }
         }
         if(!reportDTOList.isEmpty()){

@@ -11,6 +11,7 @@ public class AuthDTO {
     private String userId;
     private String password;
     private String role;
+    private String token;
 
     public AuthDTO(String userId, String password, String role){
         this.userId = userId;
@@ -24,6 +25,10 @@ public class AuthDTO {
 
     public AuthDTO(String role){
         this.role = role;
+    }
+    public AuthDTO(String role, String token, int diff){
+        this.role = role;
+        this.token = token;
     }
 
 }
