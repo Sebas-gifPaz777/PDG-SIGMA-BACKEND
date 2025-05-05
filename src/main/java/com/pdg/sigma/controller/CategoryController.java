@@ -22,7 +22,7 @@ import com.pdg.sigma.service.CourseServiceImpl;
 
 @RestController
 @RequestMapping("/category")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 public class CategoryController {
 
     
