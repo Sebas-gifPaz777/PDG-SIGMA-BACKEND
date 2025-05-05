@@ -2,7 +2,6 @@ package com.pdg.sigma.config;
 
 
 import com.pdg.sigma.util.JwtAuthenticationFilter;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,12 +10,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
@@ -30,20 +34,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(withDefaults())
+                .cors() // habilita el uso del bean corsConfigurationSource
+                .and()
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(
-                                        "/auth/login",
-                                        "/monitoring/getA",
-                                        "/monitoring/findByFaculty",
-                                        "/monitoring/findByProgram",
-                                        "/monitoring/findByCourse",
-                                        "/school/getSchools",
-                                        "/program/getProgramsSchool",
-                                        "/course/getCoursesProgram"
-                                ).permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/auth/login",
+                                "/monitoring/getA",
+                                "/monitoring/findByFaculty",
+                                "/monitoring/findByProgram",
+                                "/monitoring/findByCourse",
+                                "/school/getSchools",
+                                "/program/getProgramsSchool",
+                                "/course/getCoursesProgram"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
