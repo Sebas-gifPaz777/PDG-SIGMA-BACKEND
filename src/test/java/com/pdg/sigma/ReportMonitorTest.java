@@ -5,10 +5,14 @@ import com.pdg.sigma.dto.ReportDTO;
 import com.pdg.sigma.repository.*;
 import com.pdg.sigma.service.MonitoringServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -19,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static reactor.core.publisher.Mono.when;
 
-@SpringBootTest(classes = SigmaApplication.class)
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 public class ReportMonitorTest {
 
     @Mock

@@ -6,10 +6,14 @@ import com.pdg.sigma.controller.MonitoringController;
 import com.pdg.sigma.service.MonitoringServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +24,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = MonitoringController.class) 
+// @WebMvcTest(controllers = MonitoringController.class) 
+// @ComponentScan(basePackages = "com.pdg.sigma.util")
+@SpringBootTest
+@AutoConfigureMockMvc
 public class CreateMultipleMonitoringsTest {
 
     @Autowired
@@ -36,6 +43,7 @@ public class CreateMultipleMonitoringsTest {
     private ProfessorRepository professorRepository;
 
     @Test
+    @WithMockUser(roles = "jfedpto")
     public void testProcessListMonitor_Success() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -52,6 +60,7 @@ public class CreateMultipleMonitoringsTest {
     }
 
     @Test
+    @WithMockUser(roles = "professor")
     public void testProcessListMonitor_EmptyFile() throws Exception {
         MockMultipartFile emptyFile = new MockMultipartFile("file", "empty.xlsx",
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new byte[0]);
@@ -66,6 +75,7 @@ public class CreateMultipleMonitoringsTest {
     }
 
     @Test
+    @WithMockUser(roles = "professor")
     public void testProcessListMonitor_InvalidColumns() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "invalid_columns.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -82,6 +92,7 @@ public class CreateMultipleMonitoringsTest {
     }
 
     @Test
+    @WithMockUser(roles = "professor")
     public void testProcessListMonitor_ProfessorNotFound() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "valid.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

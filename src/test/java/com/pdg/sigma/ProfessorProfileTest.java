@@ -1,21 +1,26 @@
 package com.pdg.sigma;
 
+import com.pdg.sigma.controller.ProfessorController;
 import com.pdg.sigma.dto.ProfessorDTO;
 import com.pdg.sigma.service.ProfessorServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@WebMvcTest(controllers = ProfessorController.class)
 @AutoConfigureMockMvc
+@ComponentScan(basePackages = "com.pdg.sigma.util")
 public class ProfessorProfileTest {
 
     @Autowired
@@ -26,6 +31,7 @@ public class ProfessorProfileTest {
 
     // Happy Path**: El profesor existe y se devuelve su perfil correctamente.
     @Test
+    @WithMockUser(roles="professor")
     public void testGetProfessorProfile_Success() throws Exception {
         String professorId = "12345";
         ProfessorDTO mockProfessor = new ProfessorDTO("Barberi de Ingeniería, Diseño y Ciencias Aplicadas", "Ingeniaría de Sistemas", "Profesor", "Juan Pérez");
@@ -44,6 +50,7 @@ public class ProfessorProfileTest {
 
     // Not Happy Path**: El profesor no existe y se lanza una excepción.
     @Test
+    @WithMockUser(roles="professor")
     public void testGetProfessorProfile_NotFound() throws Exception {
         String invalidId = "99999";
 
@@ -59,6 +66,7 @@ public class ProfessorProfileTest {
 
     // Not Happy Path**: El profesor no tiene cursos asignados.
     @Test
+    @WithMockUser(roles="professor")
     public void testGetProfessorProfile_NoCoursesAssigned() throws Exception {
         String professorId = "55555";
 

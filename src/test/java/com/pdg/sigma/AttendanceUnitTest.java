@@ -21,6 +21,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan;
 
 import com.pdg.sigma.domain.Activity;
 import com.pdg.sigma.domain.Attendance;
@@ -30,7 +32,21 @@ import com.pdg.sigma.repository.AttendanceRepository;
 import com.pdg.sigma.repository.StudentRepository;
 import com.pdg.sigma.service.AttendanceServiceImpl;
 
-@ExtendWith(MockitoExtension.class)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")@ExtendWith(MockitoExtension.class
+)
+@ComponentScan(basePackages = "com.pdg.sigma.util")
 class AttendanceUnitTest {
 
     @Mock

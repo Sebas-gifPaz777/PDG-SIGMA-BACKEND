@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.*;
@@ -21,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MonitoringController.class) 
+@ComponentScan(basePackages = "com.pdg.sigma.util")
 class MonitoringControllerReportTest {
 
     @Autowired
@@ -63,34 +66,40 @@ class MonitoringControllerReportTest {
     // }
 
     @Test
+    @WithMockUser(roles = "professor")
     void getMonitorsReport_ProfessorNotFound() throws Exception {
         // Arrange: Configura el mock para lanzar la excepción específica
         String errorMessage = "No hay un profesor con este Id";
-        when(monitoringService.getReportMonitors(professorId)).thenThrow(new Exception(errorMessage));
+        String professorId = "prof123"; // Asegúrate de que professorId esté definido o inicializado
+        String role = "professor"; // <-- Define el valor del rol
+
+        when(monitoringService.getReportMonitors(professorId, role)).thenThrow(new Exception(errorMessage));
 
         // Act & Assert
-        mockMvc.perform(get("/monitoring/getMonitorsReport/{idProfessor}", professorId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError()) 
-                .andExpect(content().string(errorMessage)); 
+        mockMvc.perform(get("/monitoring/getMonitorsReport/{idProfessor}/{role}", professorId, role) // <-- Añade {role} y pasa la variable 'role'
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(errorMessage));
 
         // Verify
-        verify(monitoringService, times(1)).getReportMonitors(professorId);
-    }
+        verify(monitoringService, times(1)).getReportMonitors(professorId, role);
+        }
 
-     @Test
+    @Test
+    @WithMockUser(roles = "professor") 
     void getMonitorsReport_EmptyReport() throws Exception {
         String errorMessage = "No hay reportes por mostrar";
-        when(monitoringService.getReportMonitors(professorId)).thenThrow(new Exception(errorMessage));
+        String role = "professor";
+        when(monitoringService.getReportMonitors(professorId,"professor")).thenThrow(new Exception(errorMessage));
 
         // Act & Assert
-        mockMvc.perform(get("/monitoring/getMonitorsReport/{idProfessor}", professorId)
+        mockMvc.perform(get("/monitoring/getMonitorsReport/{idProfessor}/{role}", professorId, role)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError()) 
                 .andExpect(content().string(errorMessage)); 
 
         // Verify
-        verify(monitoringService, times(1)).getReportMonitors(professorId);
+        verify(monitoringService, times(1)).getReportMonitors(professorId,"professor");
     }
 
     // @Test
@@ -111,6 +120,7 @@ class MonitoringControllerReportTest {
     // }
 
     @Test
+    @WithMockUser(roles = "professor") 
     void getProfessorReport_ServiceError() throws Exception {
         String errorMessage = "Error de base de datos";
         when(monitoringService.getProfessorReport(professorId)).thenThrow(new RuntimeException(errorMessage));
@@ -126,6 +136,7 @@ class MonitoringControllerReportTest {
     // --- Tests para getCategoriesReport ---
 
     @Test
+    @WithMockUser
     void getCategoriesReport_Success_WithMonitoringId() throws Exception {
         // Arrange
         Map<String, Object> mockReport = new LinkedHashMap<>();
@@ -148,6 +159,7 @@ class MonitoringControllerReportTest {
     }
 
     @Test
+    @WithMockUser
     void getCategoriesReport_Success_WithoutMonitoringId() throws Exception {
         // Arrange
         Map<String, Object> mockReport = new LinkedHashMap<>();
@@ -169,7 +181,8 @@ class MonitoringControllerReportTest {
         verify(monitoringService, times(1)).getCategoryReport(eq(professorId), eq(Optional.empty()));
     }
 
-     @Test
+    @Test
+    @WithMockUser
     void getCategoriesReport_Empty() throws Exception {
         Map<String, Object> mockReport = new LinkedHashMap<>();
         mockReport.put("detalle_por_curso", Collections.emptyList());
@@ -191,6 +204,7 @@ class MonitoringControllerReportTest {
 
 
     @Test
+    @WithMockUser
     void getCategoriesReport_ProfessorNotFound() throws Exception {
         // Arrange
         String errorMessage = "Profesor con ID " + professorId + " no encontrado.";
@@ -208,6 +222,7 @@ class MonitoringControllerReportTest {
     }
 
     @Test
+    @WithMockUser
     void getCategoriesReport_InternalError() throws Exception {
         // Arrange
         String errorMessage = "Error interno al generar el reporte de categorías."; 
@@ -225,6 +240,7 @@ class MonitoringControllerReportTest {
     }
 
     @Test
+    @WithMockUser
     void getProfessorMonthlyAttendance_Success_WithoutMonitoringId() throws Exception {
         // Arrange
         List<Map<String, Object>> mockReport = Arrays.asList(
@@ -246,8 +262,9 @@ class MonitoringControllerReportTest {
         // Verify
         verify(monitoringService, times(1)).getMonthlyAttendanceReport(eq(professorId), eq(Optional.empty()));
     }
-
-     @Test
+    
+    @Test
+    @WithMockUser
     void getProfessorMonthlyAttendance_Success_WithMonitoringId() throws Exception {
         // Arrange
         List<Map<String, Object>> mockReport = Collections.singletonList(
@@ -271,6 +288,7 @@ class MonitoringControllerReportTest {
 
 
     @Test
+    @WithMockUser
     void getProfessorMonthlyAttendance_Empty() throws Exception {
         // Arrange: Servicio devuelve lista vacía
         List<Map<String, Object>> mockReport = Collections.emptyList();
@@ -309,7 +327,8 @@ class MonitoringControllerReportTest {
     //     verify(monitoringService, times(1)).getMonthlyAttendanceReport(eq(professorId), eq(Optional.of(monitoringId)));
     // }
 
-     @Test
+    @Test
+    @WithMockUser
     void getProfessorMonthlyAttendance_InternalError() throws Exception {
         // Arrange
         String expectedErrorMessage = "Error al generar el reporte de asistencia: DB Error"; // Mensaje del controller + causa
