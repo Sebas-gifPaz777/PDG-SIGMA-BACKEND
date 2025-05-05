@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pdg.sigma.service.EmailSenderService;
 
 
-@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class EmailSenderController {
 
