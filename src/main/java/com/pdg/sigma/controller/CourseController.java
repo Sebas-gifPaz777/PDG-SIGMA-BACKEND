@@ -15,7 +15,7 @@ import com.pdg.sigma.domain.Course;
 import com.pdg.sigma.dto.CourseDTO;
 import com.pdg.sigma.service.CourseServiceImpl;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 @RequestMapping("/course")
 @RestController
 public class CourseController {

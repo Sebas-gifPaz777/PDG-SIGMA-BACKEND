@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 @RequestMapping("/activity")
 @RestController
 public class ActivityController {

@@ -9,7 +9,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
@@ -17,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = DepartmentHeadController.class)
+@ComponentScan(basePackages = "com.pdg.sigma.util")
 public class HeadDepartmentTest {
 
     @Autowired
@@ -29,6 +32,7 @@ public class HeadDepartmentTest {
     private HeadProgramRepository headProgramRepository; // Mock the repository
 
     @Test
+    @WithMockUser(roles = "jfedpto")
     public void testGetDepartmentHeadProfile_Success() throws Exception {
         String departmentHeadId = "12345";
         DepartmentHeadDTO mockDepartmentHead = new DepartmentHeadDTO("Escuela de Ingeniería", "Ingeniería de Sistemas", "Jefe de Departamento", "Carlos Gómez");
@@ -45,6 +49,7 @@ public class HeadDepartmentTest {
     }
 
     @Test
+    @WithMockUser(roles = "jfedpto")
     public void testGetDepartmentHeadProfile_NotFound() throws Exception {
         String departmentHeadId = "99999";
 

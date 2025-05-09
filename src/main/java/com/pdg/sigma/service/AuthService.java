@@ -40,42 +40,9 @@ public class AuthService {
     private final WebClient webClient;
 
     public AuthService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:5431").build(); // Ajusta la URL según corresponda
+        this.webClient = webClientBuilder.baseUrl("https://api-banner-production.up.railway.app").build();
+        //this.webClient = webClientBuilder.baseUrl("http://localhost:5431").build();
     }
-
-    /*private final WebClient webClientPrimary;
-    private final WebClient webClientFallback;
-
-    public AuthService(WebClient.Builder webClientBuilder) {
-        this.webClientPrimary = webClientBuilder.baseUrl("https://api-banner.onrender.com").build();
-        this.webClientFallback = webClientBuilder.baseUrl("http://localhost:5431").build();
-    }
-    
-    public Mono<String> getAuthData(AuthDTO authDTO) {
-        return webClientPrimary.post()
-                .uri("/api/auth/login")
-                .bodyValue(authDTO)
-                .retrieve()
-                .bodyToMono(String.class)
-                .doOnSubscribe(subscription -> System.out.println("Iniciando conexión con WebClient PRIMARY..."))
-                .doOnRequest(n -> System.out.println("Enviando solicitud al WebClient PRIMARY..."))
-                .doOnNext(response -> System.out.println("Respuesta recibida del WebClient PRIMARY"))
-                .doOnError(e -> System.out.println("Error al consumir WebClient PRIMARY: " + e.getMessage()))
-                .onErrorResume(e -> {
-                    System.out.println("Fallo WebClient PRIMARY, intentando con WebClient FALLBACK (localhost)...");
-                    return webClientFallback.post()
-                            .uri("/api/auth/login")
-                            .bodyValue(authDTO)
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .doOnSubscribe(sub -> System.out.println("Intentando conexión con WebClient FALLBACK..."))
-                            .doOnNext(response -> System.out.println("Respuesta recibida del WebClient FALLBACK"))
-                            .doOnError(err -> System.out.println("Error también en WebClient FALLBACK: " + err.getMessage()));
-                });
-    }*/
-    
-    
-    
 
     public AuthDTO loginUser(AuthDTO auth) throws Exception{
         Optional<Prospect> student = prospectRepository.findById(auth.getUserId());

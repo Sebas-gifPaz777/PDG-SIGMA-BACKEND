@@ -1,0 +1,34 @@
+# Diseño de Pruebas: ProfessorController - Obtener Perfil (ProfessorProfileTest)
+
+Este documento detalla los casos de prueba implementados en la clase `ProfessorProfileTest` para verificar la funcionalidad del endpoint `/professor/profile/{id}` en `ProfessorController` (se asume que existe un `ProfessorController`), responsable de obtener la información del perfil de un Profesor.
+
+**Objetivo:** Validar que el controlador maneja correctamente las solicitudes para obtener el perfil de un Profesor, interactúa adecuadamente con `ProfessorServiceImpl`, y gestiona los casos de éxito y diferentes escenarios de error (ej. profesor no encontrado, profesor sin cursos).
+
+**Alcance:** Pruebas de integración ligera del endpoint `/professor/profile/{id}` utilizando `@SpringBootTest` y `@AutoConfigureMockMvc`. Se mockea la dependencia `ProfessorServiceImpl` para aislar la prueba del controlador y la lógica específica del endpoint.
+
+**Estrategia:** Simular peticiones HTTP GET utilizando `MockMvc`. Configurar el mock de `ProfessorServiceImpl` para devolver un `ProfessorDTO` o lanzar excepciones específicas según el escenario. Verificar los códigos de estado HTTP y el contenido de las respuestas JSON o texto plano.
+
+## Casos de Prueba (Implementados en `ProfessorProfileTest`)
+
+### 1. Obtención de Perfil del Profesor
+
+| ID Caso  | Nombre del Test (Método)                     | Descripción                                                                                         | Precondiciones (Mocks)                                                                    | Pasos                                                                                        | Resultado Esperado                                                                                                                                       | Estado |
+| :------- | :------------------------------------------- | :-------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :----- |
+| PROF-GP-001 | `testGetProfessorProfile_Success`            | **Happy Path**: Verifica la obtención exitosa del perfil para un ID de profesor válido.                 | `professorService.getProfile("12345")` devuelve un `ProfessorDTO` válido.               | 1. Definir `professorId`. 2. Configurar Mock del servicio. 3. Realizar petición GET a `/professor/profile/{id}`. | Status HTTP 200 (OK). Cuerpo JSON contiene los datos esperados del DTO (school, program, rol, name) verificados con `jsonPath`.                     | OK     |
+| PROF-GP-002 | `testGetProfessorProfile_NotFound`           | **Not Happy Path**: Verifica el manejo cuando el ID de profesor no existe.                            | `professorService.getProfile("99999")` lanza `Exception("No existe profesor...")`.       | 1. Definir `invalidId`. 2. Configurar Mock para lanzar excepción. 3. Realizar petición GET. | Status HTTP 404 (Not Found). Cuerpo de la respuesta (texto plano) contiene el mensaje de error exacto "No existe profesor con este ID".            | OK     |
+| PROF-GP-003 | `testGetProfessorProfile_NoCoursesAssigned` | **Not Happy Path**: Verifica el manejo cuando el profesor existe pero no tiene cursos asignados (según la lógica del servicio que lanza excepción). | `professorService.getProfile("55555")` lanza `Exception("No tiene asignado cursos...")`. | 1. Definir `professorId`. 2. Configurar Mock para lanzar excepción específica. 3. Realizar petición GET. | Status HTTP 404 (Not Found). Cuerpo de la respuesta (texto plano) contiene el mensaje de error exacto "No tiene asignado cursos para este semestre". | OK     |
+| PROF-GP-004 | N/A                                          | Verifica el manejo de un error interno inesperado en el servicio.                                  | `professorService.getProfile(id)` lanza `RuntimeException("Error interno")`.              | 1. Definir `professorId`. 2. Configurar Mock para lanzar `RuntimeException`. 3. Realizar petición GET.      | Status HTTP 500 (Internal Server Error). Cuerpo de la respuesta contiene un mensaje de error genérico (según el controlador).                       | Pendiente |
+| PROF-GP-005 | N/A                                          | Verifica el comportamiento con un ID de formato inválido (si aplica validación).                  | -                                                                                         | 1. Definir `professorId` con formato inválido. 2. Realizar petición GET.                   | Status HTTP 400 (Bad Request) si hay validación de formato en el controlador o Spring.                                                      | Pendiente |
+| PROF-GP-006 | N/A                                          | Verifica el caso exitoso donde el profesor existe pero algunos campos del DTO son null o vacíos (ej. sin programa asignado pero el profesor sí existe). | `professorService.getProfile(id)` devuelve DTO con campos null/vacíos.                      | 1. Definir `professorId`. 2. Configurar Mock para devolver DTO parcial. 3. Realizar petición GET.          | Status HTTP 200 (OK). Cuerpo JSON contiene los campos presentes y los ausentes son null o no existen.                                                 | Pendiente |
+
+---
+
+**Notas:**
+
+*   Se utiliza `@SpringBootTest` y `@AutoConfigureMockMvc`. Considerar cambiar a `@WebMvcTest(ProfessorController.class)` para mayor eficiencia si no se necesita el contexto completo.
+*   Se mockea `ProfessorServiceImpl` para controlar el comportamiento del servicio.
+*   Se utilizan rutas absolutas (`http://localhost:5433/...`) en `mockMvc.perform`. Es **recomendable usar rutas relativas** (`/professor/profile/{id}`) para que los tests no dependan de la configuración del puerto y sean más portables.
+*   Se verifica el código de estado HTTP y el contenido de la respuesta (JSON o texto plano).
+*   El test `testGetProfessorProfile_NoCoursesAssigned` asume que el servicio lanza una excepción específica en ese caso. Si el servicio simplemente devolviera un DTO con información faltante (ej. programa null), el test debería modificarse para esperar un 200 OK y verificar los campos nulos.
+
+Este diseño cubre los escenarios implementados en `ProfessorProfileTest`, incluyendo éxito y dos casos específicos de error manejados por el servicio.

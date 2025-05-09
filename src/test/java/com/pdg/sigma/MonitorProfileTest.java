@@ -8,13 +8,16 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MonitorController.class)
+@ComponentScan(basePackages = "com.pdg.sigma.util")
 public class MonitorProfileTest {
 
     @Autowired
@@ -24,6 +27,7 @@ public class MonitorProfileTest {
     private MonitorServiceImpl monitorService;
 
     @Test
+    @WithMockUser(roles = "monitor")
     void testProfileMonitorFound() throws Exception {
         String monitorId = "123";
         MonitorDTO mockMonitor = new MonitorDTO("Engineering", "Software", "Monitor", "John Doe");
@@ -40,6 +44,7 @@ public class MonitorProfileTest {
     }
 
     @Test
+    @WithMockUser(roles = "monitor")
     void testProfileMonitorNotFound() throws Exception {
         String monitorId = "999";
 
