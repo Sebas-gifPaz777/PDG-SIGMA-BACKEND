@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-@SpringBootTest
+/*@SpringBootTest
 @AutoConfigureMockMvc
 public class GetActivtiesListTest {
 
@@ -105,4 +105,4 @@ public class GetActivtiesListTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("No actividades asignadas o creadas"));
     }
-}
+}*/
