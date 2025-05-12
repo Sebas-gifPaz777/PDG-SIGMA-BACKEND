@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 //@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
-@CrossOrigin(origins = {"http://200.3.193.229:3000", "https://pdg-sigma.vercel.app/"})
+//@CrossOrigin(origins = {"http://200.3.193.229:3000", "https://pdg-sigma.vercel.app/"})
 
 @RequestMapping("/monitor")
 @RestController
