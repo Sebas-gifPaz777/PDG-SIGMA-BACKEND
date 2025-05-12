@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.Optional;
 
 //@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
-@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
+//@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
+@CrossOrigin(origins = {"http://200.3.193.229:3000", "https://pdg-sigma.vercel.app/"})
+
 @RequestMapping("/monitoring")
 @RestController
 public class MonitoringController {
