@@ -24,7 +24,8 @@ import com.pdg.sigma.service.DepartmentHeadService;
 
 @RestController
 @RequestMapping("/department-head")
-@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 public class DepartmentHeadController {
 
     @Autowired

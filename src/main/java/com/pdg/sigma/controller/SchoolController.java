@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pdg.sigma.dto.SchoolDTO;
 import com.pdg.sigma.service.SchoolServiceImpl;
 
-@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @RequestMapping("/school")
 @RestController
 public class SchoolController {
