@@ -20,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pdg.sigma.domain.Attendance;
 import com.pdg.sigma.service.AttendanceServiceImpl;
 
-@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
+@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @RestController
 @RequestMapping("/attendance")
 public class AttendanceController {
