@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 //@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 //@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
-@CrossOrigin(origins = {"http://200.3.193.229:3000", "https://pdg-sigma.vercel.app/"})
+@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 
 @RequestMapping("/debug")
 public class DebugController {
