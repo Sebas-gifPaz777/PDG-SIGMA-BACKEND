@@ -29,7 +29,7 @@ public class EmailSenderController {
     private EmailSenderService emailSenderService;
 
     @Autowired
-    private MonitorServiceImpl monitorService; //CandidatureService was the name
+    private MonitorServiceImpl monitorService;
 
     @GetMapping("/send-basic-email")
     public String sendBasicEmail(@RequestParam String to, @RequestParam String subject, @RequestParam String body) {
@@ -41,42 +41,134 @@ public class EmailSenderController {
         }
     }
 
+    // @PostMapping("/email-finish-selection")
+    // public ResponseEntity<String> sendEmailFinishSelection(@RequestBody List<String> electedApplicantCodes) {
+    //     try {
+            
+    //         List<Monitor> allApplicants = studentService.findAll();
+
+    //         if (allApplicants == null || allApplicants.isEmpty()) {
+    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No applicants found in the database");
+    //         }
+
+    //         List<Monitor> electedApplicants = allApplicants.stream()
+    //                 .filter(applicant -> electedApplicantCodes.contains(applicant.getCode())).collect(Collectors.toList());
+
+    //         if (electedApplicants.isEmpty()) {
+    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No elected applicants found with the provided codes");
+    //         }
+    //         else{
+    //             StringBuilder emailContent = new StringBuilder("Elected Applicants:\n\n");
+    //             for (Monitor applicant : electedApplicants) {
+    //                 emailContent.append(String.format("Name: %s %s, Code: %s, Average Grade: %.2f\n",
+    //                         applicant.getName(), applicant.getLastName(), applicant.getCode(), applicant.getGradeAverage()));
+    //             }
+    
+    //             String subject = "Selected Aplicants of your Monitoring";
+    //             String recipient = "juandiegoloralara@gmail.com"; // REPLACE
+    //             emailSenderService.sendHtmlEmail(recipient, subject, emailContent.toString());
+    
+    //             return ResponseEntity.ok("Email sent successfully!");
+    //         }
+
+            
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+    //     }
+    // }
+
     @PostMapping("/email-finish-selection")
     public ResponseEntity<String> sendEmailFinishSelection(@RequestBody List<String> electedApplicantCodes) {
+
         try {
-            
+
             List<Monitor> allApplicants = monitorService.findAll();
 
             if (allApplicants == null || allApplicants.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No applicants found in the database");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No applicants found for this monitor process.");
             }
 
-            List<Monitor> electedApplicants = allApplicants.stream()
-                    .filter(applicant -> electedApplicantCodes.contains(applicant.getCode())).collect(Collectors.toList());
+            int emailsSentCount = 0;
+            int electedNotifiedCount = 0;
+            int nonElectedNotifiedCount = 0;
 
-            if (electedApplicants.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No elected applicants found with the provided codes");
-            }
-            else{
-                StringBuilder emailContent = new StringBuilder("Elected Applicants:\n\n");
-                for (Monitor applicant : electedApplicants) {
-                    emailContent.append(String.format("Name: %s %s, Code: %s, Average Grade: %.2f\n",
-                            applicant.getName(), applicant.getLastName(), applicant.getCode(), applicant.getGradeAverage()));
+            StringBuilder processingSummary = new StringBuilder("Email process summary:\n");
+
+            for (Monitor applicant : allApplicants) {
+                String subject;
+                String body;
+                String recipientEmail = applicant.getEmail(); // Obtener el email del postulante
+
+                if (recipientEmail == null || recipientEmail.trim().isEmpty()) {
+                    System.out.println("Skipping email for applicant " + applicant.getCode() + " - No email provided."); // Usa tu logger preferido
+                    processingSummary.append("- Skipped email for " + applicant.getName() + " " + applicant.getLastName() + " (Code: " + applicant.getCode() + "): No email provided.\n");
+                    continue; // Saltar a la siguiente iteración si no hay email
+
                 }
-    
-                String subject = "Selected Aplicants of your Monitoring";
-                String recipient = "juandiegoloralara@gmail.com"; // REPLACE
-                emailSenderService.sendHtmlEmail(recipient, subject, emailContent.toString());
-    
-                return ResponseEntity.ok("Email sent successfully!");
+
+                boolean isElected = electedApplicantCodes != null && electedApplicantCodes.contains(applicant.getCode());
+
+                if (isElected) {
+                    subject = "¡Felicidades! Fuiste seleccionado para la Monitoria de ..";
+                    body = String.format(
+                        "<html><body>" +
+                        "<p>Hola %s,</p>" +
+                        "<p>¡Felicidades! Has sido seleccionado para ser el Monitor de la materia <strong>%s</strong>.</p>" + 
+                        "<p>Tu dedicación y promedio (%.2f) han sido reconocidos.</p>" + 
+                        "<p>El profesor de la materia se pondrá en contacto contigo pronto para coordinar los detalles y próximos pasos.</p>" +
+                        "<p>¡Mucho éxito en esta nueva experiencia!</p>" +
+                        "</body></html>",
+
+                        applicant.getName(),
+                        applicant.getGradeCourse(),
+                        applicant.getGradeAverage() 
+
+                    );
+
+                    electedNotifiedCount++;
+                    processingSummary.append("- Sent 'Elected' email to " + applicant.getName() + " " + applicant.getLastName() + " (Code: " + applicant.getCode() + ").\n");
+
+                } else {
+                    subject = "Actualización sobre tu postulación a Monitoria ";
+                    body = String.format(
+                        "<html><body>" +
+                        "<p>Hola %s,</p>" +
+                        "<p>Gracias por tu participación en la convocatoria para la monitoria de <strong>%s</strong>.</p>" +
+                        "<p>Valoramos mucho tu interés y el tiempo que dedicaste en postularte.</p>" +
+                        "<p>Queremos informarte que, si bien tu perfil es sumamente valioso y agradecemos enormemente tu interés (tu promedio es %.2f), en esta ocasión no has sido seleccionado para esta monitoria específica.</p>" + // Opcional: menciona promedio
+                        "<p>La selección se basó en diversos criterios y las necesidades específicas de la materia en este periodo.</p>" +
+                        "<p>Te animamos a seguir explorando otras oportunidades dentro de la universidad y a postularte en futuras convocatorias.</p>" +
+                        "<p>Gracias nuevamente por ser parte de nuestra comunidad académica.</p>" +
+                        "</body></html>",
+
+                        applicant.getName(),
+                        applicant.getGradeCourse(),
+                        applicant.getGradeAverage()
+                    );
+
+                    nonElectedNotifiedCount++;
+                    processingSummary.append("- Sent 'Not Elected' email to " + applicant.getName() + " " + applicant.getLastName() + " (Code: " + applicant.getCode() + ").\n");
+                }
+
+                emailSenderService.sendHtmlEmail(recipientEmail, subject, body);
+                emailsSentCount++;
             }
 
-            
+            String responseMessage = String.format(
+                "Email process finished. %d emails attempted (%d elected, %d non-elected). Check server logs for details.",
+                emailsSentCount,
+                electedNotifiedCount,
+                nonElectedNotifiedCount
+            );
+            return ResponseEntity.ok(responseMessage);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
-        }
-    }
+            System.err.println("Error during email finish selection process: " + e.getMessage());
+            e.printStackTrace(); 
 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during email process: " + e.getMessage());
+        }
+
+    }
 
     // To try it, by GET
     //http://localhost:5433/send-basic-email?to=any@gmail.com&subject=Hello&body=Test Email
