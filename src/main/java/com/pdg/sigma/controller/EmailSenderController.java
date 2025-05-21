@@ -109,19 +109,18 @@ public class EmailSenderController {
                 boolean isElected = electedApplicantCodes != null && electedApplicantCodes.contains(applicant.getCode());
 
                 if (isElected) {
-                    subject = "¡Felicidades! Fuiste seleccionado para la Monitoria de ..";
+                    subject = "¡Felicidades! Fuiste seleccionado como Monitor/a";
                     body = String.format(
                         "<html><body>" +
                         "<p>Hola %s,</p>" +
-                        "<p>¡Felicidades! Has sido seleccionado para ser el Monitor de la materia <strong>%s</strong>.</p>" + 
+                        "<p>¡Felicidades! Has sido seleccionado para ser el Monitor/a</p>" + 
                         "<p>Tu dedicación y promedio (%.2f) han sido reconocidos.</p>" + 
                         "<p>El profesor de la materia se pondrá en contacto contigo pronto para coordinar los detalles y próximos pasos.</p>" +
                         "<p>¡Mucho éxito en esta nueva experiencia!</p>" +
                         "</body></html>",
 
                         applicant.getName(),
-                        applicant.getGradeCourse(),
-                        applicant.getGradeAverage() 
+                        applicant.getGradeCourse()
 
                     );
 
@@ -133,7 +132,7 @@ public class EmailSenderController {
                     body = String.format(
                         "<html><body>" +
                         "<p>Hola %s,</p>" +
-                        "<p>Gracias por tu participación en la convocatoria para la monitoria de <strong>%s</strong>.</p>" +
+                        "<p>Gracias por tu participación en la convocatoria</p>" +
                         "<p>Valoramos mucho tu interés y el tiempo que dedicaste en postularte.</p>" +
                         "<p>Queremos informarte que, si bien tu perfil es sumamente valioso y agradecemos enormemente tu interés (tu promedio es %.2f), en esta ocasión no has sido seleccionado para esta monitoria específica.</p>" + // Opcional: menciona promedio
                         "<p>La selección se basó en diversos criterios y las necesidades específicas de la materia en este periodo.</p>" +
@@ -142,8 +141,7 @@ public class EmailSenderController {
                         "</body></html>",
 
                         applicant.getName(),
-                        applicant.getGradeCourse(),
-                        applicant.getGradeAverage()
+                        applicant.getGradeCourse()
                     );
 
                     nonElectedNotifiedCount++;
