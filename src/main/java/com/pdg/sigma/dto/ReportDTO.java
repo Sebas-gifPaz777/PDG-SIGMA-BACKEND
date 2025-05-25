@@ -18,6 +18,7 @@ public class ReportDTO {
     private String program;
     private String professor;
     private String nameAndCourse;
+    private String idProfessor;
 
 
     public ReportDTO(Integer completed, Integer late, Integer pending) {

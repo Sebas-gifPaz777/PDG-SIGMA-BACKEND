@@ -1,8 +1,7 @@
 package com.pdg.sigma.service;
 
 import com.pdg.sigma.domain.*;
-import com.pdg.sigma.dto.MonitoringDTO;
-import com.pdg.sigma.dto.ReportDTO;
+import com.pdg.sigma.dto.*;
 import com.pdg.sigma.repository.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -371,6 +370,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                     reportDTO.setProfessor(professor.get().getName());
                     reportDTO.setSemester(monitor.getMonitoring().getSemester());
                     reportDTO.setProgram(monitor.getMonitoring().getCourse().getProgram().getName());
+                    reportDTO.setIdProfessor(professor.get().getId());
                     String[] nameCourse = monitor.getMonitoring().getCourse().getName().split(" ");
                     if(nameCourse.length>2){
                         reportDTO.setNameAndCourse(monitor.getMonitor().getName()+" - "+nameCourse[0]+" "+nameCourse[1]+"...");
@@ -453,6 +453,7 @@ public class MonitoringServiceImpl implements MonitoringService{
                         reportDTO.setName(monitor.getMonitor().getName());
                         reportDTO.setCourse(monitor.getMonitoring().getCourse().getName());
                         reportDTO.setProfessor(professor.getName());
+                        reportDTO.setIdProfessor(professor.getId());
                         reportDTO.setSemester(monitor.getMonitoring().getSemester());
                         reportDTO.setProgram(monitor.getMonitoring().getCourse().getProgram().getName());
                         String[] nameCourse = monitor.getMonitoring().getCourse().getName().split(" ");
@@ -510,6 +511,9 @@ public class MonitoringServiceImpl implements MonitoringService{
                 }
 
                 reportDTO.setName(professor.get().getName());
+                reportDTO.setIdProfessor(professor.get().getId());
+                reportDTO.setCourse(monitoring.getCourse().getName());
+                reportDTO.setProgram(monitoring.getCourse().getProgram().getName());
                 reportProfessor.add(reportDTO);
             }
             return reportProfessor;

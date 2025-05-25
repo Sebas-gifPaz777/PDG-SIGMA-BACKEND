@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
-//@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 
 @RequestMapping("/monitoring")
@@ -136,7 +134,6 @@ public class MonitoringController {
             return ResponseEntity.status(200).body(monitoringService.getReportMonitors(idProfessor, role));
 
         }catch (Exception e){
-            e.printStackTrace();
             return ResponseEntity.status(500).body(e.getMessage());
         }
 
@@ -202,5 +199,17 @@ public class MonitoringController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error al generar el reporte de asistencia: " + e.getMessage()));
         }
     }
+    /*
+    @RequestMapping(value= "/deleteMonitoring/{idProfessor}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> getMonitorsReport(){
+        try{
+
+            return ResponseEntity.status(200).body(monitoringService.getReportMonitors(idProfessor, role));
+
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }*/
 
 }
