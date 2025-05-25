@@ -22,7 +22,7 @@ import com.pdg.sigma.repository.ProfessorRepository;
 @Service
 public class DataSyncService {
 
-    private final String EXTERNAL_API_BASE_URL = "https://api-banner.onrender.com/api";
+    private final String EXTERNAL_API_BASE_URL = "api-banner-production.up.railway.app";
 
     private final ProfessorRepository professorRepository;
     private final CourseProfessorRepository courseProfessorRepository;
@@ -100,10 +100,10 @@ public class DataSyncService {
                 courseRepository.save(existingCourse); 
 
                 if (removeMonitors) {
-                    monitoringRepository.findByCourse(existingCourse).ifPresent(monitoring -> {
-                        // Eliminar todas las relaciones
-                        monitoringMonitorRepository.deleteByMonitoring(monitoring);
-                    });
+                    // monitoringRepository.findByCourse(existingCourse).ifPresent(monitoring -> {
+                    //     // Eliminar todas las relaciones
+                    //     monitoringMonitorRepository.deleteByMonitoring(monitoring);
+                    // });
                 }
             }
         }
@@ -117,9 +117,9 @@ public class DataSyncService {
         System.out.println("Cursos actuales asociados al profesor: " + currentCourses.stream().map(Course::getId).collect(java.util.stream.Collectors.toList()));
         System.out.println("Cursos obtenidos de la API: " + newCourses.stream().map(Course::getId).collect(java.util.stream.Collectors.toList()));
     
-        monitoringRepository.findByProfessor(professor).forEach(monitoring -> {
-            monitoringMonitorRepository.deleteByMonitoring(monitoring); 
-        });
+        // monitoringRepository.findByProfessor(professor).forEach(monitoring -> {
+        //     monitoringMonitorRepository.deleteByMonitoring(monitoring); 
+        // });
     
         List<Course> coursesNoLongerAssociated = currentCourses.stream()
                 .filter(course -> newCourses.stream().noneMatch(newCourse -> newCourse.getId().equals(course.getId())))
@@ -127,15 +127,15 @@ public class DataSyncService {
 
         coursesNoLongerAssociated.forEach(course -> {
             System.out.println("Procesando curso que ya no está asociado: ID " + course.getId() + ", Nombre: " + course.getName());
-            monitoringRepository.findByCourse(course).ifPresent(monitoring -> {
-                System.out.println("  Encontrada monitoría ID: " + monitoring.getId() + " para el curso ID: " + course.getId());
-                monitoringMonitorRepository.deleteByMonitoring(monitoring); // Borra los monitores del curso
-                System.out.println("  Monitores de la monitoría ID: " + monitoring.getId() + " eliminados.");
-                monitoringRepository.delete(monitoring); // Borra la monitoría del curso
-                System.out.println("  Monitoría ID: " + monitoring.getId() + " eliminada para el curso ID: " + course.getId());
-            });
-            courseProfessorRepository.deleteByCourseAndProfessor(course, professor);
-            System.out.println("  Relación CourseProfessor para el curso ID: " + course.getId() + " y el profesor ID: " + professor.getId() + " eliminada.");
+            // monitoringRepository.findByCourse(course).ifPresent(monitoring -> {
+            //     System.out.println("  Encontrada monitoría ID: " + monitoring.getId() + " para el curso ID: " + course.getId());
+            //     monitoringMonitorRepository.deleteByMonitoring(monitoring); // Borra los monitores del curso
+            //     System.out.println("  Monitores de la monitoría ID: " + monitoring.getId() + " eliminados.");
+            //     monitoringRepository.delete(monitoring); // Borra la monitoría del curso
+            //     System.out.println("  Monitoría ID: " + monitoring.getId() + " eliminada para el curso ID: " + course.getId());
+            // });
+            // courseProfessorRepository.deleteByCourseAndProfessor(course, professor);
+            // System.out.println("  Relación CourseProfessor para el curso ID: " + course.getId() + " y el profesor ID: " + professor.getId() + " eliminada.");
         });
     
         for (Course newCourse : newCourses) {
