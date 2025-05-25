@@ -1058,4 +1058,15 @@ public class MonitoringServiceImpl implements MonitoringService{
         return reportList;
     }
 
+    public boolean deleteMonitoring(long l) {
+        Optional<Monitoring> monitoring = monitoringRepository.findById(l);
+        if (!monitoring.isPresent()) {
+            return false;
+        }
+        if(!monitoringMonitorRepository.findByMonitoring(monitoring.get()).isEmpty()) {
+            return false;
+        }
+        monitoringRepository.delete(monitoring.get());
+        return true;
+    }
 }

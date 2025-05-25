@@ -199,17 +199,16 @@ public class MonitoringController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error al generar el reporte de asistencia: " + e.getMessage()));
         }
     }
-    /*
-    @RequestMapping(value= "/deleteMonitoring/{idProfessor}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> getMonitorsReport(){
-        try{
 
-            return ResponseEntity.status(200).body(monitoringService.getReportMonitors(idProfessor, role));
+    @RequestMapping(value= "/deleteMonitoring/{idMonitoring}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> getMonitorsReport(@PathVariable String idMonitoring){
+        try{
+            return ResponseEntity.status(200).body(monitoringService.deleteMonitoring(Long.parseLong(idMonitoring)));
 
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }
 
-    }*/
+    }
 
 }
