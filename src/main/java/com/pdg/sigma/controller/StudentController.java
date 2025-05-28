@@ -18,7 +18,6 @@ import com.pdg.sigma.service.StudentServiceImpl;
 //@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 //@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
-
 @RestController
 @RequestMapping("/student")
 public class StudentController {

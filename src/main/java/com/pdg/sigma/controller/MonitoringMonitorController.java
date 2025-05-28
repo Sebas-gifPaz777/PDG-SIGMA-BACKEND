@@ -13,7 +13,6 @@ import java.util.List;
 //@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 //@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
-
 @RequestMapping("/monitoring-monitor")
 @RestController
 public class MonitoringMonitorController {
