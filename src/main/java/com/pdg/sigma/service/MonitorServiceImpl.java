@@ -78,9 +78,12 @@ public class MonitorServiceImpl implements MonitorService {
                 return posible.get();
             }
         }
+        if(prospect.getGradeAverage()<monitoring.getAverageGrade() || prospect.getGradeCourse()< monitoring.getCourseGrade()){
+            throw new Exception("No cumple con los requisitos suficientes para aplicar a la vacante");
+        }
 
         Monitor monitor = new Monitor(prospect.getCode(), prospect.getName(), prospect.getLastName(), prospect.getSemester(), prospect.getGradeAverage(), prospect
-                .getGradeCourse(), prospect.getEmail(), monitoring);
+                .getGradeCourse(), prospect.getEmail(), monitoring, prospect.getId());
 
         monitorRepository.save(monitor);
         monitoringMonitorRepository.save(new MonitoringMonitor(monitoring, monitor));

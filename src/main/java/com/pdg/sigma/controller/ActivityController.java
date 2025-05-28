@@ -37,10 +37,6 @@ import java.util.stream.Collectors;
 //import com.pdg.sigma.dto.ActivityDTO;
 //import com.pdg.sigma.service.ActivityServiceImpl;
 
-
-
-//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
-//@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @RequestMapping("/activity")
 @RestController

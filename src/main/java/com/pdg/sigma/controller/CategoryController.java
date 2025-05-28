@@ -25,7 +25,6 @@ import com.pdg.sigma.service.CourseServiceImpl;
 //@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
 //@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
-
 public class CategoryController {
 
     
