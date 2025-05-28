@@ -43,7 +43,7 @@ public class Monitor implements Serializable {
     @Column(name = "id", nullable = false, columnDefinition = "varchar(100)")
     private String idMonitor;
 
-    public Monitor(String code, String name, String lastName, int semester, double gradeAverage, double gradeCourse, String email, Monitoring monitoring) {
+    public Monitor(String code, String name, String lastName, int semester, double gradeAverage, double gradeCourse, String email, Monitoring monitoring, String idMonitor) {
         this.code = code;
         this.name = name;
         this.lastName = lastName;
@@ -51,6 +51,7 @@ public class Monitor implements Serializable {
         this.gradeAverage = gradeAverage;
         this.gradeCourse = gradeCourse;
         this.email = email;
+        this.idMonitor = idMonitor;
     }
 }
 

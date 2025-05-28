@@ -12,7 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 //.allowedOrigins("http://localhost:3000")
                 .allowedOrigins("https://pdg-sigma.vercel.app/")
-                //.allowedOrigins("http://200.3.193.229:3000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
