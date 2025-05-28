@@ -44,183 +44,63 @@ public class EmailSenderController {
         }
     }
 
-    // @PostMapping("/email-finish-selection-to-professor")
-    // public ResponseEntity<String> sendEmailFinishToProfessor(@RequestBody List<String> electedApplicantCodes) {
-    //     try {
-            
-    //         List<Monitor> allApplicants = studentService.findAll();
-
-    //         if (allApplicants == null || allApplicants.isEmpty()) {
-    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No applicants found in the database");
-    //         }
-
-    //         List<Monitor> electedApplicants = allApplicants.stream()
-    //                 .filter(applicant -> electedApplicantCodes.contains(applicant.getCode())).collect(Collectors.toList());
-
-    //         if (electedApplicants.isEmpty()) {
-    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No elected applicants found with the provided codes");
-    //         }
-    //         else{
-    //             StringBuilder emailContent = new StringBuilder("Elected Applicants:\n\n");
-    //             for (Monitor applicant : electedApplicants) {
-    //                 emailContent.append(String.format("Name: %s %s, Code: %s, Average Grade: %.2f\n",
-    //                         applicant.getName(), applicant.getLastName(), applicant.getCode(), applicant.getGradeAverage()));
-    //             }
-    
-    //             String subject = "Selected Aplicants of your Monitoring";
-    //             String recipient = ""; // REPLACE
-    //             emailSenderService.sendHtmlEmail(recipient, subject, emailContent.toString());
-    
-    //             return ResponseEntity.ok("Email sent successfully!");
-    //         }
-
-            
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
-    //     }
-    // }
-
-    // @PostMapping("/email-finish-selection")
-    // public ResponseEntity<String> sendEmailFinishSelection(@RequestBody List<String> electedApplicantCodes) {
-
-    //     try {
-
-    //         List<Monitor> allApplicants = monitorService.findAll();
-
-    //         if (allApplicants == null || allApplicants.isEmpty()) {
-    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No applicants found for this monitor process.");
-    //         }
-
-    //         int emailsSentCount = 0;
-    //         int electedNotifiedCount = 0;
-    //         int nonElectedNotifiedCount = 0;
-
-    //         StringBuilder processingSummary = new StringBuilder("Email process summary:\n");
-
-    //         for (Monitor applicant : allApplicants) {
-    //             String subject;
-    //             String body;
-    //             String recipientEmail = applicant.getEmail(); // Obtener el email del postulante
-
-    //             if (recipientEmail == null || recipientEmail.trim().isEmpty()) {
-    //                 System.out.println("Skipping email for applicant " + applicant.getCode() + " - No email provided."); // Usa tu logger preferido
-    //                 processingSummary.append("- Skipped email for " + applicant.getName() + " " + applicant.getLastName() + " (Code: " + applicant.getCode() + "): No email provided.\n");
-    //                 continue; // Saltar a la siguiente iteración si no hay email
-
-    //             }
-
-    //             boolean isElected = electedApplicantCodes != null && electedApplicantCodes.contains(applicant.getCode());
-
-    //             if (isElected) {
-    //                 subject = "¡Felicidades! Fuiste seleccionado como Monitor/a";
-    //                 body = String.format(
-    //                     "<html><body>" +
-    //                     "<p>Hola %s,</p>" +
-    //                     "<p>¡Felicidades! Has sido seleccionado para ser el Monitor/a</p>" + 
-    //                     "<p>Tu dedicación y promedio (%.2f) han sido reconocidos.</p>" + 
-    //                     "<p>El profesor de la materia se pondrá en contacto contigo pronto para coordinar los detalles y próximos pasos.</p>" +
-    //                     "<p>¡Mucho éxito en esta nueva experiencia!</p>" +
-    //                     "</body></html>",
-
-    //                     applicant.getName(),
-    //                     applicant.getGradeCourse()
-
-    //                 );
-
-    //                 electedNotifiedCount++;
-    //                 processingSummary.append("- Sent 'Elected' email to " + applicant.getName() + " " + applicant.getLastName() + " (Code: " + applicant.getCode() + ").\n");
-
-    //             } else {
-    //                 subject = "Actualización sobre tu postulación a Monitoria ";
-    //                 body = String.format(
-    //                     "<html><body>" +
-    //                     "<p>Hola %s,</p>" +
-    //                     "<p>Gracias por tu participación en la convocatoria</p>" +
-    //                     "<p>Valoramos mucho tu interés y el tiempo que dedicaste en postularte.</p>" +
-    //                     "<p>Queremos informarte que, si bien tu perfil es sumamente valioso y agradecemos enormemente tu interés (tu promedio es %.2f), en esta ocasión no has sido seleccionado para esta monitoria específica.</p>" + // Opcional: menciona promedio
-    //                     "<p>La selección se basó en diversos criterios y las necesidades específicas de la materia en este periodo.</p>" +
-    //                     "<p>Te animamos a seguir explorando otras oportunidades dentro de la universidad y a postularte en futuras convocatorias.</p>" +
-    //                     "<p>Gracias nuevamente por ser parte de nuestra comunidad académica.</p>" +
-    //                     "</body></html>",
-
-    //                     applicant.getName(),
-    //                     applicant.getGradeCourse()
-    //                 );
-
-    //                 nonElectedNotifiedCount++;
-    //                 processingSummary.append("- Sent 'Not Elected' email to " + applicant.getName() + " " + applicant.getLastName() + " (Code: " + applicant.getCode() + ").\n");
-    //             }
-
-    //             emailSenderService.sendHtmlEmail(recipientEmail, subject, body);
-    //             emailsSentCount++;
-    //         }
-
-    //         String responseMessage = String.format(
-    //             "Email process finished. %d emails attempted (%d elected, %d non-elected). Check server logs for details.",
-    //             emailsSentCount,
-    //             electedNotifiedCount,
-    //             nonElectedNotifiedCount
-    //         );
-    //         return ResponseEntity.ok(responseMessage);
-    //     } catch (Exception e) {
-    //         System.err.println("Error during email finish selection process: " + e.getMessage());
-    //         e.printStackTrace(); 
-
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during email process: " + e.getMessage());
-    //     }
-
-    // }
-
-    // En MonitoringMonitorController (o donde llames a emailSenderService)
-
     @PostMapping("/email-finish-selection")
     public ResponseEntity<String> notifySelectionResults(@RequestBody List<SelectionResultDTO> results) {
-        List<MonitoringMonitor> realmenteNuevosSeleccionados = new ArrayList<>();
-        List<MonitoringMonitor> realmenteNuevosNoSeleccionados = new ArrayList<>();
-        List<MonitoringMonitor> actualizadosEnBDSeleccionados = new ArrayList<>(); //DB
-        List<MonitoringMonitor> actualizadosEnBDNoSeleccionados = new ArrayList<>(); // BD
+        List<MonitoringMonitor> seleccionadosParaEmail = new ArrayList<>(); 
+        List<MonitoringMonitor> noSeleccionadosParaEmail = new ArrayList<>(); 
+        List<MonitoringMonitor> actualizadosEnBD = new ArrayList<>(); 
 
+        System.out.println("Controller: Recibidos " + results.size() + " resultados del frontend."); 
 
         for (SelectionResultDTO dto : results) {
+            System.out.println("Controller: Procesando DTO: code=" + dto.getCode() + ", monitoringId=" + dto.getIdMonitoring() + ", estado=" + dto.getEstadoSeleccion());
             Optional<MonitoringMonitor> optionalRelation = monitoringMonitorRepository
                 .findByMonitoringIdAndMonitorCode(dto.getIdMonitoring(), dto.getCode());
 
             if (optionalRelation.isPresent()) {
                 MonitoringMonitor relacion = optionalRelation.get();
                 String estadoPrevioEnBD = relacion.getEstadoSeleccion();
+                String estadoNuevoDelDto = dto.getEstadoSeleccion();
 
-                relacion.setEstadoSeleccion(dto.getEstadoSeleccion()); 
+                relacion.setEstadoSeleccion(estadoNuevoDelDto);
+                actualizadosEnBD.add(relacion);
 
-                if ("seleccionado".equals(dto.getEstadoSeleccion())) {
-                    actualizadosEnBDSeleccionados.add(relacion);
-                    // Solo notificar si el estado CAMBIÓ a seleccionado o si antes era null/vacío y ahora es seleccionado
-                    if (!"seleccionado".equals(estadoPrevioEnBD)) {
-                        realmenteNuevosSeleccionados.add(relacion);
+                if (estadoNuevoDelDto != null && "seleccionado".equalsIgnoreCase(estadoNuevoDelDto.trim())) {
+                    if (estadoPrevioEnBD == null || !"seleccionado".equalsIgnoreCase(estadoPrevioEnBD.trim())) {
+                        seleccionadosParaEmail.add(relacion);
+                        System.out.println("Controller: Añadido a seleccionadosParaEmail (cambio detectado o previo null)");
+                    } else {
+                        System.out.println("Controller: Ya era seleccionado, no se añade a lista de email de seleccionados.");
                     }
-                } else { // "no seleccionado"
-                    actualizadosEnBDNoSeleccionados.add(relacion);
-                    if (estadoPrevioEnBD == null || !"no seleccionado".equals(estadoPrevioEnBD)) {
-                        realmenteNuevosNoSeleccionados.add(relacion);
-                    }
+
+                } else if (estadoNuevoDelDto != null && "no seleccionado".equalsIgnoreCase(estadoNuevoDelDto.trim())) {
+                    
+                    noSeleccionadosParaEmail.add(relacion);
+                    System.out.println("Controller: Añadido a noSeleccionadosParaEmail");
+                } else {
+                    System.out.println("Controller: Estado DTO no reconocido o nulo: '" + estadoNuevoDelDto + "'");
                 }
+            } else {
+                System.out.println("Controller: No se encontró relación para DTO: code=" + dto.getCode() + ", monitoringId=" + dto.getIdMonitoring());
             }
         }
 
-        if (!actualizadosEnBDSeleccionados.isEmpty()) {
-            monitoringMonitorRepository.saveAll(actualizadosEnBDSeleccionados);
-        }
-        if (!actualizadosEnBDNoSeleccionados.isEmpty()) {
-            monitoringMonitorRepository.saveAll(actualizadosEnBDNoSeleccionados);
+        if (!actualizadosEnBD.isEmpty()) {
+            monitoringMonitorRepository.saveAll(actualizadosEnBD);
+            System.out.println("Controller: Guardados " + actualizadosEnBD.size() + " cambios en BD.");
         }
         
-        if (!realmenteNuevosSeleccionados.isEmpty()) {
-            emailSenderService.sendToMonitors(realmenteNuevosSeleccionados, true);
-        }
-        if (!realmenteNuevosNoSeleccionados.isEmpty()) {
-            emailSenderService.sendToMonitors(realmenteNuevosNoSeleccionados, false);
+        System.out.println("Controller: Tamaño de seleccionadosParaEmail: " + seleccionadosParaEmail.size());
+        if (!seleccionadosParaEmail.isEmpty()) {
+            emailSenderService.sendToMonitors(seleccionadosParaEmail, true); 
         }
 
-        return ResponseEntity.ok("Notificaciones de cambios enviadas y estados actualizados");
+        System.out.println("Controller: Tamaño de noSeleccionadosParaEmail: " + noSeleccionadosParaEmail.size());
+        if (!noSeleccionadosParaEmail.isEmpty()) {
+            emailSenderService.sendToMonitors(noSeleccionadosParaEmail, false);
+        }
+
+        return ResponseEntity.ok("Proceso de selección finalizado. Notificaciones enviadas.");
     }
 
 
