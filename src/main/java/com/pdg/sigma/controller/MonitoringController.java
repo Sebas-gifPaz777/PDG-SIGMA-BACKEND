@@ -201,7 +201,7 @@ public class MonitoringController {
     }
 
     @RequestMapping(value= "/deleteMonitoring/{idMonitoring}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> getMonitorsReport(@PathVariable String idMonitoring){
+    public ResponseEntity<?> deleteMonitoring(@PathVariable String idMonitoring){
         try{
             return ResponseEntity.status(200).body(monitoringService.deleteMonitoring(Long.parseLong(idMonitoring)));
 

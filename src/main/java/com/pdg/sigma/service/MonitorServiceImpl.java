@@ -28,8 +28,6 @@ public class MonitorServiceImpl implements MonitorService {
     @Autowired
     private CourseRepository courseRepository;
 
-
-
     @Override
     public List<Monitor> findAll() {
         return monitorRepository.findAll();
@@ -43,9 +41,9 @@ public class MonitorServiceImpl implements MonitorService {
             for(MonitoringMonitor connection:link){
                 MonitorDTO monitorDTO = new MonitorDTO(monitor);
                 monitorDTO.setCourse(connection.getMonitoring().getCourse().getName());
+                monitorDTO.setMonitoringId(String.valueOf(connection.getMonitoring().getId()));
                 list.add(monitorDTO);
             }
-
         }
         return list;
     }

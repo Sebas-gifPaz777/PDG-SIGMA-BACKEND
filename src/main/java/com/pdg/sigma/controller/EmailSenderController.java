@@ -1,7 +1,6 @@
 package com.pdg.sigma.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.service.MonitorServiceImpl;
@@ -17,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pdg.sigma.service.EmailSenderService;
 
-
-//@CrossOrigin(origins = "https://pdg-sigma.vercel.app/")
-//CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 
 @RestController
@@ -41,8 +37,8 @@ public class EmailSenderController {
         }
     }
 
-    // @PostMapping("/email-finish-selection")
-    // public ResponseEntity<String> sendEmailFinishSelection(@RequestBody List<String> electedApplicantCodes) {
+    // @PostMapping("/email-finish-selection-to-professor")
+    // public ResponseEntity<String> sendEmailFinishToProfessor(@RequestBody List<String> electedApplicantCodes) {
     //     try {
             
     //         List<Monitor> allApplicants = studentService.findAll();
