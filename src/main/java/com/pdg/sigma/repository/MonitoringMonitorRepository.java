@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface MonitoringMonitorRepository extends JpaRepository<MonitoringMonitor,Long> {
 
     public Optional<MonitoringMonitor> findByMonitoringAndMonitor(Monitoring monitoring, Monitor monitor);
+    public Optional<MonitoringMonitor> findByMonitoringIdAndMonitorCode(Long monitoringId, String monitorCode);
     public List<MonitoringMonitor> findByMonitoring(Monitoring monitoring);
     public List<MonitoringMonitor> findByMonitoringId(Long monitoringId);
     

@@ -3,8 +3,13 @@ package com.pdg.sigma.controller;
 
 import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.dto.MonitorDTO;
+import com.pdg.sigma.dto.UpdateSelectionStatusRequest;
 import com.pdg.sigma.service.MonitoringMonitorServiceImpl;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +36,18 @@ public class MonitoringMonitorController {
         } catch (Exception e) {
              e.printStackTrace();
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/status")
+    public ResponseEntity<?> updateSelectionStatus(@RequestBody UpdateSelectionStatusRequest request) {
+        try {
+            monitoringMonitorService.updateApplicantSelectionStatus(request.getMonitoringId(), request.getMonitorCode(), request.getNewStatus());
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating status: " + e.getMessage());
         }
     }
 
