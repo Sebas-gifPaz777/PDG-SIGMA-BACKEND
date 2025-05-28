@@ -32,15 +32,9 @@ public class MonitoringMonitorServiceImpl {
         return monitors;
     }
 
-    public void deleteRelation(Long idMonitoring, String idMonitor) throws Exception {
-        List<MonitoringMonitor> relations = monitoringMonitorRepository.findByMonitoringId(idMonitoring);
-
-        MonitoringMonitor relationToDelete = relations.stream()
-            .filter(rel -> rel.getMonitor().getIdMonitor().equals(idMonitor))
-            .findFirst()
-            .orElseThrow(() -> new Exception("No se encontró la relación a eliminar"));
-
-        monitoringMonitorRepository.delete(relationToDelete);
+    public void deleteRelation(Long idMonitoring, String monitorCode) throws Exception {
+        monitoringMonitorRepository.deleteByMonitoringIdAndMonitor_Code(idMonitoring, monitorCode.trim());
     }
+
 
 }

@@ -4,6 +4,7 @@ import com.pdg.sigma.domain.Monitor;
 import com.pdg.sigma.domain.Monitoring;
 import com.pdg.sigma.domain.MonitoringMonitor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +17,8 @@ public interface MonitoringMonitorRepository extends JpaRepository<MonitoringMon
     
     public List<MonitoringMonitor> findByMonitor(Monitor monitor);
     void deleteByMonitoring(Monitoring monitoring);
+
+    @Transactional
+    void deleteByMonitoringIdAndMonitor_Code(Long monitoringId, String monitorCode);
+
 }
