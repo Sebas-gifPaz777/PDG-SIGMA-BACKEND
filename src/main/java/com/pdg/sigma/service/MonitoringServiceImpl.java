@@ -869,7 +869,6 @@ public class MonitoringServiceImpl implements MonitoringService{
         Professor professor = optionalProfessor.get();
 
         List<Monitoring> monitorings;
-        System.out.println("id monitoria"+optionalMonitoringId.get());
         if (optionalMonitoringId.isPresent()) {
             Long monitoringId = optionalMonitoringId.get();
             Optional<Monitoring> optionalMonitoring = monitoringRepository.findById(monitoringId);
