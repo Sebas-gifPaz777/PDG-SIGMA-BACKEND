@@ -28,26 +28,39 @@ public class MonitorServiceImpl implements MonitorService {
     @Autowired
     private CourseRepository courseRepository;
 
-
-
     @Override
     public List<Monitor> findAll() {
         return monitorRepository.findAll();
     }
 
-    public List<MonitorDTO> findAllNew() { //Use Monitor selection process
-        List<Monitor> baseMonitors = monitorRepository.findAll();
-        List<MonitorDTO> list = new ArrayList<>();
-        for(Monitor monitor:baseMonitors){
-            List<MonitoringMonitor> link = monitoringMonitorRepository.findByMonitor(monitor);
-            for(MonitoringMonitor connection:link){
-                MonitorDTO monitorDTO = new MonitorDTO(monitor);
-                monitorDTO.setCourse(connection.getMonitoring().getCourse().getName());
-                list.add(monitorDTO);
-            }
+    public List<MonitorDTO> findAllNew() { // Use Monitor selection process
+        List<Monitor> baseMonitors = monitorRepository.findAll(); // Obtiene todos los perfiles de Monitor
+        List<MonitorDTO> resultingPostulationDTOs = new ArrayList<>();
 
+        for (Monitor monitor : baseMonitors) {
+            List<MonitoringMonitor> postulationsForThisMonitor = monitoringMonitorRepository.findByMonitor(monitor);
+
+            for (MonitoringMonitor postulation : postulationsForThisMonitor) {
+                MonitorDTO postulationDTO = new MonitorDTO();
+
+                postulationDTO.setCode(monitor.getCode());
+                postulationDTO.setName(monitor.getName());
+                postulationDTO.setLastName(monitor.getLastName());
+                postulationDTO.setSemester(monitor.getSemester());
+                postulationDTO.setGradeAverage(monitor.getGradeAverage());
+                postulationDTO.setGradeCourse(monitor.getGradeCourse()); // Asumiendo que es general del monitor por ahora
+                postulationDTO.setEmail(monitor.getEmail());
+                postulationDTO.setCourse(postulation.getMonitoring().getCourse().getName());
+                postulationDTO.setMonitoringId(String.valueOf(postulation.getMonitoring().getId()));
+                postulationDTO.setSelectionStatus(postulation.getEstadoSeleccion());
+                // postulationDTO.setSchool(monitor.getSchool());
+                // postulationDTO.setProgram(monitor.getProgram());
+                // postulationDTO.setRol("M"); // O el rol que corresponda para un aplicante
+
+                resultingPostulationDTOs.add(postulationDTO);
+            }
         }
-        return list;
+        return resultingPostulationDTOs;
     }
 
     @Override

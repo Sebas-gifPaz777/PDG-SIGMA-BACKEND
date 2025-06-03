@@ -34,19 +34,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors() // habilita el uso del bean corsConfigurationSource
-                .and()
-                .csrf(csrf -> csrf.disable())
+        .cors() // habilita el uso del bean corsConfigurationSource
+        .and()
+        .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/login",
+                                "/monitoring-monitor/**",
                                 "/monitoring/getA",
                                 "/monitoring/findByFaculty",
                                 "/monitoring/findByProgram",
                                 "/monitoring/findByCourse",
                                 "/school/getSchools",
                                 "/program/getProgramsSchool",
-                                "/course/getCoursesProgram"
+                                "/course/getCoursesProgram",
+                                "/monitoring/getAllByProfessor/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

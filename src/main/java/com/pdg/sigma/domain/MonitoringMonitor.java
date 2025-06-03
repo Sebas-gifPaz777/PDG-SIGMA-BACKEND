@@ -7,6 +7,7 @@ import lombok.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Table(name = "monitoring_monitor")
 public class MonitoringMonitor {
 
@@ -14,6 +15,9 @@ public class MonitoringMonitor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @Column(name = "estado_seleccion", nullable = false)
+    private String estadoSeleccion = "no seleccionado";
 
     @ManyToOne
     @JoinColumn(name = "monitoring_id", nullable = false)
