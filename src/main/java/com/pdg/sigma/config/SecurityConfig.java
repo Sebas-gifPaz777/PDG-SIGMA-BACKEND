@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/monitoring/findByCourse",
                                 "/school/getSchools",
                                 "/program/getProgramsSchool",
-                                "/course/getCoursesProgram"
+                                "/course/getCoursesProgram",
+                                "/monitoring/getAllByProfessor/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

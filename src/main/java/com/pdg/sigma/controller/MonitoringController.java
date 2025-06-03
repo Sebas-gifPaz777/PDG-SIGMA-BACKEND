@@ -56,6 +56,22 @@ public class MonitoringController {
 
     }
 
+    @RequestMapping(value= "/getAllByProfessor/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllMonitoringByProfessor(@PathVariable String id){
+        System.out.println(id);
+        try{
+            List<Monitoring> listMonitoring = monitoringService.findAllByProfessor(id);
+            if(!listMonitoring.isEmpty()){
+                return ResponseEntity.status(200).body(listMonitoring);
+            }
+
+            return ResponseEntity.status(400).body("No hay monitorias en la lista");
+        }catch (Exception e){
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+
+    }
+
     @RequestMapping(value= "/findByFaculty", method = RequestMethod.POST)
     public ResponseEntity<?> getAllMonitoringPerSchool(@RequestBody MonitoringDTO monitoringDTO){
         try{
@@ -104,6 +120,7 @@ public class MonitoringController {
    @RequestMapping(value= "/createAll/{id}", method = RequestMethod.POST)
     public ResponseEntity<?> createMultipleMonitoring(@RequestParam("file") MultipartFile file, @PathVariable String id){
        try {
+           System.out.println("Inside createMultipleMonitoring");
             return ResponseEntity.status(200).body(monitoringService.processListMonitor(file,id));
         } catch (Exception e) {
            System.out.println(e.getMessage());

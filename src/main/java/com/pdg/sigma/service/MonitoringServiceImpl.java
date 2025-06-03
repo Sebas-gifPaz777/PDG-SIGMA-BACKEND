@@ -80,6 +80,29 @@ public class MonitoringServiceImpl implements MonitoringService{
                 .collect(Collectors.toList());
     }
 
+    public List<Monitoring> findAllByProfessor(String id) {
+        Date now = new Date();
+        Optional<Professor> professor = professorRepository.findById(id);
+        if (professor.isPresent()) {
+            System.out.println("inside findAllByProfessor");
+            return monitoringRepository.findByProfessor(professor.get()).stream()
+                    .sorted(Comparator.comparing(m -> {
+                        Date start = m.getStart();
+                        Date end = m.getFinish();
+
+                        if ((start.before(now) || start.equals(now)) && (end.after(now) || end.equals(now))) {
+                            return 0;
+                        } else if (start.after(now) && end.after(now)) {
+                            return 1;
+                        } else {
+                            return 2;
+                        }
+                    }))
+                    .collect(Collectors.toList());
+        }
+        return null;
+    }
+
     @Override
     public Optional<Monitoring> findById(Long aLong) {
         return monitoringRepository.findById(aLong);
