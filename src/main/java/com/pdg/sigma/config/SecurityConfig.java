@@ -34,12 +34,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors() // habilita el uso del bean corsConfigurationSource
-                .and()
-                .csrf(csrf -> csrf.disable())
+        .cors() // habilita el uso del bean corsConfigurationSource
+        .and()
+        .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/login",
+                                "/monitoring-monitor/**",
                                 "/monitoring/getA",
                                 "/monitoring/findByFaculty",
                                 "/monitoring/findByProgram",
@@ -59,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000/", "https://pdg-sigma.vercel.app/")); //
+        configuration.setAllowedOrigins(List.of("http://localhost:3000/", "https://pdg-sigma.vercel.app/"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // necesario si usas cookies o Authorization header

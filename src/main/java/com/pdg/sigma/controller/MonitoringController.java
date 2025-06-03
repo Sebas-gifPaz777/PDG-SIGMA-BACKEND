@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 
+@CrossOrigin(origins = {"http://localhost:3000", "https://pdg-sigma.vercel.app/"})
 @RequestMapping("/monitoring")
 @RestController
 public class MonitoringController {
@@ -218,7 +218,7 @@ public class MonitoringController {
     }
 
     @RequestMapping(value= "/deleteMonitoring/{idMonitoring}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> getMonitorsReport(@PathVariable String idMonitoring){
+    public ResponseEntity<?> deleteMonitoring(@PathVariable String idMonitoring){
         try{
             return ResponseEntity.status(200).body(monitoringService.deleteMonitoring(Long.parseLong(idMonitoring)));
 
