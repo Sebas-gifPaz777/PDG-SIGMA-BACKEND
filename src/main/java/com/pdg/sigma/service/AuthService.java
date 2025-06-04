@@ -1,21 +1,16 @@
 package com.pdg.sigma.service;
 
+import java.util.List;
 import java.util.Optional;
 
+import com.pdg.sigma.domain.*;
+import com.pdg.sigma.repository.*;
 import com.pdg.sigma.util.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.pdg.sigma.domain.DepartmentHead;
-import com.pdg.sigma.domain.Monitor;
-import com.pdg.sigma.domain.Professor;
-import com.pdg.sigma.domain.Prospect;
 import com.pdg.sigma.dto.AuthDTO;
-import com.pdg.sigma.repository.DepartmentHeadRepository;
-import com.pdg.sigma.repository.MonitorRepository;
-import com.pdg.sigma.repository.ProfessorRepository;
-import com.pdg.sigma.repository.ProspectRepository;
 
 import reactor.core.publisher.Mono;
 
@@ -33,6 +28,9 @@ public class AuthService {
 
     @Autowired
     private DepartmentHeadRepository departmentHeadRepository;
+
+    @Autowired
+    private MonitoringMonitorRepository monitoringMonitorRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -54,8 +52,19 @@ public class AuthService {
         if(!response.equalsIgnoreCase("false all") && !response.equalsIgnoreCase("false")){
             if(response.equalsIgnoreCase("student")){
                 if(monitor.isPresent()){
-                    String token = jwtService.generateToken(auth.getUserId(),"monitor");
-                    return new AuthDTO("monitor", token, 1);
+                    List<MonitoringMonitor> list = monitoringMonitorRepository.findByMonitor(monitor.get());
+                    if(!list.isEmpty()){
+                        boolean selected = false;
+                        for(MonitoringMonitor monitoringMonitor : list){
+                            if(monitoringMonitor.getEstadoSeleccion().equalsIgnoreCase("seleccionado")){
+                                selected = true;
+                            }
+                        }
+                        if(selected){
+                            String token = jwtService.generateToken(auth.getUserId(),"monitor");
+                            return new AuthDTO("monitor", token, 1);
+                        }
+                    }
                 }
             }
             if(response.equalsIgnoreCase("professor")){
