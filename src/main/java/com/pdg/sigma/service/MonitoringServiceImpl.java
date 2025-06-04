@@ -1448,4 +1448,25 @@ public class MonitoringServiceImpl implements MonitoringService{
         System.out.println("Reporte de asistencia generado para " + contextDescription + ". Elementos: " + reportList.size());
         return reportList;
     }
+
+    public List<Monitoring> findMonitoringsByProfessorWithAssignedMonitors(String professorId) {
+        // List<Monitoring> professorMonitorings = monitoringRepository.findByProfessorId(professorId);
+        List<Monitoring> professorMonitorings = this.findAllByProfessor(professorId); 
+
+        if (professorMonitorings.isEmpty()) {
+            return List.of(); // lista vacía
+        }
+
+        // List<Integer> monitoringIds = professorMonitorings.stream().map(Monitoring::getId).collect(Collectors.toList());
+        // if (monitoringIds.isEmpty()) return List.of();
+        // List<Monitoring> filteredMonitorings = monitoringRepository.findMonitoringsByIdsWithAtLeastOneMonitor(monitoringIds);
+        // return filteredMonitorings;
+
+        return monitoringRepository.findMonitoringsByProfessorAndHavingSelectedMonitors(professorId);
+    }
+
+    public List<Monitoring> findMonitoringsByAssignedMonitor(String monitorCode) {
+        System.out.println("MonitoringServiceImpl.findMonitoringsByAssignedMonitor (con filtro de estado) para el monitor: " + monitorCode);
+        return monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorCode);
+    }
 }
