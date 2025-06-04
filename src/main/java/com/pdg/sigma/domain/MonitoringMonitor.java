@@ -31,4 +31,10 @@ public class MonitoringMonitor {
         this.monitoring =  monitoring;
         this.monitor = monitor;
     }
+
+    public MonitoringMonitor(Monitoring monitoring,Monitor monitor, String estadoSeleccion){
+        this.monitoring =  monitoring;
+        this.monitor = monitor;
+        this.estadoSeleccion = estadoSeleccion;
+    }
 }

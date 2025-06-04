@@ -49,7 +49,7 @@ public class MonitoringMonitorServiceImpl {
             String id = monitoringMonitor.getMonitor().getIdMonitor();
             String selectionStatus = monitoringMonitor.getEstadoSeleccion(); 
 
-            monitors.add(new MonitorDTO(name, id, "M", selectionStatus));
+            monitors.add(new MonitorDTO(name, id, "M"));
         }
 
         return monitors;
