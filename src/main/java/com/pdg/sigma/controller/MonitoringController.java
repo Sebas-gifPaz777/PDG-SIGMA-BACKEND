@@ -167,22 +167,19 @@ public class MonitoringController {
 
     }
 
-    @GetMapping("/getCategoriesReport/{professorId}")
-    public ResponseEntity<?> getCategoriesReport(
-            @PathVariable String professorId, 
-            @RequestParam(required = false) Long monitoringId) { //opcional 
+    @GetMapping("/getCategoriesReport/professor/{professorId}")
+    public ResponseEntity<?> getProfessorCategoriesReport(
+            @PathVariable String professorId,
+            @RequestParam(required = false) Long monitoringId) {
         try {
             Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
-
             Map<String, Object> reportData = monitoringService.getCategoryReport(professorId, optionalMonitoringId);
 
             List<?> details = (List<?>) reportData.getOrDefault("detalle_por_curso", Collections.emptyList());
             List<?> totals = (List<?>) reportData.getOrDefault("totales_por_categoria", Collections.emptyList());
 
-            if (details.isEmpty() && totals.isEmpty()) {
-                 System.out.println("Reporte de categorías vacío generado para profesor: " + professorId + ", monitoría: " + optionalMonitoringId);
-                 return ResponseEntity.ok(reportData);
-                 // return ResponseEntity.noContent().build();
+            if (details.isEmpty() && totals.isEmpty() && !reportData.containsKey("message")) { 
+                System.out.println("Reporte de categorías vacío generado para profesor: " + professorId + ", monitoría: " + optionalMonitoringId);
             }
             return ResponseEntity.ok(reportData);
 
@@ -190,30 +187,90 @@ public class MonitoringController {
             if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
             }
-            System.err.println("Error en getCategoriesReport: " + e.getMessage()); // Log error
-            e.printStackTrace(); 
+            System.err.println("Error en getProfessorCategoriesReport: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body(Map.of("error", "Error interno al generar el reporte de categorías."));
+                                 .body(Map.of("error", "Error interno al generar el reporte de categorías para el profesor."));
         }
     }
 
-    @GetMapping("/getAttendanceReport/{professorId}")
-    public ResponseEntity<?> getProfessorMonthlyAttendance(@PathVariable String professorId,@RequestParam(required = false) Long monitoringId) {
+    @GetMapping("/getCategoriesReport/jfedpto/{departmentHeadId}") 
+    public ResponseEntity<?> getDepartmentHeadCategoriesReport(
+            @PathVariable String departmentHeadId,
+            @RequestParam(required = false) Long monitoringId) {
         try {
             Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
-            List<Map<String, Object>> reportData = monitoringService.getMonthlyAttendanceReport(professorId, optionalMonitoringId);
+            Map<String, Object> reportData = monitoringService.getDepartmentCategoryReport(departmentHeadId, optionalMonitoringId);
 
-            if (reportData.isEmpty()) {
-                 return ResponseEntity.ok(Map.of("message", "No se encontraron datos de asistencia para los criterios seleccionados.", "data", reportData));
+            List<?> details = (List<?>) reportData.getOrDefault("detalle_por_curso", Collections.emptyList());
+            List<?> totals = (List<?>) reportData.getOrDefault("totales_por_categoria", Collections.emptyList());
 
+            if (details.isEmpty() && totals.isEmpty() && !reportData.containsKey("message")) {
+                 System.out.println("Reporte de categorías vacío generado para jefe de departamento: " + departmentHeadId + ", monitoría: " + optionalMonitoringId);
             }
             return ResponseEntity.ok(reportData);
 
         } catch (Exception e) {
-             if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece")) {
-                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error al generar el reporte de asistencia: " + e.getMessage()));
+            if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece") || e.getMessage().contains("Jefe de departamento")) { 
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
+            System.err.println("Error en getDepartmentHeadCategoriesReport: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "Error interno al generar el reporte de categorías para el jefe de departamento."));
+        }
+    }
+
+    // @GetMapping("/getAttendanceReport/{professorId}")
+    // public ResponseEntity<?> getProfessorMonthlyAttendance(@PathVariable String professorId,@RequestParam(required = false) Long monitoringId) {
+    //     try {
+    //         Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
+    //         List<Map<String, Object>> reportData = monitoringService.getMonthlyAttendanceReport(professorId, optionalMonitoringId);
+
+    //         if (reportData.isEmpty()) {
+    //              return ResponseEntity.ok(Map.of("message", "No se encontraron datos de asistencia para los criterios seleccionados.", "data", reportData));
+
+    //         }
+    //         return ResponseEntity.ok(reportData);
+
+    //     } catch (Exception e) {
+    //          if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece")) {
+    //              return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+    //          }
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error al generar el reporte de asistencia: " + e.getMessage()));
+    //     }
+    // }
+
+    @GetMapping("/getAttendanceReport/{role}/{userId}")
+    public ResponseEntity<?> getAttendanceReportByRole(
+            @PathVariable String role,
+            @PathVariable String userId,
+            @RequestParam(required = false) Long monitoringId) {
+        try {
+            Optional<Long> optionalMonitoringId = Optional.ofNullable(monitoringId);
+            List<Map<String, Object>> reportData;
+
+            if ("professor".equalsIgnoreCase(role)) {
+                reportData = monitoringService.getMonthlyAttendanceReport(userId, optionalMonitoringId);
+            } else if ("jfedpto".equalsIgnoreCase(role)) { 
+                reportData = monitoringService.getDepartmentMonthlyAttendanceReport(userId, optionalMonitoringId);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Rol no válido proporcionado: " + role));
+            }
+            if (reportData.isEmpty()) {
+                // return ResponseEntity.ok(Map.of("message", "No se encontraron datos de asistencia para los criterios seleccionados.", "data", reportData));
+                System.out.println("Reporte de asistencia vacío generado para usuario: " + userId + ", rol: " + role);
+            }
+            return ResponseEntity.ok(reportData);
+
+        } catch (Exception e) {
+            if (e.getMessage().contains("no encontrado") || e.getMessage().contains("no pertenece") || e.getMessage().contains("Jefe de departamento") || e.getMessage().contains("Profesor con ID")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+            }
+            System.err.println("Error en getAttendanceReportByRole para usuario " + userId + ", rol " + role + ": " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(Map.of("error", "Error interno al generar el reporte de asistencia: " + e.getMessage()));
         }
     }
 
