@@ -54,6 +54,7 @@ public class CategoryController {
     @PostMapping("/create")
     public ResponseEntity<Category> createCategory(@RequestBody Category category) throws Exception {
         if (category.getCourse() == null || category.getCourse().getId() == null) {
+            System.out.println("Inside null");
             return ResponseEntity.badRequest().body(null);
         }
         Category savedCategory = categoryService.save(category);

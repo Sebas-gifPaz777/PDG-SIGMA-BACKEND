@@ -26,7 +26,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category save(Category category) throws Exception {
+        System.out.println("Before validate");
         validate(category);
+        System.out.println("Inside store");
         return categoryRepository.save(category);
     }   
 
