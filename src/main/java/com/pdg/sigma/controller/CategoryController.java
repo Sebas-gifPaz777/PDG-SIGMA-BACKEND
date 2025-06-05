@@ -53,9 +53,12 @@ public class CategoryController {
 
     @PostMapping("/create")
     public ResponseEntity<Category> createCategory(@RequestBody Category category) throws Exception {
+        // System.out.println("Intentando crear categoría: " + category);
+        // System.out.println("Curso asociado: " + (category.getCourse() != null ? category.getCourse().getId() : "null"));
         if (category.getCourse() == null || category.getCourse().getId() == null) {
-            System.out.println("Inside null");
-            return ResponseEntity.badRequest().body(null);
+            System.out.println("ERROR: El curso o id es null");
+            
+            return ResponseEntity.badRequest().body(null); // SyntaxError
         }
         Category savedCategory = categoryService.save(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);

@@ -69,9 +69,45 @@ public class MonitoringController {
         }catch (Exception e){
             return ResponseEntity.status(500).body(e.getMessage());
         }
-
     }
 
+    @GetMapping(value= "/getAllActiveByUserId/{userId}/{role}")
+    public ResponseEntity<?> getMonitoringsWithAssignedMonitorsByUserIdAndRole(@PathVariable String userId, @PathVariable String role) {
+        System.out.println("getMonitoringsWithAssignedMonitorsByUserIdAndRole called with userId: " + userId + ", role: " + role);
+
+        if (userId == null || userId.trim().isEmpty() || role == null || role.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El ID de usuario y el rol son obligatorios.");
+        }
+
+        String lowerCaseRole = role.toLowerCase();
+        if (!"professor".equals(lowerCaseRole) && !"monitor".equals(lowerCaseRole)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Rol no válido. Debe ser 'professor' o 'monitor'.");
+        }
+
+        try {
+            List<Monitoring> monitorings;
+            if ("professor".equals(lowerCaseRole)) {
+                monitorings = monitoringService.findMonitoringsByProfessorWithAssignedMonitors(userId);
+            } else { // "monitor"
+                
+                monitorings = monitoringService.findMonitoringsByAssignedMonitor(userId); 
+            }
+
+            if (monitorings.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron monitorías para este usuario y rol.");
+            }
+            return ResponseEntity.ok(monitorings);
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Argumento inválido en getMonitoringsWithAssignedMonitorsByUserIdAndRole: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error en getMonitoringsWithAssignedMonitorsByUserIdAndRole: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor al procesar la solicitud.");
+        }
+    }
+    
     @RequestMapping(value= "/findByFaculty", method = RequestMethod.POST)
     public ResponseEntity<?> getAllMonitoringPerSchool(@RequestBody MonitoringDTO monitoringDTO){
         try{

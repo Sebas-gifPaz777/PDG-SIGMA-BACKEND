@@ -1,5 +1,7 @@
 package com.pdg.sigma.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +23,7 @@ public class MonitoringMonitor {
 
     @ManyToOne
     @JoinColumn(name = "monitoring_id", nullable = false)
+    @JsonBackReference // Hijo
     private Monitoring monitoring;
 
     @ManyToOne
