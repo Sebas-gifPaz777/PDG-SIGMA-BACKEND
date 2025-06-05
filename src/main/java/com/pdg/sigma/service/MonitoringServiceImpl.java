@@ -1465,8 +1465,8 @@ public class MonitoringServiceImpl implements MonitoringService{
         return monitoringRepository.findMonitoringsByProfessorAndHavingSelectedMonitors(professorId);
     }
 
-    public List<Monitoring> findMonitoringsByAssignedMonitor(String monitorCode) {
-        System.out.println("MonitoringServiceImpl.findMonitoringsByAssignedMonitor (con filtro de estado) para el monitor: " + monitorCode);
-        return monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorCode);
+    public List<Monitoring> findMonitoringsByAssignedMonitor(String monitorId) {
+        System.out.println("MonitoringServiceImpl.findMonitoringsByAssignedMonitor (con filtro de estado) para el monitor: " + monitorId);
+        return monitoringRepository.findMonitoringsDirectlyAssignedToMonitorWithStatusSelected(monitorId);
     }
 }
