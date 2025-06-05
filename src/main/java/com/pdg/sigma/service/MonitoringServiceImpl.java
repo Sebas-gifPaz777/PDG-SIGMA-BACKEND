@@ -323,7 +323,12 @@ public class MonitoringServiceImpl implements MonitoringService{
 
                     if(!list.isEmpty()){
                         for(MonitoringMonitor monitoringMonitor:list){
-                            name = name+monitoringMonitor.getMonitor().getName()+" "+monitoringMonitor.getMonitor().getLastName()+", ";
+                            if(monitoringMonitor.getEstadoSeleccion().equalsIgnoreCase("seleccionado")){
+                                name = name+monitoringMonitor.getMonitor().getName()+" "+monitoringMonitor.getMonitor().getLastName()+", ";
+                            }
+                            else{
+                                name = "N/A";
+                            }
                         }
                         name = name.replaceAll(", $", "");
                         monitoringDTOs.add(new MonitoringDTO(monitoring.getId(), monitoring.getCourse().getName(), monitoring.getStart(), monitoring.getFinish(), monitoring.getSemester(), name));
@@ -841,12 +846,19 @@ public class MonitoringServiceImpl implements MonitoringService{
                 for(Monitoring data: monitorings){
                     List<MonitoringMonitor> monitoringMonitor = monitoringMonitorRepository.findByMonitoring(data);
                     String monitor="";
-
-                    for(MonitoringMonitor value:monitoringMonitor){
-                        monitor = value.getMonitor().getName()+" "+value.getMonitor().getLastName()+", ";
+                    if(!monitoringMonitor.isEmpty()) {
+                        for (MonitoringMonitor value : monitoringMonitor) {
+                            if (value.getEstadoSeleccion().equalsIgnoreCase("seleccionado")) {
+                                monitor = monitor + value.getMonitor().getName() + " " + value.getMonitor().getLastName() + ", ";
+                            } else {
+                                monitor = "N/A";
+                            }
+                        }
+                        monitor.replaceAll(", $", "");
                     }
-                    monitor.replaceAll(", $", "");
-
+                    else{
+                        monitor = "N/A";
+                    }
                     monitoringDTOS.add(new MonitoringDTO(data.getId(), data.getCourse().getName(), data.getSemester(), monitor, data.getProfessor().getName()));
 
                 }
