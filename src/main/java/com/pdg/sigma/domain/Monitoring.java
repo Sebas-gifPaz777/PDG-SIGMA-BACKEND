@@ -1,5 +1,6 @@
 package com.pdg.sigma.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pdg.sigma.dto.MonitoringDTO;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity
@@ -50,6 +52,10 @@ public class Monitoring implements Serializable {
     @OneToOne
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
+
+    @OneToMany(mappedBy = "monitoring", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference //padre
+    private List<MonitoringMonitor> monitoringMonitors;
 
     public Monitoring(School school, Program program, Course course,
                       Date start, Date finish, double averageGrade, double courseGrade, String semester, Professor professor) {
