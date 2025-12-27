@@ -1,22 +1,26 @@
 package com.pdg.sigma;
 
-import com.pdg.sigma.repository.MonitoringRepository;
-import com.pdg.sigma.repository.ProfessorRepository;
-import com.pdg.sigma.controller.MonitoringController;
-import com.pdg.sigma.service.MonitoringServiceImpl;
+import com.pdg.sigma.domain.*;
+import com.pdg.sigma.repository.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,97 +28,162 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// @WebMvcTest(controllers = MonitoringController.class) 
-// @ComponentScan(basePackages = "com.pdg.sigma.util")
-/*@SpringBootTest
+@SpringBootTest
 @AutoConfigureMockMvc
 public class CreateMultipleMonitoringsTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private MonitoringServiceImpl monitoringService; 
+    // NO mockeamos el servicio, queremos probar su lógica real.
+    // @MockBean
+    // private MonitoringServiceImpl monitoringService;
 
-    @MockBean
-    private MonitoringRepository monitoringRepository;
+    // SI mockeamos los repositorios para controlar la capa de datos.
+    @MockBean private MonitoringRepository monitoringRepository;
+    @MockBean private ProfessorRepository professorRepository;
+    @MockBean private SchoolRepository schoolRepository;
+    @MockBean private ProgramRepository programRepository;
+    @MockBean private CourseRepository courseRepository;
 
-    @MockBean
-    private ProfessorRepository professorRepository;
+    private Professor mockProfessor;
+    private School mockSchool;
+    private Program mockProgram;
+    private Course mockCourse;
+
+    @BeforeEach
+    void setUp() {
+        // Pre-configurar
+        mockProfessor = new Professor();
+        mockProfessor.setId("prof123");
+
+        mockSchool = new School();
+        mockSchool.setName("Ingeniería");
+
+        mockProgram = new Program();
+        mockProgram.setName("Sistemas");
+
+        mockCourse = new Course();
+        mockCourse.setName("Cálculo");
+    }
+
+    private byte[] createExcelFile(String[] headers, Object[][] data) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Monitorias");
+
+            // Header
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            // Data
+            for (int i = 0; i < data.length; i++) {
+                Row row = sheet.createRow(i + 1);
+                for (int j = 0; j < data[i].length; j++) {
+                    Cell cell = row.createCell(j);
+                    if (data[i][j] instanceof String) {
+                        cell.setCellValue((String) data[i][j]);
+                    } else if (data[i][j] instanceof Number) {
+                        cell.setCellValue(((Number) data[i][j]).doubleValue());
+                    }
+                }
+            }
+            workbook.write(out);
+            return out.toByteArray();
+        }
+    }
 
     @Test
-    @WithMockUser(roles = "jfedpto")
-    public void testProcessListMonitor_Success() throws Exception {
+    @WithMockUser // Usuario autenticado para pasar la seguridad de Spring
+    public void createMultipleMonitoring_Success() throws Exception {
+        // Crear un archivo Excel válido en memoria
+        String[] headers = {"FACULTAD", "PROGRAMA", "CURSO", "FECHA INICIO", "FECHA FINALIZACION", "PERIODO", "PROMEDIO ACUMULADO", "PROMEDIO MATERIA"};
+        Object[][] data = {{"Ingeniería", "Sistemas", "Cálculo", "01-08-2024", "01-12-2024", "2024-2", 4.5, 4.5}};
+        byte[] excelContent = createExcelFile(headers, data);
+
         MockMultipartFile file = new MockMultipartFile(
-                "file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                getValidExcelFileContent()
+                "file", "monitorias.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelContent
         );
 
-        when(monitoringService.processListMonitor(any(MultipartFile.class), anyString()))
-                .thenReturn("Todas las monitorias han sido creadas");
+        when(professorRepository.findById("prof123")).thenReturn(Optional.of(mockProfessor));
+        when(schoolRepository.findByName("Ingeniería")).thenReturn(Optional.of(mockSchool));
+        when(programRepository.findByName("Sistemas")).thenReturn(Optional.of(mockProgram));
+        when(courseRepository.findByName("Cálculo")).thenReturn(Optional.of(mockCourse));
+        when(monitoringRepository.findByCourse(any(Course.class))).thenReturn(Optional.empty()); // Clave: la monitoria no existe aún
+        when(monitoringRepository.save(any(Monitoring.class))).thenReturn(new Monitoring());
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "123") // Use relative URL
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "prof123")
                         .file(file))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Todas las monitorias han sido creadas"));
     }
 
     @Test
-    @WithMockUser(roles = "professor")
-    public void testProcessListMonitor_EmptyFile() throws Exception {
-        MockMultipartFile emptyFile = new MockMultipartFile("file", "empty.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new byte[0]);
+    @WithMockUser
+    public void createMultipleMonitoring_FailsWhenMonitoringAlreadyExists() throws Exception {
+        // Arrange
+        String[] headers = {"FACULTAD", "PROGRAMA", "CURSO", "FECHA INICIO", "FECHA FINALIZACION", "PERIODO", "PROMEDIO ACUMULADO", "PROMEDIO MATERIA"};
+        Object[][] data = {{"Ingeniería", "Sistemas", "Cálculo", "01-08-2024", "01-12-2024", "2024-2", 4.5, 4.5}};
+        byte[] excelContent = createExcelFile(headers, data);
 
-        when(monitoringService.processListMonitor(any(MultipartFile.class), anyString()))
-                .thenThrow(new Exception("Incompatibilidad con alguno de los campos del archivo"));
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "monitorias.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelContent
+        );
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "123") // Use relative URL
-                        .file(emptyFile))
+        // Configurar mocks, pero esta vez la monitoria YA existe
+        when(professorRepository.findById("prof123")).thenReturn(Optional.of(mockProfessor));
+        when(schoolRepository.findByName("Ingeniería")).thenReturn(Optional.of(mockSchool));
+        when(programRepository.findByName("Sistemas")).thenReturn(Optional.of(mockProgram));
+        when(courseRepository.findByName("Cálculo")).thenReturn(Optional.of(mockCourse));
+        when(monitoringRepository.findByCourse(any(Course.class))).thenReturn(Optional.of(new Monitoring())); // Clave: la monitoria YA existe
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "prof123")
+                        .file(file))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Error al procesar el archivo: Incompatibilidad con alguno de los campos del archivo"));
+                .andExpect(content().string("Error al procesar el archivo: Al menos una monitoria está creada"));
     }
 
     @Test
-    @WithMockUser(roles = "professor")
-    public void testProcessListMonitor_InvalidColumns() throws Exception {
+    @WithMockUser
+    public void createMultipleMonitoring_FailsWithInvalidHeader() throws Exception {
+        
+        // Archivo con una cabecera incorrecta
+        String[] headers = {"FACULTAD INCORRECTA", "PROGRAMA", "CURSO", "FECHA INICIO", "FECHA FINALIZACION", "PERIODO", "PROMEDIO ACUMULADO", "PROMEDIO MATERIA"};
+        Object[][] data = {{"Ingeniería", "Sistemas", "Cálculo", "01-08-2024", "01-12-2024", "2024-2", 4.5, 4.5}};
+        byte[] excelContent = createExcelFile(headers, data);
+
         MockMultipartFile file = new MockMultipartFile(
-                "file", "invalid_columns.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                getInvalidColumnsExcelFileContent()
+                "file", "invalid.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelContent
         );
 
-        when(monitoringService.processListMonitor(any(MultipartFile.class), anyString()))
-                .thenThrow(new Exception("Incompatibilidad con alguno de los campos del archivo"));
-
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "123") // Use relative URL
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "prof123")
                         .file(file))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Error al procesar el archivo: Incompatibilidad con alguno de los campos del archivo"));
     }
-
+    
     @Test
-    @WithMockUser(roles = "professor")
-    public void testProcessListMonitor_ProfessorNotFound() throws Exception {
+    @WithMockUser
+    public void createMultipleMonitoring_FailsWithEmptyDataCell() throws Exception {
+        // Arrange
+        // Archivo con un campo de dato vacío
+        String[] headers = {"FACULTAD", "PROGRAMA", "CURSO", "FECHA INICIO", "FECHA FINALIZACION", "PERIODO", "PROMEDIO ACUMULADO", "PROMEDIO MATERIA"};
+        Object[][] data = {{"Ingeniería", "", "Cálculo", "01-08-2024", "01-12-2024", "2024-2", 4.5, 4.5}}; // Programa vacío
+        byte[] excelContent = createExcelFile(headers, data);
+
         MockMultipartFile file = new MockMultipartFile(
-                "file", "valid.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                getValidExcelFileContent()
+                "file", "invalid_data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelContent
         );
 
-        when(monitoringService.processListMonitor(any(MultipartFile.class), anyString()))
-                .thenThrow(new Exception("Profesor no encontrado"));
-
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "123") // Use relative URL
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/monitoring/createAll/{id}", "prof123")
                         .file(file))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Error al procesar el archivo: Profesor no encontrado"));
+                .andExpect(content().string("Error al procesar el archivo: Incompatibilidad con alguno de los campos del archivo"));
     }
-
-    private byte[] getValidExcelFileContent() {
-        // Simulación de contenido de archivo Excel válido en bytes
-        return new byte[]{1, 2, 3};
-    }
-
-    private byte[] getInvalidColumnsExcelFileContent() {
-        // Simulación de contenido de archivo Excel con columnas incorrectas en bytes
-        return new byte[]{4, 5, 6};
-    }
-}*/
+}
